@@ -351,14 +351,14 @@ UniVPN（深信服 EasyConnect 类 VPN 客户端）是一个商业 Qt5 应用，
 
 | 问题 | 原因 | 解决方案 |
 |------|------|----------|
-| 库找不到 | Nix store 输出路径与预期不符 | 使用 `pkgs.fontconfig.lib` 而非 `pkgs.fontconfig`（lib 输出） |
-| LD_LIBRARY_PATH 被清空 | sudo 出于安全原因清除它 | 创建 helper 脚本在 root 上下文中设置，通过 `sudo -E` 运行 |
+| 库找不到 | Nix store 输出路径与预期不符 | 使用 `pkgs.fontconfig.lib`（lib 输出） |
+| LD_LIBRARY_PATH 被清空 | sudo 出于安全原因清除它 | **不用 sudo**：直接以用户身份运行，setuid 提权 |
 | /usr/bin/pgrep 不存在 | 二进制硬编码调用此路径 | `systemd.tmpfiles.rules` 创建符号链接 |
-| Wayland X11 权限 | root 进程无法连接 XWayland | `xhost +SI:localuser:root` 启动时运行 |
+| Wayland X11 权限 | root 进程无法连接 XWayland | GUI 以用户身份运行，自动继承 DISPLAY |
 | 配置写入失败 | Nix store 是只读的 | 激活脚本复制到 `/usr/local/UniVPN`（可写） |
-| sudo 提权 | 需要 root 创建 TUN 设备 | `%wheel NOPASSWD:SETENV:` + `Defaults env_keep` |
-| 托盘图标不显示 | xwayland-satellite 不支持 `_NET_SYSTEM_TRAY` | 提供 `univpn-stop`/`univpn-restart` 替代 |
-| DMS 菜单启动无反应 | `dms.service` 的 `Environment=PATH` 不含 `/run/wrappers/bin`，找到非 setuid 的 sudo；且缺少 DISPLAY/QT_QPA_PLATFORM 等环境变量 | wrapper 硬编码 `/run/wrappers/bin/sudo`；启动前补全关键环境变量（`DISPLAY=:0`, `QT_QPA_PLATFORM=xcb`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_RUNTIME_DIR`） |
+| 提权创建 TUN 设备 | 需要 root 权限 | `chmod u+s` setuid，服务进程自动以 root 运行 |
+| 托盘图标不显示 | bundled Qt5 编译时禁用了系统托盘 | **删除 bundled Qt5**，使用 Nixpkgs Qt5 5.15.19 |
+| 桌面菜单启动无效 | PATH 不含 univpn | `.desktop` 使用完整路径 + `Path=` 指令 |
 
 #### 使用的 NixOS 特性
 
@@ -370,14 +370,14 @@ UniVPN（深信服 EasyConnect 类 VPN 客户端）是一个商业 Qt5 应用，
 
 #### 经验总结（后续商业软件打包参考）
 
-1. **自解压包处理**：`.run` / `.bin` 文件通常是 shell 脚本 + tar.gz 拼接，用 `tail -n +N` 跳过脚本部分
-2. **可写运行时目录**：Nix store 只读，需将文件复制到 `/usr/local/`、`/opt/` 或 `~/.local/` 下
-3. **`sudo` vs `LD_LIBRARY_PATH`**：sudo 清除敏感环境变量，需用 helper 脚本在提权后设置
-4. **硬编码路径**：商业软件常硬编码 `/usr/bin/xxx`、`/usr/local/xxx`，用 `systemd.tmpfiles` 创建符号链接
-5. **Wayland 兼容性**：X11-only 应用通过 XWayland 运行，需要 `xhost` 和 DISPLAY 传递
-6. **输出包选择**：`fontconfig` 有 `lib`/`bin`/`out` 多个输出，用 `pkgs.fontconfig.lib` 获取库
-7. **系统托盘**：xwayland-satellite 不支持 XEmbed 托盘协议，传统 X11 托盘图标在 niri 下无法显示
-8. **DMS/桌面菜单启动 vs 终端启动的 PATH 差异**：`systemd --user service` 的 `Environment=PATH` 通常不含 `/run/wrappers/bin`，而 NixOS 的 `sudo` setuid 二进制在 `/run/wrappers/bin/sudo`，`/run/current-system/sw/bin/sudo` 只是 store 符号链接无 setuid 位。wrapper 脚本不应依赖 PATH 找 `sudo`，应硬编码 `/run/wrappers/bin/sudo`
+1. **自解压包处理**：`.run` 文件是 shell 脚本 + tar.gz 拼接，用 `tail -n +N` 跳过脚本部分
+2. **可写运行时目录**：Nix store 只读，需复制到 `/usr/local/`、`/opt/` 下
+3. **`sudo` vs `setuid`**：尽量用 setuid 替代 sudo，让 GUI 以用户身份运行
+4. **硬编码路径**：商业软件常硬编码 `/usr/bin/xxx`，用 `systemd.tmpfiles` 创建符号链接
+5. **Wayland 兼容性**：X11-only 应用通过 XWayland 运行，GUI 以用户身份运行即可
+6. **输出包选择**：`fontconfig` 有多个输出，用 `pkgs.fontconfig.lib` 获取库
+7. **系统托盘**：bundled Qt5 可能不支持 StatusNotifier。用 Nixpkgs Qt5 替换，删除 bundled Qt5 库
+8. **桌面菜单启动**：`.desktop` 的 `Exec=` 用完整路径，添加 `Path=` 和 `DBusActivatable=false`
 
 ## 添加新软件包
 
