@@ -6,3 +6,5 @@ secrets.nix
 
 # 升级脚本备份
 *.backup.*
+
+result
