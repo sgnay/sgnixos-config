@@ -79,6 +79,8 @@ sudo nixos-rebuild boot --flake /etc/nixos#sgnixos
 
 # 构建并立即切换（含 secrets.nix 变更）
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos --update-input secrets-file
+# 或使用 fish alias（同上）
+rebuild
 
 # 仅 dry-build 验证配置
 nixos-rebuild dry-build --flake /etc/nixos#sgnixos
@@ -111,7 +113,40 @@ univpn-restart    # 重启 UniVPN
 ## 配置约定
 
 1. **模块化原则**: `configuration.nix` 只包含 `imports`，不直接定义配置
-2. **敏感数据**: 放在 `secrets.nix`（不跟踪），模板在 `secrets.nix.example`
+2. **敏感数据**: 放在 `secrets.nix`（不跟踪 Git），模板在 `secrets.nix.example`
+
+   ### secrets.nix 管理方式
+
+   `secrets.nix` 作为 flake input（`secrets-file`）引入，受 `flake.lock` 锁定。修改 `secrets.nix` 后需更新 lock 再构建：
+
+   ```bash
+   # ✅ 推荐：一步到位（自动更新 secrets-file 的 lock 条目）
+   sudo nixos-rebuild switch --flake /etc/nixos#sgnixos --update-input secrets-file
+   # 或使用 fish alias
+   rebuild
+   ```
+
+   ```bash
+   # ❌ 错误：只 rebuild 不更新 lock，secrets 不会生效
+   sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+   ```
+
+   ```bash
+   # ❌ 过度：nix flake update 会查询所有 inputs 的 GitHub API，耗时且没必要
+   nix flake update --flake /etc/nixos
+   sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+   ```
+
+   > **原理**：`secrets-file` 是 `path: /etc/nixos/secrets.nix` 类型的 flake input，`flake.lock` 记录了该文件的 narHash。`--update-input secrets-file` 告诉 Nix"重新计算这个 input 的 hash"，随后 rebuild 就会使用新文件内容。其他 inputs（nixpkgs、home-manager 等）不受影响。
+
+   **flake.nix 中相关代码**：
+   ```nix
+   inputs.secrets-file = { url = "path:/etc/nixos/secrets.nix"; flake = false; };
+   # 在 outputs 中：
+   let secrets = import secrets-file;  # 将 path input 转为 Nix attrset
+   ```
+
+3. **共享变量**: 放在 `common.nix`（版本号、网络配置）
 3. **共享变量**: 放在 `common.nix`（版本号、网络配置）
 4. **dotfiles 即源**: `dotfiles/` 下文件是用户配置的源，Home Manager 通过 `mkOutOfStoreSymlink` 创建**可变符号链接**，编辑源文件即生效，无需 rebuild
 5. **nixpkgs 源**: `github:NixOS/nixpkgs/nixos-26.05`（稳定版）

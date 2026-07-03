@@ -127,6 +127,11 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 # Switch (set as default boot entry + apply now)
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 
+# Switch with secrets.nix update (一步到位)
+sudo nixos-rebuild switch --flake /etc/nixos#sgnixos --update-input secrets-file
+# Fish alias:
+rebuild
+
 # Boot only (next reboot only)
 sudo nixos-rebuild boot --flake /etc/nixos#sgnixos
 
@@ -137,7 +142,11 @@ nixos-rebuild dry-build --flake /etc/nixos#sgnixos
 ### Update Flake Lock
 
 ```bash
+# 更新所有 inputs（包括 secrets-file 的 narHash）
 nix flake update --flake /etc/nixos
+
+# 仅更新 secrets-file（更快，不查 GitHub API）
+nix flake update --flake /etc/nixos --update-input secrets-file
 ```
 
 ### Apply Home Manager Only (standalone mode)
