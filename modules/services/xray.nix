@@ -3,29 +3,48 @@
 let
   common = import ../../common.nix;
 
-  # 公共出站 + 路由，仅默认出口不同
-  directOut   = { tag = "direct"; protocol = "freedom"; };
-  localOut    = { tag = "local-proxy"; protocol = "http";
-    settings.servers = [{ address = common.network.proxyHost; port = common.network.proxyPort; }]; };
-  vlessOuts   = secrets.xray-outbounds;  # VLESS+REALITY 出口列表（来自 secrets.nix）
+  # 公共入站（xray / xray-home 共用）
+  commonInbounds = [
+    { port = 1080; listen = "127.0.0.1"; protocol = "http";
+      sniffing = { enabled = true; destOverride = [ "http" "tls" ]; }; }
+    { port = 1081; listen = "127.0.0.1"; protocol = "socks";
+      settings.udp = true;
+      sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; }; }
+  ];
 
+  # 公共路由规则：国内 IP 直连
   cnRules = [
     { type = "field"; ip = [ "geoip:cn" "geoip:private" ]; outboundTag = "direct"; }
   ];
 
-  mkConfig = defaultTag: {
-    inbounds = [
-      { port = 1080; listen = "127.0.0.1"; protocol = "http";
-        sniffing = { enabled = true; destOverride = [ "http" "tls" ]; }; }
-      { port = 1081; listen = "127.0.0.1"; protocol = "socks";
-        settings.udp = true;
-        sniffing = { enabled = true; destOverride = [ "http" "tls" "quic" ]; routeOnly = true; }; }
-    ];
+  # 公共出站
+  directOut = { tag = "direct"; protocol = "freedom"; };
+  localOut  = { tag = "local-proxy"; protocol = "http";
+    settings.servers = [{ address = common.network.proxyHost; port = common.network.proxyPort; }]; };
+
+  # ---- xray-away (VLESS+REALITY) ----
+  vlessOuts = secrets.xray-outbounds;  # 来自 secrets.nix
+
+  mkAwayConfig = {
+    inbounds = commonInbounds;
     outbounds = [ directOut localOut ] ++ vlessOuts;
     routing = {
       domainStrategy = "IPOnDemand";
       rules = cnRules ++ [
-        { type = "field"; network = "tcp,udp"; outboundTag = defaultTag; }
+        { type = "field"; network = "tcp,udp"; outboundTag = "proxy"; }
+      ];
+    };
+    log.loglevel = "warning";
+  };
+
+  # ---- xray-home (本地网关) ----
+  mkHomeConfig = {
+    inbounds = commonInbounds;
+    outbounds = [ directOut localOut ];  # 只有直连和本地代理，无 VLESS
+    routing = {
+      domainStrategy = "IPOnDemand";
+      rules = cnRules ++ [
+        { type = "field"; network = "tcp,udp"; outboundTag = "local-proxy"; }
       ];
     };
     log.loglevel = "warning";
@@ -46,7 +65,7 @@ in
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.xray}/bin/xray run -config ${
-          pkgs.writeText "xray-away.json" (builtins.toJSON (mkConfig "proxy"))
+          pkgs.writeText "xray-away.json" (builtins.toJSON mkAwayConfig)
         }";
         Restart = "on-failure";
         RestartSec = 5;
@@ -61,7 +80,7 @@ in
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.xray}/bin/xray run -config ${
-          pkgs.writeText "xray-home.json" (builtins.toJSON (mkConfig "local-proxy"))
+          pkgs.writeText "xray-home.json" (builtins.toJSON mkHomeConfig)
         }";
         Restart = "on-failure";
         RestartSec = 5;
