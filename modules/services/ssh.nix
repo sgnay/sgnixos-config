@@ -1,6 +1,5 @@
-{ config, pkgs, ... }:
+{ config, pkgs, secrets, ... }:
 let
-  secrets = import ../../secrets.nix;
   userName = secrets.username;
 in
 {

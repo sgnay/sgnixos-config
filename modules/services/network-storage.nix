@@ -2,9 +2,8 @@
 #   kdeconnect: KDE Connect 手机与电脑互联
 #   nfs-utils:  NFS 客户端工具 + 服务端
 #   samba:      SMB/CIFS 服务端 + 客户端挂载（cifs-utils）
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, secrets, ... }:
 let
-  secrets = import ../../secrets.nix;
   userName = secrets.username;
 in
 {

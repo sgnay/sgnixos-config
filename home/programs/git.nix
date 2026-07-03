@@ -1,8 +1,5 @@
 # programs/git.nix — Git 用户配置
-{ config, pkgs, ... }:
-let
-  secrets = import ../../secrets.nix;
-in
+{ config, pkgs, secrets, ... }:
 {
   programs.git = {
     enable = true;

@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, secrets, ... }:
 {
   # Podman 容器
   virtualisation.podman = {
@@ -15,11 +15,7 @@
   programs.virt-manager.enable = true;
 
   # 将用户加入所需组
-  users.groups.libvirtd.members = let
-    secrets = import ../../secrets.nix;
-  in [ secrets.username ];
+  users.groups.libvirtd.members = [ secrets.username ];
 
-  users.groups.podman.members = let
-    secrets = import ../../secrets.nix;
-  in [ secrets.username ];
+  users.groups.podman.members = [ secrets.username ];
 }

@@ -1,8 +1,8 @@
 # home.nix — Home Manager 主配置
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, secrets, ... }:
 {
-  home.username = let secrets = import ../secrets.nix; in secrets.username;
-  home.homeDirectory = let secrets = import ../secrets.nix; in "/home/${secrets.username}";
+  home.username = secrets.username;
+  home.homeDirectory = "/home/${secrets.username}";
 
   home.stateVersion = "26.05";
 

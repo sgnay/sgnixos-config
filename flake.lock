@@ -91,7 +91,21 @@
         "home-manager": "home-manager",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
+        "secrets": "secrets",
         "vscode-server": "vscode-server"
+      }
+    },
+    "secrets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782897718,
+        "narHash": "sha256-aPeaTryCjFVpWyLb3NTu2WdrOr3SD7AGxX7CXRh86Ss=",
+        "path": "/etc/nixos/secrets.nix",
+        "type": "path"
+      },
+      "original": {
+        "path": "/etc/nixos/secrets.nix",
+        "type": "path"
       }
     },
     "systems": {

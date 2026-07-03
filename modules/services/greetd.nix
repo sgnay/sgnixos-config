@@ -1,7 +1,7 @@
 # services/greetd.nix — 轻量登录管理器（ReGreet 图形科幻玻璃风格登录界面）
-{ config, pkgs, ... }:
+{ config, pkgs, secrets, ... }:
 let
-  userName = (import ../../secrets.nix).username;
+  userName = secrets.username;
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
 
   # ===== 科幻玻璃态 CSS =====
