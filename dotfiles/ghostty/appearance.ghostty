@@ -1,0 +1,28 @@
+# 视觉效果 & 动画
+
+# === 光标 ===
+cursor-style = bar
+cursor-style-blink = true
+
+# === 透明度 & 毛玻璃 ===
+background-opacity = 0.88
+background-blur = true
+
+# === 缩放动画 ===
+resize-overlay = always
+resize-overlay-position = bottom-right
+resize-overlay-duration = 2s
+
+# === 内边距 ===
+window-padding-x = 4
+window-padding-y = 4
+
+# === 工具栏 ===
+gtk-toolbar-style = flat
+
+# === 窗口行为 ===
+mouse-hide-while-typing = true
+confirm-close-surface = false
+
+# === 着色器特效 ===
+custom-shader = ghostty-shader-playground/public/shaders/cursor_smear.glsl

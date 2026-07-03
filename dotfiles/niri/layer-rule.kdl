@@ -1,0 +1,13 @@
+// `niri msg layers`显示当前 layers，可以在这里配置waybar透明度
+layer-rule {
+    match namespace="^quickshell$"
+    match namespace="^quickshell-overview$"
+    place-within-backdrop true
+    //     opacity 0.75
+}
+
+// Put swaybg inside the overview backdrop.
+layer-rule {
+    match namespace="^wallpaper$"
+    place-within-backdrop true
+}

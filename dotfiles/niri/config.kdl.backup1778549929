@@ -1,0 +1,51 @@
+// This config is in the KDL format: https://kdl.dev
+// "/-" comments out the following node.
+// Check the wiki for a full description of the configuration:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
+config-notification {
+  disable-failed
+}
+
+gestures {
+  hot-corners {
+    off
+  }
+}
+overview {
+  workspace-shadow {
+    off
+  }
+}
+hotkey-overlay {
+  // 在niri启动不查看热键帮助
+  skip-at-startup
+  // 隐藏所有未绑定到任何键的重要操作
+  // hide-not-bound
+}
+// 忽略软件自带的装饰(例如标题栏)
+prefer-no-csd
+// 设置截图保存的路径，null 将会禁止保存到磁盘
+screenshot-path "~/Pictures/Screenshots/Screenshot_at_%Y-%m-%d_%H-%M-%S.png"
+// debug 块已移除：render-drm-device 硬编码 GPU 路径在更换硬件后会出错，
+// honor-xdg-activation-with-invalid-serial 是临时 workaround。
+// 如需录屏，取消注释下方配置：
+// debug {
+//   render-drm-device "/dev/dri/renderD128"
+//   honor-xdg-activation-with-invalid-serial
+// }
+
+// Include dms files
+include "dms/colors.kdl"
+include "dms/layout.kdl"
+include "dms/alttab.kdl"
+include "dms/binds.kdl"
+include "dms/outputs.kdl"
+include "dms/cursor.kdl"
+// Include custom files
+include "input.kdl"
+include "layout.kdl"
+include "environment.kdl"
+include "spawn-at-startup.kdl"
+include "window-rule.kdl"
+include "recent-windows.kdl"
+include "animations.kdl"

@@ -1,0 +1,124 @@
+window-rule {
+    clip-to-geometry true
+
+    background-effect {
+        xray true
+        blur true
+        noise 0.05
+        saturation 2
+    }
+}
+
+// 中文输入辅助窗口 (input-box.sh)，浮动居中，屏幕 1/4
+window-rule {
+    match app-id="zenity" title="中文输入辅助"
+    open-floating true
+    default-column-width { proportion 0.25; }
+    default-window-height { proportion 0.25; }
+}
+// 使用`niri msg windows`查看Title和App ID等信息
+// Window rules let you adjust behavior for individual windows.
+// Find more information on the wiki:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
+// Work around WezTerm's initial configure bug
+// by setting an empty default-column-width.
+window-rule {
+    // This regular expression is intentionally made as specific as possible,
+    // since this is the default config, and we want no false positives.
+    // You can get away with just app-id="wezterm" if you want.
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    default-column-width { proportion 0.75; }
+    default-window-height { proportion 1.0; }
+}
+window-rule {
+    match app-id=r#"^org\.gnome\."#
+    draw-border-with-background false
+    geometry-corner-radius 12
+    clip-to-geometry true
+}
+window-rule {
+    match app-id=r#"^gnome-control-center$"#
+    match app-id=r#"^pavucontrol$"#
+    match app-id=r#"^nm-connection-editor$"#
+    match app-id=r#"^spotube$"#
+    default-column-width { proportion 0.5; }
+    open-floating false
+}
+window-rule {
+    match app-id=r#"^gnome-calculator$"#
+    match app-id=r#"^galculator$"#
+    match app-id=r#"^blueman-manager$"#
+    match app-id=r#"^org\.gnome\.Nautilus$"#
+    match app-id=r#"^xdg-desktop-portal$"#
+    match app-id="fsearch"
+    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id=r#"thunar$|Thunar$"# title="^重命名"
+    match app-id="pot"
+    match app-id=r#"org.quickshell$"#
+    open-floating true
+}
+window-rule {
+    match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    match app-id="Alacritty"
+    match app-id="zen"
+    match app-id="com.mitchellh.ghostty"
+    match app-id="kitty"
+    draw-border-with-background false
+}
+// Open dms windows as floating by default
+window-rule {
+    match app-id="win11-clipboard-history-bin"
+    match app-id="win11-clipboard-history"
+    match app-id=r#"pot"# title="Translate"
+    default-column-width { proportion 0.5; }
+    default-window-height { proportion 1.0; }
+    open-floating true
+}
+// 全局窗口默认视觉规则：圆角 + 渐变边框
+window-rule {
+    geometry-corner-radius 20
+    clip-to-geometry true
+    border {
+        on
+        width 4
+        active-gradient from="#bd93f9" to="#94b9fa" angle=135
+        inactive-color "#505050"
+        urgent-color "#9b0000"
+    }
+    focus-ring {
+        off
+    }
+}
+// 外接显示器窗口规则（连接 eDP-2 时取消注释）
+// window-rule {
+//     match is-focused=true
+//     open-on-output "eDP-2"
+//     // default-window-height { proportion 0.9; }
+//     // default-floating-position x=100 y=200 relative-to="bottom-left"
+//     // default-column-width { proportion 0.7556; }
+//     // opacity 0.75
+// }
+window-rule {
+    match app-id="com.gabm.satty" title="satty"
+    border {
+        on
+        width 2
+        active-color "#61AFEF"
+    }
+}
+// Maximize MEGAsync by default open.
+window-rule {
+    match app-id="nz.co.mega.megasync"
+    match app-id="MEGAsync"
+
+    open-maximized false
+    open-floating true
+    open-focused false
+}
+
+window-rule {
+    match app-id="vlc"
+    open-maximized true
+    default-column-width { proportion 1.0; }
+    default-window-height { proportion 1.0; }
+}

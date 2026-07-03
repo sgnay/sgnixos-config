@@ -1,0 +1,8 @@
+# 敏感数据文件
+secrets.nix
+
+# 备份文件
+*.backup
+
+# 升级脚本备份
+*.backup.*

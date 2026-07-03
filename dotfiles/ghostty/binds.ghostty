@@ -1,0 +1,3 @@
+# 上下翻页
+keybind = page_up=scroll_page_up
+keybind = page_down=scroll_page_down

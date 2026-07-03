@@ -1,0 +1,45 @@
+# home.nix — Home Manager 主配置
+{ config, pkgs, inputs, ... }:
+{
+  home.username = let secrets = import ../secrets.nix; in secrets.username;
+  home.homeDirectory = let secrets = import ../secrets.nix; in "/home/${secrets.username}";
+
+  home.stateVersion = "26.05";
+
+  # 程序配置模块
+  imports = [
+    ./programs/git.nix
+    ./programs/shell.nix
+    ./programs/niri.nix
+    ./programs/wezterm.nix
+    ./programs/ghostty.nix
+    ./programs/rime.nix
+    ./programs/vscode.nix
+  ];
+
+  # 环境变量
+  home.sessionVariables = {
+    EDITOR = "nvim";
+    VISUAL = "nvim";
+  };
+
+  # GTK 主题（Catppuccin Mocha + Papirus Dark 图标）
+  gtk = {
+    enable = true;
+    theme = {
+      name = "Catppuccin-Mocha";
+      package = pkgs.catppuccin-gtk;
+    };
+    iconTheme = {
+      name = "Papirus-Dark";
+      package = pkgs.papirus-icon-theme;
+    };
+    cursorTheme = {
+      name = "Bibata-Modern-Ice";
+      package = pkgs.bibata-cursors;
+      size = 24;
+    };
+  };
+
+  programs.home-manager.enable = true;
+}

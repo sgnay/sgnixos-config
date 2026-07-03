@@ -1,0 +1,95 @@
+animations {
+    // =====================================================
+    // 窗口动画 - 统一样式：弹性 spring 效果
+    // =====================================================
+
+    // 新窗口打开 - 从顶部下落
+    window-open {
+        duration-ms 800
+        curve "ease-out-expo"
+        custom-shader r"
+            vec4 open_color(vec3 coords_geo, vec3 size_geo) {
+                float p = niri_progress;
+                float y_offset = (1.0 - p) * 0.35;
+                vec3 moved = vec3(coords_geo.x, coords_geo.y + y_offset, 1.0);
+                vec4 color = texture2D(niri_tex, (niri_geo_to_tex * moved).st);
+                if (coords_geo.y < 0.0 || coords_geo.y > 1.0 || coords_geo.x < 0.0 || coords_geo.x > 1.0) {
+                    color = vec4(0.0);
+                }
+                return color * niri_clamped_progress;
+            }
+        "
+    }
+
+    // 窗口关闭 - 像素溶解
+    window-close {
+        duration-ms 800
+        curve "ease-out-expo"
+        custom-shader r"
+            float rand(vec2 co){
+                return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+            }
+            vec4 close_color(vec3 coords_geo, vec3 size_geo) {
+                float p = niri_clamped_progress;
+                float noise = rand(floor(coords_geo.xy * vec2(40.0, 25.0)));
+                if (noise < p * 1.1) {
+                    return vec4(0.0);
+                }
+                return texture2D(niri_tex, (niri_geo_to_tex * coords_geo).st);
+            }
+        "
+    }
+
+    // =====================================================
+    // 窗口变动动画
+    // =====================================================
+
+    // 窗口大小改变
+    window-resize {
+        spring damping-ratio=0.8 stiffness=600 epsilon=0.0001
+    }
+
+    // 窗口移动
+    window-movement {
+        spring damping-ratio=0.8 stiffness=600 epsilon=0.0001
+    }
+
+    // =====================================================
+    // 工作区与视角动画
+    // =====================================================
+
+    // 工作区切换
+    workspace-switch {
+        spring damping-ratio=0.8 stiffness=600 epsilon=0.0001
+    }
+
+    // 视角水平移动
+    horizontal-view-movement {
+        spring damping-ratio=0.8 stiffness=600 epsilon=0.0001
+    }
+
+    // =====================================================
+    // UI 组件动画
+    // =====================================================
+
+    // 设置通知打开/关闭
+    config-notification-open-close {
+        spring damping-ratio=0.6 stiffness=1000 epsilon=0.001
+    }
+
+    // 退出确认弹窗
+    exit-confirmation-open-close {
+        spring damping-ratio=0.6 stiffness=500 epsilon=0.01
+    }
+
+    // 截图 UI
+    screenshot-ui-open {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+
+    // 概览视图
+    overview-open-close {
+        spring damping-ratio=0.8 stiffness=600 epsilon=0.0001
+    }
+}

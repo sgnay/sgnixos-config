@@ -1,0 +1,68 @@
+{
+    "log": {
+        "loglevel": "debug"
+    },
+    "inbounds": [
+        {
+            "listen": "0.0.0.0",
+            "port": 1080,
+            "protocol": "http",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls"
+                ]
+            }
+        },
+        {
+            "listen": "127.0.0.1", 
+            "port": 1081, 
+            "protocol": "socks",
+            "settings": {
+                "udp": true
+            },
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls",
+                    "quic"
+                ],
+                "routeOnly": true
+            }
+        }
+    ],
+    "outbounds": [
+        {
+            "protocol": "vless",
+            "settings": {
+                "vnext": [
+                    {
+                        "address": "104.223.25.241", 
+                        "port": 443, 
+                        "users": [
+                            {
+                                "id": "562fa17a-e01f-4b64-a203-df44bbf541ad",
+                                "encryption": "none",
+                                "flow": "xtls-rprx-vision"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "streamSettings": {
+                "network": "tcp",
+                "security": "reality",
+                "realitySettings": {
+                    "fingerprint": "chrome", 
+                    "serverName": "www.j-wave.co.jp",
+                    "publicKey": "2c9bLIO0RR8qDlhrgatECzss8qUX6jgFqOXPB7LJCnQ",
+                    "spiderX": "/",
+                    "shortId": "ceea204cef4a2e55"
+                }
+            },
+            "tag": "proxy"
+        }
+    ]
+}

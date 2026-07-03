@@ -1,0 +1,7 @@
+# Ghostty 主配置入口
+# 各功能模块通过 config-file 按需加载
+
+config-file = theme.ghostty
+config-file = font.ghostty
+config-file = appearance.ghostty
+config-file = binds.ghostty

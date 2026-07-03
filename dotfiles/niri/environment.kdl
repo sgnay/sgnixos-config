@@ -1,0 +1,34 @@
+// 覆盖由niri启动的进程的环境变量
+environment {
+  XDG_CURRENT_DESKTOP "niri"
+  // QT_QPA_PLATFORMTHEME "gtk3"
+  QT_QPA_PLATFORMTHEME "qt6ct"
+  // ALL_PROXY "http://127.0.0.1:7890"
+  // LANG "zh_CN.UTF-8"
+  // LC_CTYPE "zh_CN.UTF-8"
+  // LC_NUMERIC "zh_CN.UTF-8"
+  // LC_TIME "zh_CN.UTF-8"
+  // LC_COLLATE "zh_CN.UTF-8"
+  // LC_MONETARY "zh_CN.UTF-8"
+  LC_MESSAGES "zh_CN.UTF-8"
+  // LC_PAPER "zh_CN.UTF-8"
+  // LC_NAME "zh_CN.UTF-8"
+  // LC_ADDRESS "zh_CN.UTF-8"
+  // LC_TELEPHONE "zh_CN.UTF-8"
+  // LC_MEASUREMENT "zh_CN.UTF-8"
+  // LC_IDENTIFICATION "zh_CN.UTF-8"
+  // LC_ALL null
+  // XDG_DATA_DIRS "$HOME/.local/share" "$XDG_DATA_DIRS"
+  // https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland#Sway
+  XMODIFIERS "@im=fcitx"
+  // GTK_IM_MODULE "fcitx"
+  // QT_IM_MODULE "fcitx"
+  // QT_IM_MODULE "wayland;fcitx"
+  INPUT_METHOD "fcitx"
+  QT_SCALE_FACTOR "1.0"
+  SDL_IM_MODULE null
+  GLFW_IM_MODULE null
+  // GSK_RENDERER "vulkan,ngl"
+  GSK_RENDERER "gl"
+  XDG_CURRENT_DESKTOP "Hyprland"
+}
