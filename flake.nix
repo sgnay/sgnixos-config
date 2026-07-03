@@ -30,9 +30,15 @@
       flake = false;
     };
 
+    # ============ UniVPN 安装包（29MB 二进制，不跟踪 Git）============
+    univpn-zip = {
+      url = "path:/etc/nixos/pkgs/univpn-linux-64-10781.19.0.1214.zip";
+      flake = false;
+    };
+
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets, univpn-zip, ... }@inputs: {
     nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -49,7 +55,7 @@
           home-manager.extraSpecialArgs = { inherit inputs; secrets = import secrets; };
         })
       ];
-      specialArgs = { inherit inputs; secrets = import secrets; };
+      specialArgs = { inherit inputs; secrets = import secrets; univpn-zip = univpn-zip; };
     };
 
     homeConfigurations = {

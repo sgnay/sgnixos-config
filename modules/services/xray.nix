@@ -1,14 +1,13 @@
 # services/xray.nix — Xray 代理客户端，双模式 GeoIP 分流
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs, secrets, ... }:
 let
   common = import ../../common.nix;
-  rawConfig = builtins.fromJSON (builtins.readFile ../../dotfiles/xray-config.json);
 
   # 公共出站 + 路由，仅默认出口不同
   directOut   = { tag = "direct"; protocol = "freedom"; };
   localOut    = { tag = "local-proxy"; protocol = "http";
     settings.servers = [{ address = common.network.proxyHost; port = common.network.proxyPort; }]; };
-  vlessOuts   = rawConfig.outbounds;  # VLESS+REALITY 出口列表
+  vlessOuts   = secrets.xray-outbounds;  # VLESS+REALITY 出口列表（来自 secrets.nix）
 
   cnRules = [
     { type = "field"; ip = [ "geoip:cn" "geoip:private" ]; outboundTag = "direct"; }

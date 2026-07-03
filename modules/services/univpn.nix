@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, univpn-zip, ... }:
 
 with lib;
 
@@ -9,7 +9,7 @@ let
   univpn = pkgs.runCommand "univpn-10781.19.0.1214" {
     nativeBuildInputs = [ pkgs.unzip pkgs.gzip pkgs.binutils ];
   } ''
-    unzip -qo ${./../../pkgs/univpn-linux-64-10781.19.0.1214.zip}
+    unzip -qo ${univpn-zip}
     tail -n +258 univpn-linux-amd64-10781.19.0.1214.run > UniVPN.tar.gz
     mkdir -p $out
     tar -xzf UniVPN.tar.gz -C $out
