@@ -91,16 +91,16 @@
         "home-manager": "home-manager",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
-        "secrets": "secrets",
+        "secrets-file": "secrets-file",
         "univpn-zip": "univpn-zip",
         "vscode-server": "vscode-server"
       }
     },
-    "secrets": {
+    "secrets-file": {
       "flake": false,
       "locked": {
-        "lastModified": 1783052682,
-        "narHash": "sha256-MNPWldsJmL4dEmrvTdbBaibk4hnCxf+eu7SqTm7xYvQ=",
+        "lastModified": 1783059804,
+        "narHash": "sha256-fUmoKunXoVDMm1tknATtDolBpQxEKV3ITCTBnGrjO44=",
         "path": "/etc/nixos/secrets.nix",
         "type": "path"
       },

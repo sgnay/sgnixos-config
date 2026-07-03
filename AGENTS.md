@@ -77,13 +77,13 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 # 构建并设为下次启动默认
 sudo nixos-rebuild boot --flake /etc/nixos#sgnixos
 
-# 构建并立即切换
-sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+# 构建并立即切换（含 secrets.nix 变更）
+sudo nixos-rebuild switch --flake /etc/nixos#sgnixos --update-input secrets-file
 
 # 仅 dry-build 验证配置
 nixos-rebuild dry-build --flake /etc/nixos#sgnixos
 
-# 更新 flake.lock
+# 更新 flake.lock（全部 inputs）
 nix flake update --flake /etc/nixos
 
 # 单独应用 Home Manager（独立模式，非 NixOS 集成时）

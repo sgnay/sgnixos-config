@@ -24,8 +24,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # ============ 敏感数据（不跟踪 Git，通过 path input 引入）============
-    secrets = {
+    # ============ 敏感数据（不跟踪 Git）============
+    # 修改后需 --update-input secrets 使新内容生效
+    secrets-file = {
       url = "path:/etc/nixos/secrets.nix";
       flake = false;
     };
@@ -38,7 +39,11 @@
 
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets, univpn-zip, ... }@inputs: {
+  outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets-file, univpn-zip, ... }@inputs:
+  let
+    # 从 flake input（path）导入 secrets 内容
+    secrets = import secrets-file;
+  in {
     nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
@@ -52,17 +57,17 @@
           home-manager.useGlobalPkgs = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.sgnay = import ./home/home.nix;
-          home-manager.extraSpecialArgs = { inherit inputs; secrets = import secrets; };
+          home-manager.extraSpecialArgs = { inherit inputs secrets; };
         })
       ];
-      specialArgs = { inherit inputs; secrets = import secrets; univpn-zip = univpn-zip; };
+      specialArgs = { inherit inputs secrets univpn-zip; };
     };
 
     homeConfigurations = {
       sgnay = inputs.home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [ ./home/home.nix ];
-        extraSpecialArgs = { inherit inputs; secrets = import secrets; };
+        extraSpecialArgs = { inherit inputs secrets; };
       };
     };
   };
