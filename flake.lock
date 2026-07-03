@@ -39,6 +39,26 @@
         "type": "github"
       }
     },
+    "myRepo": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783066982,
+        "narHash": "sha256-AXVyS2hBG5icDB8uumejS+O4aAo2Ru1wklMgIC62xPM=",
+        "owner": "sgnay",
+        "repo": "sgnur-packages",
+        "rev": "04917030bd9411748e532e83ac8083b17be9394f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sgnay",
+        "repo": "sgnur-packages",
+        "type": "github"
+      }
+    },
     "nixos-hardware": {
       "inputs": {
         "nixpkgs": "nixpkgs"
@@ -89,6 +109,7 @@
     "root": {
       "inputs": {
         "home-manager": "home-manager",
+        "myRepo": "myRepo",
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
         "secrets-file": "secrets-file",

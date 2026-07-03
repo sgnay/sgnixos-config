@@ -2,6 +2,10 @@
   description = "A custom NixOS flake for sgnay";
 
   inputs = {
+    myRepo = {
+      url = "github:sgnay/sgnur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # ============ 包源 ============
     # NixOS 官方软件源 - 稳定版 (nixos-26.05)
     # nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
@@ -47,6 +51,13 @@
     nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
+        ({
+          nixpkgs.overlays = [
+            (final: prev: {
+              myRepo = inputs.myRepo.packages."${prev.system}";
+            })
+          ];
+        })
         ./configuration.nix
         vscode-server.nixosModules.default
         nixos-hardware.nixosModules.common-cpu-amd

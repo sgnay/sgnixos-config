@@ -1,4 +1,4 @@
-{ config, pkgs, lib, univpn-zip, ... }:
+{ config, pkgs, lib, ... }:
 
 with lib;
 
@@ -9,7 +9,7 @@ let
   univpn = pkgs.runCommand "univpn-10781.19.0.1214" {
     nativeBuildInputs = [ pkgs.unzip pkgs.gzip pkgs.binutils ];
   } ''
-    unzip -qo ${univpn-zip}
+    unzip -qo ${./../../pkgs/univpn-linux-64-10781.19.0.1214.zip}
     tail -n +258 univpn-linux-amd64-10781.19.0.1214.run > UniVPN.tar.gz
     mkdir -p $out
     tar -xzf UniVPN.tar.gz -C $out
@@ -20,9 +20,14 @@ let
     mkdir -p $out/certificate
   '';
 
-  # ── 系统库路径 ────────────────────────────────────────
+  # ── Nixpkgs Qt5 路径 ────────────────────────────────
+  qt5lib = pkgs.qt5.qtbase.out;
+  qt5svg = pkgs.qt5.qtsvg.out;
+
+  # ── 系统库路径（nixpkgs Qt5 + xcb/X11 系统库） ──────
   libPath = lib.concatStringsSep ":" [
-    "/usr/local/UniVPN/lib"
+    "${qt5lib}/lib"
+    "${qt5svg}/lib"
     "${pkgs.libxcb}/lib"
     "${pkgs.libx11}/lib"
     "${pkgs.libxcb-util}/lib"
@@ -38,32 +43,18 @@ let
     "${pkgs.zstd.out}/lib"
   ];
 
-  # ── Helper 脚本（root 运行，设置 LD_LIBRARY_PATH） ─────
-  helper = pkgs.writeShellScriptBin "univpn-helper" ''
-    export LD_LIBRARY_PATH="${libPath}"
-    exec /usr/local/UniVPN/UniVPN "$@"
-  '';
-
-  # ── 启动 wrapper ──────────────────────────────────────
+  # ── 启动 wrapper（以用户身份运行） ──────────────────
   wrapper = pkgs.writeShellApplication {
     name = "univpn";
     text = ''
-      # 从当前用户会话继承关键环境变量（DMS 菜单启动时环境可能 sanitized）
-      # writeShellApplication 默认 set -o nounset，临时关闭以安全检测未绑定变量
-      set +u
-      if [ -z "$DISPLAY" ]; then DISPLAY=:0; fi
-      if [ -z "$QT_QPA_PLATFORM" ]; then QT_QPA_PLATFORM=xcb; fi
-      if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"; fi
-      if [ -z "$XDG_RUNTIME_DIR" ]; then XDG_RUNTIME_DIR="/run/user/$(id -u)"; fi
-      set -u
-      export DISPLAY QT_QPA_PLATFORM DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
-
-      command -v xhost >/dev/null 2>&1 && xhost +SI:localuser:root 2>/dev/null || true
-      exec /run/wrappers/bin/sudo -E ${helper}/bin/univpn-helper "$@"
+      export LD_LIBRARY_PATH="${libPath}''${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH"
+      export QT_PLUGIN_PATH="${qt5lib}/plugins"
+      cd /usr/local/UniVPN
+      exec /usr/local/UniVPN/UniVPN "$@"
     '';
   };
 
-  # ── 停止命令 ──────────────────────────────────────────
+  # ── 停止/重启命令 ────────────────────────────────────
   stopScript = pkgs.writeShellScriptBin "univpn-stop" ''
     echo "Stopping UniVPN..."
     sudo pkill -9 -f "UniVPN" 2>/dev/null
@@ -73,7 +64,6 @@ let
     echo "UniVPN stopped."
   '';
 
-  # ── 重启命令 ──────────────────────────────────────────
   restartScript = pkgs.writeShellScriptBin "univpn-restart" ''
     univpn-stop
     sleep 2
@@ -90,6 +80,7 @@ Name[zh_CN]=UniVPN
 Comment=Leagsoft UniVPN Client
 Exec=/run/current-system/sw/bin/univpn
 Icon=${univpn}/image/ICON.ico
+Path=/usr/local/UniVPN
 Terminal=false
 Type=Application
 Categories=Network;
@@ -105,9 +96,9 @@ in
   };
 
   config = mkIf cfg.enable {
-    environment.systemPackages = [ univpn wrapper desktopEntry pkgs.xhost stopScript restartScript ];
+    environment.systemPackages = [ univpn wrapper desktopEntry stopScript restartScript ];
 
-    # 系统激活时安装 UniVPN 到 /usr/local/UniVPN（可写）
+    # 系统激活时安装 UniVPN 到 /usr/local/UniVPN（可写），设置 setuid
     system.activationScripts.univpn = stringAfter [ "binsh" "users" ] ''
       mkdir -p /usr/local/UniVPN
       cp -r ${univpn}/* /usr/local/UniVPN/
@@ -116,18 +107,19 @@ in
       chmod 777 /usr/local/UniVPN/log
       chmod 755 /usr/local/UniVPN/certificate
       chmod 666 /usr/local/UniVPN/sysconfig.ini 2>/dev/null || true
+      chmod u+s /usr/local/UniVPN/serviceclient/UniVPNCS
+      chmod u+s /usr/local/UniVPN/promote/UniVPNPromoteService
+      chmod u+s /usr/local/UniVPN/UniVPNUpdate
+
+      # 删除 bundled Qt5，使用 Nixpkgs 版本（带系统托盘支持）
+      rm -f /usr/local/UniVPN/lib/libQt5*.so.5
+      rm -f /usr/local/UniVPN/lib/libxcb-xinerama*
+      rm -f /usr/local/UniVPN/lib/libxcb-xinput*
     '';
 
-    # UniVPN 硬编码调用 /usr/bin/pgrep
+    # UniVPN 内部硬编码调用 /usr/bin/pgrep
     systemd.tmpfiles.rules = [
       "L+ /usr/bin/pgrep - - - - ${pkgs.procps}/bin/pgrep"
     ];
-
-    security.polkit.enable = true;
-    security.sudo.wheelNeedsPassword = false;
-    security.sudo.extraConfig = ''
-      Defaults env_keep += "DISPLAY WAYLAND_DISPLAY XAUTHORITY QT_QPA_PLATFORM"
-      %wheel ALL=(ALL) NOPASSWD:SETENV: ${helper}/bin/univpn-helper *
-    '';
   };
 }
