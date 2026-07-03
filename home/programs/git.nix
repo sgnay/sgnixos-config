@@ -11,6 +11,7 @@ in
       user.email = secrets.email or "user@example.com";
       init.defaultBranch = "main";
       pull.rebase = true;
+      credential.helper = "store";
     };
   };
 }
