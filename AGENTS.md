@@ -358,6 +358,7 @@ UniVPN（深信服 EasyConnect 类 VPN 客户端）是一个商业 Qt5 应用，
 | 配置写入失败 | Nix store 是只读的 | 激活脚本复制到 `/usr/local/UniVPN`（可写） |
 | sudo 提权 | 需要 root 创建 TUN 设备 | `%wheel NOPASSWD:SETENV:` + `Defaults env_keep` |
 | 托盘图标不显示 | xwayland-satellite 不支持 `_NET_SYSTEM_TRAY` | 提供 `univpn-stop`/`univpn-restart` 替代 |
+| DMS 菜单启动无反应 | `dms.service` 的 `Environment=PATH` 不含 `/run/wrappers/bin`，找到非 setuid 的 sudo；且缺少 DISPLAY/QT_QPA_PLATFORM 等环境变量 | wrapper 硬编码 `/run/wrappers/bin/sudo`；启动前补全关键环境变量（`DISPLAY=:0`, `QT_QPA_PLATFORM=xcb`, `DBUS_SESSION_BUS_ADDRESS`, `XDG_RUNTIME_DIR`） |
 
 #### 使用的 NixOS 特性
 
@@ -376,6 +377,7 @@ UniVPN（深信服 EasyConnect 类 VPN 客户端）是一个商业 Qt5 应用，
 5. **Wayland 兼容性**：X11-only 应用通过 XWayland 运行，需要 `xhost` 和 DISPLAY 传递
 6. **输出包选择**：`fontconfig` 有 `lib`/`bin`/`out` 多个输出，用 `pkgs.fontconfig.lib` 获取库
 7. **系统托盘**：xwayland-satellite 不支持 XEmbed 托盘协议，传统 X11 托盘图标在 niri 下无法显示
+8. **DMS/桌面菜单启动 vs 终端启动的 PATH 差异**：`systemd --user service` 的 `Environment=PATH` 通常不含 `/run/wrappers/bin`，而 NixOS 的 `sudo` setuid 二进制在 `/run/wrappers/bin/sudo`，`/run/current-system/sw/bin/sudo` 只是 store 符号链接无 setuid 位。wrapper 脚本不应依赖 PATH 找 `sudo`，应硬编码 `/run/wrappers/bin/sudo`
 
 ## 添加新软件包
 

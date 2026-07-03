@@ -48,8 +48,18 @@ let
   wrapper = pkgs.writeShellApplication {
     name = "univpn";
     text = ''
+      # 从当前用户会话继承关键环境变量（DMS 菜单启动时环境可能 sanitized）
+      # writeShellApplication 默认 set -o nounset，临时关闭以安全检测未绑定变量
+      set +u
+      if [ -z "$DISPLAY" ]; then DISPLAY=:0; fi
+      if [ -z "$QT_QPA_PLATFORM" ]; then QT_QPA_PLATFORM=xcb; fi
+      if [ -z "$DBUS_SESSION_BUS_ADDRESS" ]; then DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"; fi
+      if [ -z "$XDG_RUNTIME_DIR" ]; then XDG_RUNTIME_DIR="/run/user/$(id -u)"; fi
+      set -u
+      export DISPLAY QT_QPA_PLATFORM DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
+
       command -v xhost >/dev/null 2>&1 && xhost +SI:localuser:root 2>/dev/null || true
-      exec sudo -E ${helper}/bin/univpn-helper "$@"
+      exec /run/wrappers/bin/sudo -E ${helper}/bin/univpn-helper "$@"
     '';
   };
 
