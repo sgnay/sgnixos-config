@@ -34,6 +34,7 @@
     ./modules/packages/multimedia.nix
     ./modules/packages/editors.nix
     ./modules/packages/thunar-themes.nix
+    ./modules/packages/tolaria.nix
 
     # 网络存储服务
     ./modules/services/network-storage.nix

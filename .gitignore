@@ -7,12 +7,6 @@ secrets.nix
 # 升级脚本备份
 *.backup.*
 
-# Xray VLESS 配置（已移至 secrets.nix）
-dotfiles/xray-config.json
-
-# UniVPN 安装包（大二进制，已从跟踪移除）
-pkgs/univpn-linux-64-10781.19.0.1214.zip
-
 # Ghostty shader playground（嵌套 git 仓库）
 dotfiles/ghostty/ghostty-shader-playground
 

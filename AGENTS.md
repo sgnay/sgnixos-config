@@ -43,6 +43,7 @@
 │   │   ├── input.nix            #     fcitx5 + rime + 主题 (nord, fluent, catppuccin)
 │   │   ├── communication.nix    #     微信 wechat-uos, QQ, 腾讯会议 wemeet, telegram-desktop, localsend
 │   │   ├── multimedia.nix       #     vlc, mpv, QQ音乐 qqmusic, obs-studio, sunshine, flameshot
+│   │   ├── tolaria.nix           #     Tolaria 知识管理桌面应用（AppImage 提取）
 │   │   └── virtualization.nix   #     podman, libvirt, virt-manager
 │   ├── services/                #   系统服务
 │   │   ├── ssh.nix              #     OpenSSH (密钥认证)
@@ -303,6 +304,22 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 - 默认方案：`rime_ice`（全拼）+ `melt_eng`（英文混输）
 - 配置提醒：`rime_ice_suggestion.yaml` 被 `default.custom.yaml` 通过 `__include` 引用
 - 部署完成会在 `build/` 目录生成 `rime_ice.prism.bin` 等编译文件
+
+### Tolaria 桌面应用（AppImage 提取 + 包装）
+
+> 文件：`modules/packages/tolaria.nix`
+
+Tolaria 是 Tauri 构建的桌面知识管理应用，官方只提供 AppImage 发布版。
+打包方式：`fetchurl` 下载 → `appimageTools.extractType1` 提取 → `appimage-run` 运行。
+
+| 问题 | 解决 |
+|------|------|
+| FUSE 不可用（NixOS 默认不启用） | `extractType1` 静态提取，`appimage-run -w` 用提取目录 |
+| bwrap 找不到当前工作目录 | `--run 'cd "$HOME"'` 确保沙箱内可访问 |
+| WebKit EGL 初始化失败 | `WEBKIT_DISABLE_COMPOSITING_MODE=1` 软渲染 |
+| 运行时缺系统库 | AppImage 自带大部分库，FHS 环境补齐剩余 |
+
+**启动**：终端 `tolaria` 或桌面菜单（Office → Knowledge）
 
 ### VSCode 配置（Home Manager）
 
