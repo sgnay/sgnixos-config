@@ -185,6 +185,11 @@ systemd.user.services.dms = {
 - **GUI 客户端**: `clash-verge-rev` 已安装
 - **GeoIP 分流**: 国内 IP 直连，海外走代理
 - **系统代理**: `network.nix` 中 `proxy.default` 已注释，由 fish 别名按需开启
+- **外出模式 (xray.service)**: 使用两个 VLESS+REALITY 出站（来自 `secrets.nix` 的 `xray-outbounds`）
+  - `proxy-vision` — network `raw`，`xtls-rprx-vision` 流控
+  - `proxy-xhttp` — network `xhttp`，默认路由目标
+- **在家模式 (xray-home.service)**: 只有 `direct` + `local-proxy`，不含 VLESS 出站
+- **互斥启动**: 两 service 通过 `systemd.Conflicts=` 互斥，启动一个自动停另一个（`modules/services/xray.nix`）
 - **代理 bootstrap 问题**: 系统代理指向未运行 xray 时网络全断，修复步骤：
 
 ```

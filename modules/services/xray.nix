@@ -31,7 +31,7 @@ let
     routing = {
       domainStrategy = "IPOnDemand";
       rules = cnRules ++ [
-        { type = "field"; network = "tcp,udp"; outboundTag = "proxy"; }
+        { type = "field"; network = "tcp,udp"; outboundTag = "proxy-xhttp"; }
       ];
     };
     log.loglevel = "warning";
@@ -62,6 +62,7 @@ in
       description = "Xray Proxy (Away: VLESS+REALITY)";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
+      conflicts = [ "xray-home.service" ];
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.xray}/bin/xray run -config ${
@@ -77,6 +78,7 @@ in
       description = "Xray Proxy (Home: Local)";
       after = [ "network.target" ];
       wantedBy = lib.mkForce [];
+      conflicts = [ "xray.service" ];
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.xray}/bin/xray run -config ${
