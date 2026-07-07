@@ -3,7 +3,7 @@
 
   inputs = {
     myRepo = {
-      url = "github:sgnay/sgnur-packages";
+      url = "path:/home/sgnay/agents/sgnur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # ============ 包源 ============
@@ -35,15 +35,11 @@
       flake = false;
     };
 
-    # ============ UniVPN 安装包（29MB 二进制，不跟踪 Git）============
-    univpn-zip = {
-      url = "path:/etc/nixos/pkgs/univpn-linux-64-10781.19.0.1214.zip";
-      flake = false;
-    };
+    # (removed)
 
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets-file, univpn-zip, ... }@inputs:
+    outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets-file, ... }@inputs:
   let
     # 从 flake input（path）导入 secrets 内容
     secrets = import secrets-file;
@@ -53,9 +49,7 @@
       modules = [
         ({
           nixpkgs.overlays = [
-            (final: prev: {
-              myRepo = inputs.myRepo.packages."${prev.system}";
-            })
+    (final: prev: { univpn = inputs.myRepo.packages."${prev.system}".univpn; })
           ];
         })
         ./configuration.nix
@@ -71,7 +65,7 @@
           home-manager.extraSpecialArgs = { inherit inputs secrets; };
         })
       ];
-      specialArgs = { inherit inputs secrets univpn-zip; };
+    specialArgs = { inherit inputs secrets; };
     };
 
     homeConfigurations = {

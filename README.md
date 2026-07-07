@@ -72,7 +72,6 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 │   │   ├── ssh.nix               #   OpenSSH key-only auth
 │   │   ├── greetd.nix            #   Greetd + ReGreet graphical login (sci-fi CSS)
 │   │   ├── xray.nix              #   Xray VLESS+REALITY proxy (dual-mode)
-│   │   ├── univpn.nix            #   UniVPN commercial client (repackaged)
 │   │   └── network-storage.nix   #   KDE Connect, NFS, Samba, Syncthing
 │   └── system/                   # System base
 │       ├── base.nix              #   logind, base packages, EDITOR, state version
@@ -96,8 +95,6 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 │   ├── ghostty/                  #   Ghostty config + GLSL shaders
 │   ├── fish/                     #   Fish shell config.fish + custom functions
 │   └── starship/                 #   Starship gruvbox prompt config
-└── pkgs/
-    └── univpn-linux-64-*.zip     # UniVPN installer (not tracked, referenced by flake)
 ```
 
 ---
@@ -111,11 +108,6 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
    ```bash
    cp /etc/nixos/secrets.nix.example /etc/nixos/secrets.nix
    vi /etc/nixos/secrets.nix   # Fill in your username, SSH keys, etc.
-   ```
-3. **Get UniVPN installer** (optional):
-   ```bash
-   mkdir -p /etc/nixos/pkgs
-   # Download univpn-linux-64-10781.19.0.1214.zip to that directory
    ```
 
 ### Build & Apply
@@ -301,12 +293,35 @@ Two systemd services: `xray` (away mode, VLESS outbound) and `xray-home` (local 
 
 ### UniVPN Commercial Client
 
-Packaged from self-extracting `.run` installer. Key design decisions:
-- Extracted via `runCommand` using `tail -n +258 | tar -xzf`
-- Runtime directory at `/usr/local/UniVPN` (writable, created via activationScripts)
-- Helper script sets `LD_LIBRARY_PATH` for bundled Qt5 + system xcb
-- `sudo -E` with env_keep to preserve library path
-- `systemd.tmpfiles` creates `/usr/bin/pgrep` symlink for hardcoded paths
+> Module source: [sgnur-packages](https://github.com/sgnay/sgnur-packages) external flake repository
+> Import: `inputs.myRepo.nixosModules.univpn` in `configuration.nix`
+
+UniVPN packaging and configuration has been extracted to the [sgnur-packages](https://github.com/sgnay/sgnur-packages) repository. The installer zip is managed by that repo's flake inputs.
+
+**Import approach:**
+```nix
+# flake.nix
+inputs.myRepo = {
+  url = "github:sgnay/sgnur-packages";  # or path:... for local dev
+  inputs.nixpkgs.follows = "nixpkgs";
+};
+
+# configuration.nix
+imports = [ inputs.myRepo.nixosModules.univpn ];
+services.univpn.enable = true;
+
+# overlays
+nixpkgs.overlays = [
+  (final: prev: { univpn = inputs.myRepo.packages."${prev.system}".univpn; })
+];
+```
+
+**Management commands (provided by the external module):**
+- `univpn` — Start VPN client (auto-escalate)
+- `univpn-stop` — Stop all UniVPN processes
+- `univpn-restart` — Restart VPN client
+
+Full packaging docs (self-extracting archive, setuid, Qt5 replacement, etc.) in the [sgnur-packages repo](https://github.com/sgnay/sgnur-packages).
 
 ---
 

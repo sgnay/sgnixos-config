@@ -49,7 +49,6 @@
 │   │   ├── ssh.nix              #     OpenSSH (密钥认证)
 │   │   ├── greetd.nix           #     greetd + ReGreet 登录管理器
 │   │   ├── xray.nix             #     Xray VLESS+REALITY 代理
-│   │   ├── univpn.nix           #     UniVPN 商业 VPN 客户端（自解压包移植）
 │   │   └── network-storage.nix  #     KDE Connect, NFS, Samba, Syncthing
 │   └── system/                  #   系统基础
 │       ├── base.nix             #     logind, 基础包, keepassxc, file, EDITOR, stateVersion
@@ -105,11 +104,10 @@ proxy-off     # 关闭代理
 sudo nix-collect-garbage -d
 sudo nixos-rebuild boot --flake /etc/nixos#sgnixos
 
-# UniVPN 管理
+# UniVPN 管理（来自外部模块 sgnur-packages）
 univpn            # 启动 UniVPN VPN 客户端（自动提权）
 univpn-stop       # 停止 UniVPN（杀掉所有进程）
 univpn-restart    # 重启 UniVPN
-```
 
 ## 配置约定
 
@@ -365,49 +363,37 @@ Home Manager 的 VSCode 模块在 **26.05** 中将选项移入 profile 作用域
 
 ### UniVPN 商业 VPN 客户端
 
-> 文件：`modules/services/univpn.nix` | 安装包：`pkgs/univpn-linux-64-10781.19.0.1214.zip`
+> 模块来源：[sgnur-packages](https://github.com/sgnay/sgnur-packages) 外部 flake repository
+>
+> 引入方式：`inputs.myRepo.nixosModules.univpn`（`configuration.nix`）
 
-UniVPN（深信服 EasyConnect 类 VPN 客户端）是一个商业 Qt5 应用，以 `.run` 自解压脚本形式分发。以下是将其移植到 NixOS 的完整记录，作为后续商业软件打包参考。
+UniVPN（深信服 EasyConnect 类 VPN 客户端）的打包与配置已迁移至外部仓库 [sgnur-packages](https://github.com/sgnay/sgnur-packages) 管理，不再作为本仓库的本地模块。
 
-#### 打包步骤
+#### 引入方式
 
-1. **分析安装包**：`.zip` → `.run` 自解压脚本 → 提取 gzip 压缩的 tar 数据（跳过 258 行头部）
-2. **使用 `runCommand` 提取**：`unzip` → `tail -n +258` → `tar -xzf` → 解压到 `$out`
-3. **创建可写运行时目录**：使用 `system.activationScripts` 在系统激活时将文件复制到 `/usr/local/UniVPN`（可写）
-4. **设置库路径**：bundled Qt5 库 + 系统 xcb/X11 库，通过 helper 脚本设置 LD_LIBRARY_PATH
+```nix
+# flake.nix
+inputs.myRepo = {
+  url = "github:sgnay/sgnur-packages";            # 发布用
+  # url = "path:/home/sgnay/agents/sgnur-packages"; # 本地开发
+  inputs.nixpkgs.follows = "nixpkgs";
+};
 
-#### 关键问题与解决方案
+# overlays — 暴露 univpn 包
+nixpkgs.overlays = [
+  (final: prev: { univpn = inputs.myRepo.packages."${prev.system}".univpn; })
+];
 
-| 问题 | 原因 | 解决方案 |
-|------|------|----------|
-| 库找不到 | Nix store 输出路径与预期不符 | 使用 `pkgs.fontconfig.lib`（lib 输出） |
-| LD_LIBRARY_PATH 被清空 | sudo 出于安全原因清除它 | **不用 sudo**：直接以用户身份运行，setuid 提权 |
-| /usr/bin/pgrep 不存在 | 二进制硬编码调用此路径 | `systemd.tmpfiles.rules` 创建符号链接 |
-| Wayland X11 权限 | root 进程无法连接 XWayland | GUI 以用户身份运行，自动继承 DISPLAY |
-| 配置写入失败 | Nix store 是只读的 | 激活脚本复制到 `/usr/local/UniVPN`（可写） |
-| 提权创建 TUN 设备 | 需要 root 权限 | `chmod u+s` setuid，服务进程自动以 root 运行 |
-| 托盘图标不显示 | bundled Qt5 编译时禁用了系统托盘 | **删除 bundled Qt5**，使用 Nixpkgs Qt5 5.15.19 |
-| 桌面菜单启动无效 | PATH 不含 univpn | `.desktop` 使用完整路径 + `Path=` 指令 |
+# configuration.nix — 替代原本的 ./modules/services/univpn.nix
+imports = [
+  inputs.myRepo.nixosModules.univpn
+];
+services.univpn.enable = true;
+```
 
-#### 使用的 NixOS 特性
+安装包（`univpn-linux-64-*.zip`）由外部仓库的 flake input 管理，本仓库不再包含。
 
-- `pkgs.runCommand` — 自解压包提取
-- `pkgs.writeShellScriptBin` / `pkgs.writeShellApplication` — 包装脚本
-- `system.activationScripts` — 系统激活时复制文件到可写目录
-- `systemd.tmpfiles.rules` — 创建 `/usr/bin/pgrep` 等符号链接
-- `security.sudo.extraConfig` — sudoers 免密规则
-
-#### 经验总结（后续商业软件打包参考）
-
-1. **自解压包处理**：`.run` 文件是 shell 脚本 + tar.gz 拼接，用 `tail -n +N` 跳过脚本部分
-2. **可写运行时目录**：Nix store 只读，需复制到 `/usr/local/`、`/opt/` 下
-3. **`sudo` vs `setuid`**：尽量用 setuid 替代 sudo，让 GUI 以用户身份运行
-4. **硬编码路径**：商业软件常硬编码 `/usr/bin/xxx`，用 `systemd.tmpfiles` 创建符号链接
-5. **Wayland 兼容性**：X11-only 应用通过 XWayland 运行，GUI 以用户身份运行即可
-6. **输出包选择**：`fontconfig` 有多个输出，用 `pkgs.fontconfig.lib` 获取库
-7. **系统托盘**：bundled Qt5 可能不支持 StatusNotifier。用 Nixpkgs Qt5 替换，删除 bundled Qt5 库
-8. **桌面菜单启动**：`.desktop` 的 `Exec=` 用完整路径，添加 `Path=` 和 `DBusActivatable=false`
-
+完整打包经验（自解压提取、setuid 提权、Qt5 替换等）见 [sgnur-packages 仓库](https://github.com/sgnay/sgnur-packages)。
 ## 添加新软件包
 
 1. 确定包在哪个分组（packages/*.nix）

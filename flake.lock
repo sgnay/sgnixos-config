@@ -46,17 +46,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1783066982,
-        "narHash": "sha256-AXVyS2hBG5icDB8uumejS+O4aAo2Ru1wklMgIC62xPM=",
-        "owner": "sgnay",
-        "repo": "sgnur-packages",
-        "rev": "04917030bd9411748e532e83ac8083b17be9394f",
-        "type": "github"
+        "lastModified": 1783421557,
+        "narHash": "sha256-nqK7twZTIYR4SRbBTITqzI5lP+KGrfKDqdsUZiMosl0=",
+        "path": "/home/sgnay/agents/sgnur-packages",
+        "type": "path"
       },
       "original": {
-        "owner": "sgnay",
-        "repo": "sgnur-packages",
-        "type": "github"
+        "path": "/home/sgnay/agents/sgnur-packages",
+        "type": "path"
       }
     },
     "nixos-hardware": {
@@ -113,7 +110,6 @@
         "nixos-hardware": "nixos-hardware",
         "nixpkgs": "nixpkgs_2",
         "secrets-file": "secrets-file",
-        "univpn-zip": "univpn-zip",
         "vscode-server": "vscode-server"
       }
     },
@@ -143,19 +139,6 @@
         "owner": "nix-systems",
         "repo": "default",
         "type": "github"
-      }
-    },
-    "univpn-zip": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1782919292,
-        "narHash": "sha256-ZjJT/I8lVWpdFxYQ+JRBIav/fb9ZCFWmVxnKwxV1miY=",
-        "path": "/etc/nixos/pkgs/univpn-linux-64-10781.19.0.1214.zip",
-        "type": "path"
-      },
-      "original": {
-        "path": "/etc/nixos/pkgs/univpn-linux-64-10781.19.0.1214.zip",
-        "type": "path"
       }
     },
     "vscode-server": {
