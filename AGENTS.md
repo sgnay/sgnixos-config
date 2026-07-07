@@ -183,12 +183,19 @@ systemd.user.services.dms = {
 
 - **双模式**: 在家 (`proxy-home` → 本地 172.20.26.100:1080) / 外出 (`proxy-away` → VLESS+REALITY)
 - **GUI 客户端**: `clash-verge-rev` 已安装
-- **GeoIP 分流**: 国内 IP 直连，海外走代理
 - **系统代理**: `network.nix` 中 `proxy.default` 已注释，由 fish 别名按需开启
-- **外出模式 (xray.service)**: 使用两个 VLESS+REALITY 出站（来自 `secrets.nix` 的 `xray-outbounds`）
-  - `proxy-vision` — network `raw`，`xtls-rprx-vision` 流控
-  - `proxy-xhttp` — network `xhttp`，默认路由目标
-- **在家模式 (xray-home.service)**: 只有 `direct` + `local-proxy`，不含 VLESS 出站
+- **外出模式 (xray.service)**: 完整配置，包含 DNS、路由、四个出站
+  - **VLESS 出站**（来自 `secrets.nix` 的 `xray-outbounds`）：
+    - `proxy-vision` — network `raw`，`xtls-rprx-vision` 流控
+    - `proxy-xhttp` — network `xhttp`，`shortId` 独立，默认路由目标
+  - **公共出站**: `direct`（freedom+UseIP）、`block`（blackhole）、`local-proxy`（本地网关）
+  - **DNS**: 多级 DNS 分流（国内 DNS 直连、海外 DNS 走代理），含 hosts 覆盖
+  - **路由**: `domainStrategy: AsIs`，规则包括：
+    - 封锁 UDP 443（QUIC 干扰） → `block`
+    - `geosite:google` → `proxy-xhttp`
+    - 私有地址/国内 DNS IP/`geoip:cn`/`geosite:cn` → `direct`
+    - DNS 入口标签分流
+- **在家模式 (xray-home.service)**: 只有 `direct` + `local-proxy` + `block`，不含 VLESS 出站
 - **互斥启动**: 两 service 通过 `systemd.Conflicts=` 互斥，启动一个自动停另一个（`modules/services/xray.nix`）
 - **代理 bootstrap 问题**: 系统代理指向未运行 xray 时网络全断，修复步骤：
 
