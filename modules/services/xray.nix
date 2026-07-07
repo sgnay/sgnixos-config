@@ -105,12 +105,22 @@ let
     };
     log.loglevel = "warning";
   };
+
+  # 合并 geoip.dat + geosite.dat 到同一目录供 Xray 使用
+  xrayAssets = pkgs.symlinkJoin {
+    name = "xray-assets";
+    paths = [
+      "${pkgs.v2ray-geoip}/share/v2ray"
+      "${pkgs.v2ray-domain-list-community}/share/v2ray"
+    ];
+  };
 in
 {
   environment.systemPackages = with pkgs; [
     xray
     v2ray-geoip
-    clash-verge-rev      # Clash GUI 代理管理客户端
+    v2ray-domain-list-community
+    clash-verge-rev
   ];
 
   systemd.services = {
@@ -126,7 +136,7 @@ in
         }";
         Restart = "on-failure";
         RestartSec = 5;
-        Environment = "XRAY_LOCATION_ASSET=${pkgs.v2ray-geoip}/share/v2ray";
+        Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
       };
     };
 
@@ -142,7 +152,7 @@ in
         }";
         Restart = "on-failure";
         RestartSec = 5;
-        Environment = "XRAY_LOCATION_ASSET=${pkgs.v2ray-geoip}/share/v2ray";
+        Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
       };
     };
   };

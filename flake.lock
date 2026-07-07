@@ -120,8 +120,8 @@
     "secrets-file": {
       "flake": false,
       "locked": {
-        "lastModified": 1783334872,
-        "narHash": "sha256-iwHSAmyfRNcg1shwYZwfZ3+eXGur7K2sQcjLvpzY5Ug=",
+        "lastModified": 1783396655,
+        "narHash": "sha256-GzlEq36HFPvZxVt2F+oZXYRvavvDHznDbLj6pI+qUm8=",
         "path": "/etc/nixos/secrets.nix",
         "type": "path"
       },
