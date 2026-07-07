@@ -79,6 +79,8 @@ let
     # DNS 入口标签路由
     { type = "field"; inboundTag = [ "domestic-dns0" "domestic-dns0_cn_expect" ]; outboundTag = "direct"; }
     { type = "field"; inboundTag = [ "dns-module" ]; outboundTag = "proxy-xhttp"; }
+    # 兜底：未匹配以上规则的流量全部走代理
+    { type = "field"; network = "tcp,udp"; outboundTag = "proxy-xhttp"; }
   ];
 
   mkAwayConfig = {
