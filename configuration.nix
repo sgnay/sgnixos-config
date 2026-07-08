@@ -1,5 +1,10 @@
 # configuration.nix — 最小化主配置，仅 imports 各模块
-{ config, pkgs, lib, inputs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 {
   imports = [
     ./hardware-configuration.nix
@@ -40,9 +45,6 @@
     ./modules/services/network-storage.nix
 
     # UniVPN 客户端
-    inputs.myRepo.nixosModules.univpn
+    ./modules/services/univpn.nix
   ];
-
-  # 启用 UniVPN
-  services.univpn.enable = true;
 }

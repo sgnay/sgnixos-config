@@ -1,5 +1,10 @@
 # programs/git.nix — Git 用户配置
-{ config, pkgs, secrets, ... }:
+{
+  config,
+  pkgs,
+  secrets,
+  ...
+}:
 {
   programs.git = {
     enable = true;

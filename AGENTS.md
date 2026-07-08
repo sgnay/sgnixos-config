@@ -10,6 +10,7 @@
 - **备选桌面**: COSMIC (System76 Rust 原生 DE)
 - **登录管理器**: greetd + ReGreet（图形 GTK4 登录界面，支持会话选择）
 - **默认内核**: Zen kernel（优化响应性能），稳定内核可选
+- **开机动画**: Plymouth（breeze 主题）
 - **Home Manager**: 作为 NixOS module 集成，`nixos-rebuild` 时自动应用用户配置
 
 ## 目录结构
@@ -18,7 +19,7 @@
 /etc/nixos/
 ├── flake.nix                    # Flake 入口：inputs + outputs (nixosConfigurations + homeConfigurations)
 ├── flake.lock
-├── configuration.nix            # 主配置：仅 imports（最小化）
+├── configuration.nix            # 主配置：仅 imports（最小化，不依赖 inputs）
 ├── hardware-configuration.nix   # 自动生成，勿手动修改
 ├── common.nix                   # 共享变量（网络 DNS/代理）
 ├── secrets.nix                  # 敏感数据（用户名、SSH 密钥、邮箱）—— 不提交 git
@@ -31,41 +32,46 @@
 │   └── starship/                #   Starship 提示符配置
 ├── modules/                     # NixOS 系统模块
 │   ├── desktop/                 #   桌面环境
-│   │   ├── niri.nix             #     programs.niri + dms-shell (系统级)
+│   │   ├── niri.nix             #     programs.niri + xwayland-satellite + dms-shell（系统级）
 │   │   ├── cosmic.nix           #     COSMIC 桌面（备选，不含 cosmic-greeter）
-│   │   ├── fonts.nix            #     字体 + fontconfig 别名
+│   │   ├── fonts.nix            #     字体 + fontconfig 别名（含全套 Windows/macOS 映射）
 │   │   └── audio.nix            #     PipeWire (无 32 位支持)
 │   ├── packages/                #   软件包（systemPackages 分组）
 │   │   ├── browsers.nix         #     firefox, google-chrome
-│   │   ├── terminals.nix        #     wezterm, ghostty
-│   │   ├── office.nix           #     joplin-desktop, wpsoffice-cn
-│   │   ├── file-manager.nix     #     thunar + plugins, megasync
+│   │   ├── terminals.nix        #     wezterm, ghostty, clashtui（TUI Clash 客户端）
+│   │   ├── office.nix           #     joplin-desktop, thunderbird, wpsoffice-cn
+│   │   ├── file-manager.nix     #     thunar + megasync（thunar 插件/主题在 thunar-themes.nix）
+│   │   ├── thunar-themes.nix    #     Thunar 美化包（Catppuccin GTK/Papirus 图标/缩略图）
+│   │   ├── editors.nix          #     编辑器（VSCode 由 HM 管理，此处预留）
 │   │   ├── input.nix            #     fcitx5 + rime + 主题 (nord, fluent, catppuccin)
 │   │   ├── communication.nix    #     微信 wechat-uos, QQ, 腾讯会议 wemeet, telegram-desktop, localsend
-│   │   ├── multimedia.nix       #     vlc, mpv, QQ音乐 qqmusic, obs-studio, sunshine, flameshot
-│   │   ├── tolaria.nix           #     Tolaria 知识管理桌面应用（AppImage 提取）
+│   │   ├── multimedia.nix       #     qqmusic-wrapped（Wayland 优化）, vlc, mpv, obs-studio, sunshine, flameshot
+│   │   ├── tolaria.nix          #     Tolaria 知识管理桌面应用（AppImage 提取）
 │   │   └── virtualization.nix   #     podman, libvirt, virt-manager
 │   ├── services/                #   系统服务
 │   │   ├── ssh.nix              #     OpenSSH (密钥认证)
-│   │   ├── greetd.nix           #     greetd + ReGreet 登录管理器
-│   │   ├── xray.nix             #     Xray VLESS+REALITY 代理
+│   │   ├── greetd.nix           #     greetd + ReGreet 登录管理器（科幻玻璃 CSS）
+│   │   ├── xray.nix             #     Xray VLESS+REALITY 代理（双模式互斥）
+│   │   ├── univpn.nix           #     UniVPN 商业 VPN（封装外部模块，遵循"只 imports"约定）
 │   │   └── network-storage.nix  #     KDE Connect, NFS, Samba, Syncthing
 │   └── system/                  #   系统基础
-│       ├── base.nix             #     logind, 基础包, keepassxc, file, EDITOR, stateVersion
-│       ├── boot.nix             #     systemd-boot (保留 5 代), Zen 默认内核
+│       ├── base.nix             #     logind, 基础包（neovim/git/unzip/gcc/nil/statix）, EDITOR, stateVersion
+│       ├── boot.nix             #     systemd-boot (保留 5 代), Zen 默认内核, Plymouth (breeze 主题), specialisation 稳定内核
 │       ├── locale.nix           #     时区 Asia/Shanghai, en_US + zh_CN
-│       ├── network.nix          #     NetworkManager, 代理, 防火墙
-│       ├── nix-config.nix       #     flakes, substituters, allowUnfree, 每周 GC
-│       └── users.nix            #     用户 + sudo 规则
+│       ├── network.nix          #     NetworkManager, 系统代理, 防火墙
+│       ├── nix-config.nix       #     flakes, substituters, allowUnfree, 每周 GC, store 优化
+│       └── users.nix            #     用户 + sudo 规则（含 fish system-wide 启用）
 └── home/                        # Home Manager 配置
-    ├── home.nix                 #   HM 主入口：imports + GTK + sessionVariables
+    ├── home.nix                 #   HM 主入口：imports + GTK（Catppuccin Mocha）+ sessionVariables
     └── programs/
         ├── git.nix              #   Git 用户配置
-        ├── shell.nix            #   Fish + Starship + CLI 工具 (bat/dust/fd/eza/sd/yazi)
-        ├── niri.nix             #   niri KDL 部署 + DMS 覆盖系统服务（绑定 niri）+ 生态包
+        ├── shell.nix            #   Fish + Starship + CLI 工具 (bat/dust/fd/eza/sd/yazi/zoxide)
+        ├── niri.nix             #   niri KDL 部署 + DMS systemd 服务（绑定 niri）+ 生态包
         ├── wezterm.nix          #   WezTerm Lua 模块部署 + fish + 字体
-        ├── ghostty.nix          #   Ghostty 配置 + cascadia-code + shader
-        └── rime.nix             #   Rime 雾凇拼音 (rime-ice) 安装与配置
+        ├── ghostty.nix          #   Ghostty 配置 + cascadia-code + shader 文件
+        ├── rime.nix             #   Rime 雾凇拼音 (rime-ice) 安装与配置（home.activation）
+        ├── vscode.nix           #   VSCode FHS 版 + 扩展（profile 作用域，26.05 兼容）
+        └── neovim.nix           #   Neovim + LazyVim 发行版（lazy.nvim 自管理插件）
 ```
 
 ## 常用命令
@@ -104,14 +110,14 @@ proxy-off     # 关闭代理
 sudo nix-collect-garbage -d
 sudo nixos-rebuild boot --flake /etc/nixos#sgnixos
 
-# UniVPN 管理（来自外部模块 sgnur-packages）
+# UniVPN 管理
 univpn            # 启动 UniVPN VPN 客户端（自动提权）
 univpn-stop       # 停止 UniVPN（杀掉所有进程）
 univpn-restart    # 重启 UniVPN
 
 ## 配置约定
 
-1. **模块化原则**: `configuration.nix` 只包含 `imports`，不直接定义配置
+1. **模块化原则**: `configuration.nix` 只包含 `imports`，不直接定义配置，不依赖 `inputs`
 2. **敏感数据**: 放在 `secrets.nix`（不跟踪 Git），模板在 `secrets.nix.example`
 
    ### secrets.nix 管理方式
@@ -146,7 +152,6 @@ univpn-restart    # 重启 UniVPN
    ```
 
 3. **共享变量**: 放在 `common.nix`（版本号、网络配置）
-3. **共享变量**: 放在 `common.nix`（版本号、网络配置）
 4. **dotfiles 即源**: `dotfiles/` 下文件是用户配置的源，Home Manager 通过 `mkOutOfStoreSymlink` 创建**可变符号链接**，编辑源文件即生效，无需 rebuild
 5. **nixpkgs 源**: `github:NixOS/nixpkgs/nixos-26.05`（稳定版）
 6. **substituters 顺序**: USTC → SJTU → cache.nixos.org（国内镜像优先）
@@ -157,6 +162,8 @@ univpn-restart    # 重启 UniVPN
 ### niri + dms-shell + COSMIC 多桌面共存
 
 - **niri**: NixOS module `programs.niri.enable` 自动配置 xdg-portal, gnome-keyring, wayland session
+  - `programs.niri.useNautilus = false`（使用 Thunar 替代 Nautilus 作为文件选择器）
+  - 依赖 `xwayland-satellite` 管理 X11 应用
 - **dms-shell**: 通过覆盖 dms-shell 包自带的 `dms.service`，绑定到 `niri.service`（非 `graphical-session.target`），确保只在 niri 下启动，COSMIC 会话不受干扰
 - **COSMIC**: `services.desktopManager.cosmic.enable`，使用 greetd 会话选择，不含 cosmic-greeter
 - **多会话选择**: greetd + ReGreet 在登录界面列出所有可用桌面（niri / COSMIC）
@@ -177,11 +184,18 @@ systemd.user.services.dms = {
 - 编辑 `/etc/nixos/dotfiles/` 下对应文件即生效，无需 `nixos-rebuild`
 - 例外：添加/删除包、修改系统模块仍需 rebuild
 
+### Plymouth 开机动画
+
+- `boot.nix` 中启用：`boot.plymouth.enable = true`，主题为 `breeze`
+- `boot.consoleLogLevel = 0` + 内核参数 `quiet` 防止日志泄漏
+- **默认使用 BGRT**（从 UEFI 读取 OEM Logo，HP 品牌），如果主板不支持则使用 `breeze` 主题
+- 可选主题：`spinner`, `catppuccin-mocha`, `text` 等
+
 ### Xray 代理系统
 
 - **双模式**: 在家 (`proxy-home` → 本地 172.20.26.100:1080) / 外出 (`proxy-away` → VLESS+REALITY)
 - **GUI 客户端**: `clash-verge-rev` 已安装
-- **系统代理**: `network.nix` 中 `proxy.default` 已注释，由 fish 别名按需开启
+- **系统代理**: `network.nix` 中 `proxy.default = "http://127.0.0.1:1080"` 已启用（影响 nix-daemon 等系统服务），fish 别名用于临时切换终端环境
 - **外出模式 (xray.service)**: 完整配置，包含 DNS、路由、四个出站
   - **VLESS 出站**（来自 `secrets.nix` 的 `xray-outbounds`）：
     - `proxy-vision` — network `raw`，`xtls-rprx-vision` 流控
@@ -230,7 +244,7 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 
 ### Shell 与 CLI 工具
 
-- **默认 Shell**: fish，通过 `programs.fish.enable` 设置
+- **默认 Shell**: fish，通过 `programs.fish.enable` 设置（system 级在 `users.nix`，HM 级在 `shell.nix`）
 - **提示符**: starship (gruvbox 主题)
 - **fish alias**: cat→bat, du→dust, find→fd, ls→eza, sed→sd
 - **其他工具**: yazi (文件管理器), mise (版本管理), zoxide (智能跳转)
@@ -254,7 +268,7 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 
 - podman: `virtualisation.podman.enable` + dockerCompat
 - libvirt: `virtualisation.libvirtd.enable` + virt-manager
-- 用户需加入 `libvirtd` 和 `podman` 组
+- 用户需加入 `libvirtd` 和 `podman` 组（`users.nix` 中配置）
 
 ### 多内核启动 (specialisation)
 
@@ -264,8 +278,9 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 
 ### systemd-boot
 
-- `configurationLimit = 10`，最多保留 10 个引导项
-- `nixos-rebuild` 时自动清理旧项
+- `configurationLimit = 5`，最多保留 5 个引导项
+- `graceful = true`：自动清理旧项
+- `canTouchEfiVariables = true`
 
 ### greetd + ReGreet 图形登录界面（科幻玻璃风格）
 
@@ -279,6 +294,8 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 - **模块路径**: `programs.regreet.enable = true`（NixOS 内置模块）
 - **配置文件**: 生成至 `/etc/greetd/regreet.toml`，支持 `programs.regreet.settings`
 - **自定义 CSS**: 通过 `programs.regreet.extraCss` 注入科幻玻璃风格 CSS（编写于 `modules/services/greetd.nix` 的 `sciFiCss` 变量）
+- **光标主题**: Bibata-Modern-Ice
+- **电源命令**: 内置 `systemctl reboot` / `systemctl poweroff`
 
 #### 科幻玻璃态（Glassmorphism）设计细节
 
@@ -303,14 +320,14 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 - DMS 顶栏使用 StatusNotifier 协议（DBus 系统托盘）
 - fcitx5 的 `notificationitem` 插件创建 StatusNotifierItem，DMS 的 `SystemTrayBar.qml` 显示
 - 修复步骤：
-  1. 安装图标主题 `adwaita-icon-theme`（提供 `input-keyboard-symbolic` 图标）
+  1. 安装图标主题 `adwaita-icon-theme`（提供 `input-keyboard-symbolic` 图标） — 已安装
   2. 在 `~/.config/fcitx5/config` 中设置 `EnabledAddons=notificationitem`
   3. `~/.config/fcitx5/conf/classicui.conf` 中设置 `PreferTextIcon=True` 作为文字兜底
 
 ### Rime-ice 雾凇拼音
 
-- `rime-ice` 安装为系统包，数据符号链接到 `~/.local/share/fcitx5/rime/`
-- 配置通过 `home/programs/rime.nix` 管理（`home.activation` 创建符号链接和配置文件）
+- `rime-ice` 安装为系统包，数据通过 `home.activation` 符号链接到 `~/.local/share/fcitx5/rime/`
+- 配置通过 `home/programs/rime.nix` 管理（`home.activation` 创建符号链接和 `default.custom.yaml`/`rime_ice.custom.yaml` 配置文件）
 - 默认方案：`rime_ice`（全拼）+ `melt_eng`（英文混输）
 - 配置提醒：`rime_ice_suggestion.yaml` 被 `default.custom.yaml` 通过 `__include` 引用
 - 部署完成会在 `build/` 目录生成 `rime_ice.prism.bin` 等编译文件
@@ -335,39 +352,53 @@ Tolaria 是 Tauri 构建的桌面知识管理应用，官方只提供 AppImage �
 
 > 文件：`home/programs/vscode.nix`
 
-Home Manager 的 VSCode 模块在 **26.05** 中将选项移入 profile 作用域：
-
-| 旧选项（已弃用） | 新选项 |
-|-------------------|--------|
-| `programs.vscode.extensions` | `programs.vscode.profiles.default.extensions` |
-| `programs.vscode.userSettings` | `programs.vscode.profiles.default.userSettings` |
-
-**迁移方式**：将 `extensions` 和 `userSettings` 包在 `profiles.default = { ... };` 内即可。
-
 配置内容：
 - **包**: `pkgs.vscode-fhs`（FHS 兼容版，支持 C/C++ 等原生扩展）
 - **遥测**: 全部关闭（`telemetry.telemetryLevel = "off"`）
 - **自动更新**: 关闭（由 Nix 管理版本）
 - **字体**: `FiraCode Nerd Font`，连字开启，字号 14
 - **主题**: `Default Dark Modern` + `catppuccin.catppuccin-vsc` 扩展
-- **扩展**: Python、C/C++、rust-analyzer、Go、Java、GitHub Copilot、Even Better TOML、Markdown All-in-One
+- **扩展**: Python、C/C++、rust-analyzer、Go、Java、GitHub Copilot/Chat、Even Better TOML、Markdown All-in-One、Makefile Tools
+
+> **注意**: 当前使用 `profiles.default` 作用域（26.05 新版 API），非弃用的顶级 `extensions`/`userSettings`。
+
+### Neovim + LazyVim 配置（Home Manager）
+
+> 文件：`home/programs/neovim.nix`
+
+- **包**: `pkgs.neovim`（系统级），`lazy-nvim` + `LazyVim`（HM 插件）
+- **发行版**: `LazyVim`（lazy.nvim 在首次启动时从 GitHub 自动克隆和管理插件）
+- **代理**: 启动时设置 `http://127.0.0.1:1080` 代理环境变量（`GIT_HTTP_PROXY`/`ALL_PROXY`），解决 GitHub 直连问题
+- **启动脚本**: 独立 `lazyvim-init.lua` → `~/.config/nvim/lazyvim-init.lua`（`xdg.configFile` 部署），`init.lua` 中 `dofile` 引用
+- **Extras 启用**: `lang.nix`, `lang.markdown`, `lang.json`, `coding.blink`, `editor.mini-files`
+- **Mason 集成**: `nil_ls` 配置 `mason = false`，避免 Mason 重复安装（由 Nix 系统包提供）
+- **颜色主题**: Catppuccin（默认）
+- **Nix 工具链**:
+  - `nil`（Nix LSP，系统包 + HM 双重供应）
+  - `nixfmt`（RFC-style 格式化）
+  - `statix`（Nix 代码检查，nvim-lint 依赖）
+  - `gcc`（C 编译器，供 Mason 编译原生扩展）
+- **性能**: 禁用不常用内置插件，开启缓存
+- **自动更新**: 关闭（Nix 管理版本）
+- **首次启动**: lazy.nvim 自动从 GitHub 拉取所有插件到 `~/.local/share/nvim/lazy/`
 
 ### 网络存储服务
 
-- `modules/services/network-storage.nix` 整合了：
-  - **KDE Connect** (`kdePackages.kdeconnect-kde`)：手机互联，防火墙开放 1714-1764 端口
-  - **NFS** (`nfs-utils`)：NAS `/mnt/sgdata` 按需自动挂载（`x-systemd.automount`, `nolock`, `nofail`, 空闲超时 600s）
-  - **Samba** (`samba` + `cifs-utils`)：服务端 + 客户端挂载，自动开放防火墙
-    - 使用 Samba 需先设置密码：`sudo smbpasswd -a <username>`
-  - **Syncthing** (`services.syncthing`)：文件同步服务
+> 文件：`modules/services/network-storage.nix`
+
+- **KDE Connect** (`kdePackages.kdeconnect-kde`)：手机互联，防火墙开放 1714-1764 端口
+- **NFS** (`nfs-utils`)：服务端启用 + NAS `/mnt/sgdata` 按需自动挂载
+  - 挂载参数：`x-systemd.automount`, `nolock`, `nofail`, `noauto`, 空闲超时 600s, `soft`, `timeo=30`, `retrans=3`
+- **Samba** (`samba` + `cifs-utils`)：服务端 + 客户端挂载，自动开放防火墙（137-139, 445），含 `samba-wsdd`（NetBIOS 名称发现）
+  - 使用 Samba 需先设置密码：`sudo smbpasswd -a <username>`
+- **Syncthing** (`services.syncthing`)：文件同步服务，`overrideFolders = false`, `overrideDevices = false`（保留用户已有配置）
 
 ### UniVPN 商业 VPN 客户端
 
 > 模块来源：[sgnur-packages](https://github.com/sgnay/sgnur-packages) 外部 flake repository
->
-> 引入方式：`inputs.myRepo.nixosModules.univpn`（`configuration.nix`）
+> 本地封装：`modules/services/univpn.nix`
 
-UniVPN（深信服 EasyConnect 类 VPN 客户端）的打包与配置已迁移至外部仓库 [sgnur-packages](https://github.com/sgnay/sgnur-packages) 管理，不再作为本仓库的本地模块。
+UniVPN（深信服 EasyConnect 类 VPN 客户端）的打包与配置已迁移至外部仓库 [sgnur-packages](https://github.com/sgnay/sgnur-packages) 管理。本仓库通过 `modules/services/univpn.nix` 封装外部模块，遵循「configuration.nix 只 imports」的约定。
 
 #### 引入方式
 
@@ -381,17 +412,27 @@ inputs.myRepo = {
 
 # overlays — 暴露 univpn 包
 nixpkgs.overlays = [
-  (final: prev: { univpn = inputs.myRepo.packages."${prev.system}".univpn; })
+  (final: prev: { univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn; })
 ];
-
-# configuration.nix — 替代原本的 ./modules/services/univpn.nix
-imports = [
-  inputs.myRepo.nixosModules.univpn
-];
-services.univpn.enable = true;
 ```
 
-安装包（`univpn-linux-64-*.zip`）由外部仓库的 flake input 管理，本仓库不再包含。
+#### 本地封装模块 (`modules/services/univpn.nix`)
+
+```nix
+{ config, pkgs, lib, inputs, ... }:
+{
+  imports = [
+    inputs.myRepo.nixosModules.univpn
+  ];
+
+  services.univpn.enable = true;
+}
+```
+
+**设计要点**:
+- 外部模块（`inputs.myRepo.nixosModules.univpn`）的引用和对 `services.univpn.enable` 的启用，都封装在本地模块内
+- `inputs` 通过 `flake.nix` 的 `specialArgs` 注入，仅在 `modules/services/univpn.nix` 这一处使用，`configuration.nix` 不直接依赖 `inputs`
+- 安装包（`univpn-linux-64-*.zip`）由外部仓库的 flake input 管理，本仓库不包含
 
 完整打包经验（自解压提取、setuid 提权、Qt5 替换等）见 [sgnur-packages 仓库](https://github.com/sgnay/sgnur-packages)。
 ## 添加新软件包
@@ -404,4 +445,4 @@ services.univpn.enable = true;
 
 1. 创建 `modules/<category>/<name>.nix`
 2. 在 `configuration.nix` 的 `imports` 中添加引用
-3. 遵循 `{ config, pkgs, ... }:` 函数签名
+3. 遵循 `{ config, pkgs, ... }:` 函数签名（如需 `inputs`/`secrets` 等特殊参数，通过 `specialArgs` 注入）

@@ -46,8 +46,8 @@
         ]
       },
       "locked": {
-        "lastModified": 1783421557,
-        "narHash": "sha256-nqK7twZTIYR4SRbBTITqzI5lP+KGrfKDqdsUZiMosl0=",
+        "lastModified": 1783433682,
+        "narHash": "sha256-h3w5IBR8O/SmKbnJ2uxMq8jri3Hln2mOOhWV9CSRZm8=",
         "path": "/home/sgnay/agents/sgnur-packages",
         "type": "path"
       },

@@ -15,6 +15,7 @@
     ./programs/ghostty.nix
     ./programs/rime.nix
     ./programs/vscode.nix
+    ./programs/neovim.nix
   ];
 
   # 环境变量

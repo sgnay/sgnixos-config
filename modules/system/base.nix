@@ -18,6 +18,9 @@
     adwaita-icon-theme     # 提供 input-keyboard-symbolic 等图标
     keepassxc             # 密码管理器
     file                  # file 命令
+    gcc                   # C 编译器（Mason 等工具依赖）
+    nil                   # Nix LSP（系统级可用）
+    statix                # Nix 代码检查（nvim-lint 依赖）
   ];
 
   environment.variables.EDITOR = "nvim";

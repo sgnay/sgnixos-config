@@ -8,7 +8,6 @@
     };
     # ============ 包源 ============
     # NixOS 官方软件源 - 稳定版 (nixos-26.05)
-    # nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
 
     # ============ 硬件支持 ============
@@ -39,41 +38,51 @@
 
   };
 
-    outputs = { self, nixpkgs, nixos-hardware, vscode-server, home-manager, secrets-file, ... }@inputs:
-  let
-    # 从 flake input（path）导入 secrets 内容
-    secrets = import secrets-file;
-  in {
-    nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        ({
-          nixpkgs.overlays = [
-    (final: prev: { univpn = inputs.myRepo.packages."${prev.system}".univpn; })
-          ];
-        })
-        ./configuration.nix
-        vscode-server.nixosModules.default
-        nixos-hardware.nixosModules.common-cpu-amd
-        home-manager.nixosModules.home-manager
-        ({ config, pkgs, ... }: {
-          services.vscode-server.enable = true;
-          programs.nix-ld.enable = true;
-          home-manager.useGlobalPkgs = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.sgnay = import ./home/home.nix;
-          home-manager.extraSpecialArgs = { inherit inputs secrets; };
-        })
-      ];
-    specialArgs = { inherit inputs secrets; };
-    };
+  outputs =
+    {
+      self,
+      nixpkgs,
+      nixos-hardware,
+      vscode-server,
+      home-manager,
+      secrets-file,
+      ...
+    }@inputs:
+    let
+      # 从 flake input（path）导入 secrets 内容
+      secrets = import secrets-file;
+    in
+    {
+      nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ({
+            nixpkgs.overlays = [
+              (final: prev: { univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn; })
+            ];
+          })
+          ./configuration.nix
+          vscode-server.nixosModules.default
+          nixos-hardware.nixosModules.common-cpu-amd
+          home-manager.nixosModules.home-manager
+          ({ config, pkgs, ... }: {
+            services.vscode-server.enable = true;
+            programs.nix-ld.enable = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.sgnay = import ./home/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs secrets; };
+          })
+        ];
+        specialArgs = { inherit inputs secrets; };
+      };
 
-    homeConfigurations = {
-      sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.x86_64-linux;
-        modules = [ ./home/home.nix ];
-        extraSpecialArgs = { inherit inputs secrets; };
+      homeConfigurations = {
+        sgnay = inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          modules = [ ./home/home.nix ];
+          extraSpecialArgs = { inherit inputs secrets; };
+        };
       };
     };
-  };
 }
