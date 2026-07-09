@@ -1,5 +1,10 @@
 # home/programs/shell.nix — Fish + Starship + CLI 工具（可变符号链接）
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 let
   mkLink = config.lib.file.mkOutOfStoreSymlink;
 in
@@ -25,5 +30,14 @@ in
 
   programs.starship.enable = true;
 
-  home.packages = with pkgs; [ bat dust fd eza sd yazi zoxide ];
+  home.packages = with pkgs; [
+    bat
+    dust
+    fd
+    eza
+    sd
+    yazi
+    zoxide
+    starship
+  ];
 }

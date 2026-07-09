@@ -46,14 +46,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1783433682,
-        "narHash": "sha256-h3w5IBR8O/SmKbnJ2uxMq8jri3Hln2mOOhWV9CSRZm8=",
-        "path": "/home/sgnay/agents/sgnur-packages",
-        "type": "path"
+        "lastModified": 1783433296,
+        "narHash": "sha256-WjiFZfl/vFGqPMxxb4qr6OqZI3g5gkNXwWdSqVCW4qY=",
+        "owner": "sgnay",
+        "repo": "sgnur-packages",
+        "rev": "5f41d334f6a6501a18d1d194ab0b4977d28c86a2",
+        "type": "github"
       },
       "original": {
-        "path": "/home/sgnay/agents/sgnur-packages",
-        "type": "path"
+        "owner": "sgnay",
+        "repo": "sgnur-packages",
+        "type": "github"
       }
     },
     "nixos-hardware": {
@@ -116,8 +119,8 @@
     "secrets-file": {
       "flake": false,
       "locked": {
-        "lastModified": 1783396655,
-        "narHash": "sha256-GzlEq36HFPvZxVt2F+oZXYRvavvDHznDbLj6pI+qUm8=",
+        "lastModified": 1783500148,
+        "narHash": "sha256-ThkyKmSbqjdUtKVFT8ZrVZH93YxWhtqGoyKgzFXgxzM=",
         "path": "/etc/nixos/secrets.nix",
         "type": "path"
       },
