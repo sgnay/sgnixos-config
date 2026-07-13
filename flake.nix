@@ -59,7 +59,10 @@
         modules = [
           ({
             nixpkgs.overlays = [
-              (final: prev: { univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn; })
+              (final: prev: {
+              univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
+              nyaterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".nyaterm;
+            })
             ];
           })
           ./configuration.nix

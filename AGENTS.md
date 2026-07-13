@@ -36,16 +36,11 @@
 │   │   ├── cosmic.nix           #     COSMIC 桌面（备选，不含 cosmic-greeter）
 │   │   ├── fonts.nix            #     字体 + fontconfig 别名（含全套 Windows/macOS 映射）
 │   │   └── audio.nix            #     PipeWire (无 32 位支持)
-│   ├── packages/                #   软件包（systemPackages 分组）
-│   │   ├── browsers.nix         #     firefox, google-chrome
-│   │   ├── terminals.nix        #     wezterm, ghostty, clashtui（TUI Clash 客户端）
-│   │   ├── office.nix           #     joplin-desktop, thunderbird, wpsoffice-cn
+│   ├── packages/                #   软件包
+│   │   ├── default.nix          #     集中管理：浏览器、终端、办公、通讯、编辑器、多媒体
 │   │   ├── file-manager.nix     #     thunar + megasync（thunar 插件/主题在 thunar-themes.nix）
 │   │   ├── thunar-themes.nix    #     Thunar 美化包（Catppuccin GTK/Papirus 图标/缩略图）
-│   │   ├── editors.nix          #     编辑器（VSCode 由 HM 管理，此处预留）
 │   │   ├── input.nix            #     fcitx5 + rime + 主题 (nord, fluent, catppuccin)
-│   │   ├── communication.nix    #     微信 wechat-uos, QQ, 腾讯会议 wemeet, telegram-desktop, localsend
-│   │   ├── multimedia.nix       #     qqmusic-wrapped（Wayland 优化）, vlc, mpv, obs-studio, sunshine, flameshot
 │   │   ├── tolaria.nix          #     Tolaria 知识管理桌面应用（AppImage 提取）
 │   │   └── virtualization.nix   #     podman, libvirt, virt-manager
 │   ├── services/                #   系统服务

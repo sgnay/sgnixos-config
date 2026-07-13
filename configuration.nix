@@ -29,15 +29,10 @@
     ./modules/desktop/audio.nix
 
     # 软件包
-    ./modules/packages/browsers.nix
-    ./modules/packages/terminals.nix
-    ./modules/packages/office.nix
+    ./modules/packages                              # browsers, terminals, office, communication, editors, multimedia
     ./modules/packages/file-manager.nix
     ./modules/packages/input.nix
     ./modules/packages/virtualization.nix
-    ./modules/packages/communication.nix
-    ./modules/packages/multimedia.nix
-    ./modules/packages/editors.nix
     ./modules/packages/thunar-themes.nix
     ./modules/packages/tolaria.nix
 
