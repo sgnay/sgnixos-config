@@ -38,6 +38,9 @@
     # 密码管理器
     keepassxc
 
+    # ai agents
+    antigravity
+
     # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
     (symlinkJoin {
       name = "qqmusic-wrapped";

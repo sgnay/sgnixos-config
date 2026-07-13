@@ -17,3 +17,7 @@ alias proxy-off='set -eg HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY; set -eg http
 alias rebuild='sudo nixos-rebuild switch --flake /etc/nixos#sgnixos --update-input secrets-file'
 # Alternative to the 'cd'
 eval "$(zoxide init fish)"
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/sgnay/.local/bin" $PATH

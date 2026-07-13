@@ -1,8 +1,6 @@
 # home.nix — Home Manager 主配置
 {
-  config,
   pkgs,
-  inputs,
   secrets,
   ...
 }: {
@@ -49,6 +47,4 @@
   };
 
   programs.home-manager.enable = true;
-
-  nixpkgs.config.allowUnfree = true;
 }
