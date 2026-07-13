@@ -1,5 +1,8 @@
-{ config, pkgs, ... }:
 {
+  config,
+  pkgs,
+  ...
+}: {
   # logind 电源键/盖子行为
   services.logind.settings = {
     Login.HandlePowerKey = "ignore";
@@ -16,7 +19,6 @@
     unzip
     curl
     adwaita-icon-theme # 提供 input-keyboard-symbolic 等图标
-    keepassxc # 密码管理器
     file # file 命令
     gcc # C 编译器（Mason 等工具依赖）
     nil # Nix LSP（系统级可用）

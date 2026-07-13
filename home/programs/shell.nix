@@ -4,29 +4,28 @@
   lib,
   pkgs,
   ...
-}:
-let
-  mkLink = config.lib.file.mkOutOfStoreSymlink;
-in
-{
+}: let
+  dotfiles = import ../lib.nix {inherit lib config;};
+in {
   programs.fish = {
     enable = true;
   };
 
-  xdg.configFile = {
-    "fish/config.fish" = {
-      source = lib.mkForce (mkLink "/etc/nixos/dotfiles/fish/config.fish");
-    };
-    "fish/fish_variables" = {
-      source = mkLink "/etc/nixos/dotfiles/fish/fish_variables";
-    };
-    "fish/functions" = {
-      source = mkLink "/etc/nixos/dotfiles/fish/functions";
-    };
-    "starship/starship.toml" = {
-      source = mkLink "/etc/nixos/dotfiles/starship/starship.toml";
-    };
-  };
+  xdg.configFile =
+    (
+      dotfiles.mkDotfileLinks "fish" [
+        "fish_variables"
+        "functions"
+      ]
+    )
+    // {
+      "fish/config.fish" = {
+        source = lib.mkForce (config.lib.file.mkOutOfStoreSymlink "/etc/nixos/dotfiles/fish/config.fish");
+      };
+    }
+    // (dotfiles.mkDotfileLinks "starship" [
+      "starship.toml"
+    ]);
 
   programs.starship.enable = true;
 

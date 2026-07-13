@@ -39,11 +39,9 @@
       url = "path:/etc/nixos/secrets.nix";
       flake = false;
     };
-
-    # (removed)
   };
 
-  outputs = {
+  outputs = inputs @ {
     self,
     nixpkgs,
     nixos-hardware,
@@ -52,7 +50,7 @@
     secrets-file,
     pre-commit-hooks,
     ...
-  } @ inputs: let
+  }: let
     # 从 flake input（path）导入 secrets 内容
     secrets = import secrets-file;
   in {

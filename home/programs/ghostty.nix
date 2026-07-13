@@ -1,21 +1,28 @@
 # home/programs/ghostty.nix — Ghostty 终端配置（可变符号链接）
-{ config, lib, pkgs, ... }:
-let
-  mkLink = config.lib.file.mkOutOfStoreSymlink;
-  link = name: { source = mkLink "/etc/nixos/dotfiles/ghostty/${name}"; };
-in
 {
-  home.packages = with pkgs; [ cascadia-code ];
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
+  dotfiles = import ../lib.nix {inherit lib config;};
+in {
+  home.packages = with pkgs; [cascadia-code];
 
-  xdg.configFile = {
-    "ghostty/config"            = link "config.ghostty";
-    "ghostty/theme.ghostty"     = link "theme.ghostty";
-    "ghostty/font.ghostty"      = link "font.ghostty";
-    "ghostty/appearance.ghostty" = link "appearance.ghostty";
-    "ghostty/binds.ghostty"     = link "binds.ghostty";
-    "ghostty/ghostty-shader-playground/public/shaders/cursor_smear.glsl" =
-      link "ghostty-shader-playground/public/shaders/cursor_smear.glsl";
-    "ghostty/ghostty-shader-playground/public/misc/ghostty_wrapper.glsl" =
-      link "ghostty-shader-playground/public/misc/ghostty_wrapper.glsl";
-  };
+  xdg.configFile =
+    (
+      dotfiles.mkDotfileLinks "ghostty" [
+        "config.ghostty"
+        "theme.ghostty"
+        "font.ghostty"
+        "appearance.ghostty"
+        "binds.ghostty"
+      ]
+    )
+    // (dotfiles.mkDotfileLinks "ghostty/ghostty-shader-playground/public/shaders" [
+      "cursor_smear.glsl"
+    ])
+    // (dotfiles.mkDotfileLinks "ghostty/ghostty-shader-playground/public/misc" [
+      "ghostty_wrapper.glsl"
+    ]);
 }

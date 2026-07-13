@@ -1,6 +1,11 @@
 # home.nix — Home Manager 主配置
-{ config, pkgs, inputs, secrets, ... }:
 {
+  config,
+  pkgs,
+  inputs,
+  secrets,
+  ...
+}: {
   home.username = secrets.username;
   home.homeDirectory = "/home/${secrets.username}";
 
@@ -16,6 +21,7 @@
     ./programs/rime.nix
     ./programs/vscode.nix
     ./programs/neovim.nix
+    ./packages/default.nix # 新增用户级软件包模块
   ];
 
   # 环境变量
@@ -43,4 +49,6 @@
   };
 
   programs.home-manager.enable = true;
+
+  nixpkgs.config.allowUnfree = true;
 }
