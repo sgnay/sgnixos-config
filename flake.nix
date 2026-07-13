@@ -3,7 +3,7 @@
 
   inputs = {
     myRepo = {
-      url = "github:sgnay/sgnur-packages";            # 发布用
+      url = "github:sgnay/sgnur-packages"; # 发布用
       # url = "path:/home/sgnay/agents/sgnur-packages"; # 本地开发
       inputs.nixpkgs.follows = "nixpkgs";
     };
@@ -21,6 +21,11 @@
       url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Pre-commit hooks
+    pre-commit-hooks = {
+      url = "github:cachix/pre-commit-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # ============ Home Manager ============
     home-manager = {
@@ -36,57 +41,69 @@
     };
 
     # (removed)
-
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      nixos-hardware,
-      vscode-server,
-      home-manager,
-      secrets-file,
-      ...
-    }@inputs:
-    let
-      # 从 flake input（path）导入 secrets 内容
-      secrets = import secrets-file;
-    in
-    {
-      nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
-        modules = [
-          ({
-            nixpkgs.overlays = [
-              (final: prev: {
+  outputs = {
+    self,
+    nixpkgs,
+    nixos-hardware,
+    vscode-server,
+    home-manager,
+    secrets-file,
+    pre-commit-hooks,
+    ...
+  } @ inputs: let
+    # 从 flake input（path）导入 secrets 内容
+    secrets = import secrets-file;
+  in {
+    nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
+      modules = [
+        {
+          nixpkgs.overlays = [
+            (_final: prev: {
               univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
               nyaterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".nyaterm;
             })
-            ];
-          })
-          ./configuration.nix
-          vscode-server.nixosModules.default
-          nixos-hardware.nixosModules.common-cpu-amd
-          home-manager.nixosModules.home-manager
-          ({ config, pkgs, ... }: {
-            services.vscode-server.enable = true;
-            programs.nix-ld.enable = true;
-            home-manager.useGlobalPkgs = true;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.sgnay = import ./home/home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs secrets; };
-          })
-        ];
-        specialArgs = { inherit inputs secrets; };
-      };
+          ];
+        }
+        ./configuration.nix
+        vscode-server.nixosModules.default
+        nixos-hardware.nixosModules.common-cpu-amd
+        home-manager.nixosModules.home-manager
+        (_: {
+          services.vscode-server.enable = true;
+          programs.nix-ld.enable = true;
+          home-manager.useGlobalPkgs = true;
+          home-manager.backupFileExtension = "backup";
+          home-manager.users.sgnay = import ./home/home.nix;
+          home-manager.extraSpecialArgs = {inherit inputs secrets;};
+        })
+      ];
+      specialArgs = {inherit inputs secrets;};
+    };
 
-      homeConfigurations = {
-        sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          modules = [ ./home/home.nix ];
-          extraSpecialArgs = { inherit inputs secrets; };
-        };
+    homeConfigurations = {
+      sgnay = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = nixpkgs.legacyPackages.x86_64-linux;
+        modules = [./home/home.nix];
+        extraSpecialArgs = {inherit inputs secrets;};
       };
     };
+
+    # Pre-commit checks
+    checks.x86_64-linux.pre-commit-check = pre-commit-hooks.lib.x86_64-linux.run {
+      src = ./.;
+      hooks = {
+        alejandra.enable = true;
+        statix.enable = true;
+        deadnix.enable = true;
+      };
+    };
+
+    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
+      inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
+      buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
+    };
+  };
 }
