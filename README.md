@@ -25,7 +25,7 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 
 | Feature | Details |
 |---------|---------|
-| **Login Screen** | Greetd + ReGreet with custom sci-fi glassmorphism CSS — glowing panels, neon clock, particle effects |
+| **Login Screen** | Greetd + ReGreet with custom sci-fi glassmorphism CSS — glowing panels, neon clock, particle effects, auto-blanking after 3 min idle |
 | **Primary Desktop** | niri (scrollable-tiling Wayland compositor) + dms-shell (GTK/QML panel with system tray) |
 | **Fallback Desktop** | COSMIC — System76's Rust-native DE, selectable from ReGreet session list |
 | **Input Method** | fcitx5 + Rime-ice (雾凇拼音) with StatusNotifier tray icon in dms-shell |
@@ -269,6 +269,7 @@ The dms-shell systemd user service is overridden to bind to `niri.service` (not 
 - **Fonts**: Orbitron (headings, sci-fi) + JetBrains Mono (clock, monospace)
 - **Background**: Tarantula Nebula (NASA PIA23646) from COSMIC wallpapers
 - **Features**: Clock with neon glow, session dropdown, power buttons, error info bar
+- **Auto-blanking**: Display turns off after 3 min of inactivity (`swayidle` + `wlr-randr`), wakes on input
 
 ### Font Aliasing (Chinese Electron Apps)
 

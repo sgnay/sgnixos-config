@@ -1,8 +1,25 @@
 # services/greetd.nix — 轻量登录管理器（ReGreet 图形科幻玻璃风格登录界面）
-{ config, pkgs, secrets, ... }:
+{ config, pkgs, lib, secrets, ... }:
 let
   userName = secrets.username;
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
+
+  # regreet-wrapper — 带自动熄屏的 ReGreet 启动脚本
+  # swayidle 运行在 cage Wayland 会话内，监控空闲时间
+  regreetWrapper = pkgs.writeShellScriptBin "regreet-wrapper" ''
+    # swayidle 运行在 cage Wayland 会话内，通过 idle-notify 协议监控空闲
+    # cage 支持 idle-notify（swayidle 可检测空闲），但不支持 output-power-management（wlopm 不可用）
+    # 因此使用 wlr-randr --off/--on 通过 output-management 协议控制输出开关
+    #
+    # 输出名称 'eDP-1' 为笔记本内屏，若有外接显示器需在此扩展
+    ${lib.getExe pkgs.swayidle} \
+      timeout 180 '${lib.getExe pkgs.wlr-randr} --output eDP-1 --off' \
+      resume  '${lib.getExe pkgs.wlr-randr} --output eDP-1 --on' &
+    SWAYIDLE_PID=$!
+    trap 'kill "$SWAYIDLE_PID" 2>/dev/null' EXIT
+
+    exec ${lib.getExe pkgs.regreet}
+  '';
 
   # ===== 科幻玻璃态 CSS =====
   sciFiCss = ''
@@ -346,6 +363,9 @@ in
     cageArgs = [ "-s" "-d" ];
   };
 
+  # 覆盖 programs.regreet 模块的 mkDefault，使用带 swayidle 的包装脚本
+  services.greetd.settings.default_session.command =
+    "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
   # 安装 Orbitron 字体到系统（供 GTK CSS 引用）
   fonts.packages = [ pkgs.orbitron ];
 

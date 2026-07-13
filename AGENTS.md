@@ -296,6 +296,7 @@ sudo nixos-rebuild test --flake /etc/nixos#sgnixos
 - **自定义 CSS**: 通过 `programs.regreet.extraCss` 注入科幻玻璃风格 CSS（编写于 `modules/services/greetd.nix` 的 `sciFiCss` 变量）
 - **光标主题**: Bibata-Modern-Ice
 - **电源命令**: 内置 `systemctl reboot` / `systemctl poweroff`
+- **自动熄屏**: 登录界面 3 分钟无操作自动关闭显示器（`swayidle` + `wlr-randr`），触摸键盘/鼠标恢复
 
 #### 科幻玻璃态（Glassmorphism）设计细节
 
