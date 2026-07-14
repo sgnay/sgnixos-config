@@ -41,5 +41,9 @@
 
     # UniVPN 客户端
     ./modules/services/univpn.nix
+
+    # 向日葵远程控制客户端
+    ./modules/services/sunloginclient.nix
   ];
 }
+

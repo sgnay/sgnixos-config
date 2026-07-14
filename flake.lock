@@ -62,17 +62,14 @@
         ]
       },
       "locked": {
-        "lastModified": 1783998427,
-        "narHash": "sha256-Qq9m0tsuQxgFPZOxzBAuoaDVf5/56/LfAFXfF4xbrmA=",
-        "owner": "sgnay",
-        "repo": "sgnur-packages",
-        "rev": "3c04ff8d6f7f4b87e4681d9b40dd4dd645165a35",
-        "type": "github"
+        "lastModified": 1784035001,
+        "narHash": "sha256-wHi9gF3cdMvDHQRVsSKIpjxRPs+0O1PaVn63Y9uPgmE=",
+        "path": "/home/sgnay/0Todo/agents/sgnur-packages",
+        "type": "path"
       },
       "original": {
-        "owner": "sgnay",
-        "repo": "sgnur-packages",
-        "type": "github"
+        "path": "/home/sgnay/0Todo/agents/sgnur-packages",
+        "type": "path"
       }
     },
     "nixos-hardware": {
