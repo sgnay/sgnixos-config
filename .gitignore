@@ -1,6 +1,3 @@
-# 敏感数据文件
-secrets.nix
-
 # 备份文件
 *.backup
 
