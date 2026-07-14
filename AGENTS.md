@@ -7,8 +7,11 @@
 This is a NixOS system configuration based on **Nix Flakes**, employing a modular design and integrating **Home Manager** to manage user configurations.
 
 - **System Upgrade Records (2026-07-14)**:
-  - Introduced and packaged the `oh-my-pi` (omp) AI coding agent. Since Bun's single-file executables use a trailer mechanism to append JS scripts, traditional `patchelf` breaks segment offsets, degrading it to a standard Bun CLI. Therefore, a dynamic loader wrapper solution was implemented.
-  - Successfully integrated the `omp` package into the local personal NUR repository `sgnur-packages`, removed the local package definition in `/etc/nixos`, and declaratively integrated it into the Home Manager package list via the `myRepo` dynamic overlay.
+  - **SOPS-Nix Secrets Overhaul**: Permanently deleted the plain-text local `secrets.nix` file. Configured `sops-nix` utilizing the host's SSH host key (`/etc/ssh/ssh_host_ed25519_key`) and the user's personal key (`~/.ssh/id_ed25519`) as age decryption identities.
+  - **Runtime Config Rendering**: Sensitive credentials (such as VLESS Outbounds) are encrypted in `secrets.yaml`. At boot/activation time, `sops-nix` decrypts them and dynamically renders `xray-away.json` into `/run/secrets/rendered/xray-away.json` (RAMFS). This protects credentials from being stored in the world-readable `/nix/store`.
+  - **Variable Decoupling**: Moved non-sensitive values (`username`, `email`, public SSH keys) into a new public `common.nix` file which is tracked in git.
+  - **Oh My Pi (omp) integration**: Packaged the `oh-my-pi` AI coding agent using a dynamic loader wrapper solution since traditional `patchelf` breaks Bun JS payloads. Published it to `sgnur-packages` and imported it declaratively via overlays.
+
 - **System Upgrade Records (2026-07-13)**:
   - Decoupled software packages by migrating GUI applications to Home Manager.
   - Introduced the `home/lib.nix` helper library for unified dotfile management.
@@ -20,6 +23,9 @@ This is a NixOS system configuration based on **Nix Flakes**, employing a modula
 /etc/nixos/
 ├── flake.nix                    # Flake entry point
 ├── configuration.nix            # Main configuration (imports only)
+├── common.nix                   # Public system & user variables
+├── .sops.yaml                   # SOPS recipient key configs
+├── secrets.yaml                 # SOPS encrypted secrets (xray outbounds, etc.)
 ├── modules/                     # NixOS system modules
 │   ├── desktop/                 # Desktop environment (niri/cosmic/audio/fonts)
 │   ├── packages/                # Core system packages
@@ -39,6 +45,9 @@ This is a NixOS system configuration based on **Nix Flakes**, employing a modula
 # Build and switch system configuration
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 
+# Edit encrypted secrets file
+nix-shell -p sops --run "sops secrets.yaml"
+
 # Check user service status
 systemctl --user status dms.service
 ```
@@ -52,5 +61,5 @@ systemctl --user status dms.service
 
 ## Important Notes
 
-- `secrets.nix` is not tracked by Git. Run the `rebuild` alias (which includes `--update-input secrets-file`) after modifying secrets.
+- **Secrets Management**: Do NOT write plaintext secrets in git. Always edit `secrets.yaml` using the `sops` wrapper. Non-sensitive settings belong in `common.nix`.
 - `allowUnfree` is enabled globally inside Home Manager; no additional setup is required.
