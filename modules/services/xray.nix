@@ -154,7 +154,7 @@ in
       conflicts = [ "xray-home.service" ];
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.xray}/bin/xray run -config /run/secrets-rendered/xray-away.json";
+        ExecStart = "${pkgs.xray}/bin/xray run -config ${config.sops.templates."xray-away.json".path}";
         Restart = "on-failure";
         RestartSec = 5;
         Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
