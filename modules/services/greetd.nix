@@ -1,7 +1,8 @@
 # services/greetd.nix — 轻量登录管理器（ReGreet 图形科幻玻璃风格登录界面）
-{ config, pkgs, lib, secrets, ... }:
+{ config, pkgs, lib, ... }:
 let
-  userName = secrets.username;
+  common = import ../../common.nix;
+  userName = common.username;
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
 
   # regreet-wrapper — 带自动熄屏的 ReGreet 启动脚本

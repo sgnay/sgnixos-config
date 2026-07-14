@@ -1,6 +1,7 @@
-{ config, pkgs, secrets, ... }:
+{ config, pkgs, ... }:
 let
-  userName = secrets.username;
+  common = import ../../common.nix;
+  userName = common.username;
 in
 {
   programs.fish.enable = true;
@@ -10,7 +11,7 @@ in
     description = userName;
     shell = pkgs.fish;
     extraGroups = [ "networkmanager" "wheel" ];
-    openssh.authorizedKeys.keys = secrets.user-public-ssh-keys;
+    openssh.authorizedKeys.keys = common.user-public-ssh-keys;
     packages = with pkgs; [
       uv
       nodejs

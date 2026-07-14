@@ -1,6 +1,7 @@
-{ config, pkgs, secrets, ... }:
+{ config, pkgs, ... }:
 let
-  userName = secrets.username;
+  common = import ../../common.nix;
+  userName = common.username;
 in
 {
   services.openssh = {

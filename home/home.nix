@@ -1,11 +1,14 @@
 # home.nix — Home Manager 主配置
 {
   pkgs,
-  secrets,
   ...
-}: {
-  home.username = secrets.username;
-  home.homeDirectory = "/home/${secrets.username}";
+}:
+let
+  common = import ../common.nix;
+in
+{
+  home.username = common.username;
+  home.homeDirectory = "/home/${common.username}";
 
   home.stateVersion = "26.05";
 

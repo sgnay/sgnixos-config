@@ -2,15 +2,17 @@
 {
   config,
   pkgs,
-  secrets,
   ...
 }:
+let
+  common = import ../../common.nix;
+in
 {
   programs.git = {
     enable = true;
     settings = {
-      user.name = secrets.username;
-      user.email = secrets.email or "user@example.com";
+      user.name = common.username;
+      user.email = common.email or "user@example.com";
       init.defaultBranch = "main";
       pull.rebase = true;
       credential.helper = "store";

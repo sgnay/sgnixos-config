@@ -1,5 +1,5 @@
 # services/xray.nix — Xray 代理客户端，双模式 GeoIP 分流
-{ config, lib, pkgs, secrets, ... }:
+{ config, lib, pkgs, ... }:
 let
   common = import ../../common.nix;
 
@@ -20,9 +20,6 @@ let
     settings.servers = [{ address = common.network.proxyHost; port = common.network.proxyPort; }]; };
   blockOut  = { tag = "block"; protocol = "blackhole";
     settings.response.type = "http"; };
-
-  # ---- xray-away (VLESS+REALITY) ----
-  vlessOuts = secrets.xray-outbounds;  # 来自 secrets.nix
 
   # DNS 配置
   awayDns = {
@@ -85,7 +82,7 @@ let
 
   mkAwayConfig = {
     inbounds = commonInbounds;
-    outbounds = [ directOut localOut blockOut ] ++ vlessOuts;
+    outbounds = [ directOut localOut blockOut ];
     routing = {
       domainStrategy = "AsIs";
       rules = awayRules;
@@ -125,6 +122,30 @@ in
     clash-verge-rev
   ];
 
+  sops.secrets.xray-outbounds = {
+    sopsFile = ../../secrets.yaml;
+  };
+
+  sops.templates."xray-away.json".content = ''
+    {
+      "inbounds": ${builtins.toJSON commonInbounds},
+      "outbounds": [
+        ${builtins.toJSON directOut},
+        ${builtins.toJSON localOut},
+        ${builtins.toJSON blockOut},
+        ${config.sops.placeholder."xray-outbounds"}
+      ],
+      "routing": {
+        "domainStrategy": "AsIs",
+        "rules": ${builtins.toJSON awayRules}
+      },
+      "dns": ${builtins.toJSON awayDns},
+      "log": {
+        "loglevel": "warning"
+      }
+    }
+  '';
+
   systemd.services = {
     xray = {
       description = "Xray Proxy (Away: VLESS+REALITY)";
@@ -133,9 +154,7 @@ in
       conflicts = [ "xray-home.service" ];
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.xray}/bin/xray run -config ${
-          pkgs.writeText "xray-away.json" (builtins.toJSON mkAwayConfig)
-        }";
+        ExecStart = "${pkgs.xray}/bin/xray run -config /run/secrets-rendered/xray-away.json";
         Restart = "on-failure";
         RestartSec = 5;
         Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";

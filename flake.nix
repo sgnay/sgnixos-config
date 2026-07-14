@@ -21,6 +21,11 @@
       url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # SOPS-Nix - 密钥加解密管理
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Pre-commit hooks
     pre-commit-hooks = {
       url = "github:cachix/pre-commit-hooks.nix";
@@ -33,12 +38,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # ============ 敏感数据（不跟踪 Git）============
-    # 修改后需 --update-input secrets 使新内容生效
-    secrets-file = {
-      url = "path:/etc/nixos/secrets.nix";
-      flake = false;
-    };
   };
 
   outputs = inputs @ {
@@ -47,16 +46,13 @@
     nixos-hardware,
     vscode-server,
     home-manager,
-    secrets-file,
     pre-commit-hooks,
     ...
-  }: let
-    # 从 flake input（path）导入 secrets 内容
-    secrets = import secrets-file;
-  in {
+  }: {
     nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
+        inputs.sops-nix.nixosModules.sops
         {
           nixpkgs.overlays = [
             (_final: prev: {
@@ -77,17 +73,17 @@
           home-manager.useGlobalPkgs = true;
           home-manager.backupFileExtension = "backup";
           home-manager.users.sgnay = import ./home/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs secrets;};
+          home-manager.extraSpecialArgs = {inherit inputs;};
         })
       ];
-      specialArgs = {inherit inputs secrets;};
+      specialArgs = {inherit inputs;};
     };
 
     homeConfigurations = {
       sgnay = inputs.home-manager.lib.homeManagerConfiguration {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         modules = [./home/home.nix];
-        extraSpecialArgs = {inherit inputs secrets;};
+        extraSpecialArgs = {inherit inputs;};
       };
     };
 
