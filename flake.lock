@@ -62,11 +62,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783604366,
-        "narHash": "sha256-4tgv7ZPWJvtquXQoMC7kBUqxz4V9e4BPvlyUZs9GRl4=",
+        "lastModified": 1783998427,
+        "narHash": "sha256-Qq9m0tsuQxgFPZOxzBAuoaDVf5/56/LfAFXfF4xbrmA=",
         "owner": "sgnay",
         "repo": "sgnur-packages",
-        "rev": "3e2b45ccf555a7ee813d500d973a98f88c171cc9",
+        "rev": "3c04ff8d6f7f4b87e4681d9b40dd4dd645165a35",
         "type": "github"
       },
       "original": {

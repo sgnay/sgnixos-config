@@ -6,6 +6,9 @@
 
 这是一个基于 **Nix Flakes** 的 NixOS 系统配置，采用模块化设计，集成 **Home Manager** 管理用户配置。
 
+- **系统升级记录 (2026-07-14)**:
+  - 引入并打包了 `oh-my-pi` (omp) AI 编程助手。由于 Bun 单文件可执行文件采用 Trailer 机制追加打包 JS 脚本，传统 `patchelf` 会破坏段偏移导致其退化为常规 Bun CLI，因此采用了动态加载解释器（Wrapper）方案。
+  - 将 `omp` 包成功集成到了本地个人 NUR 仓库 `sgnur-packages` 中，移除了 `/etc/nixos` 的本地包定义，并通过 `myRepo` 动态 Overlay 声明式集成到 Home Manager 包列表。
 - **系统升级记录 (2026-07-13)**:
   - 实施了软件包解耦（将 GUI 应用迁移至 Home Manager）。
   - 引入了 `home/lib.nix` 辅助库进行 dotfile 统一管理。

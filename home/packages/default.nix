@@ -40,6 +40,7 @@
 
     # ai agents
     antigravity
+    omp
 
     # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
     (symlinkJoin {

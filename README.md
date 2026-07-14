@@ -10,10 +10,14 @@
 
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
-### Recent Optimizations (2026-07-13)
-- **Architecture Decoupling**: Moved GUI applications from `environment.systemPackages` to Home Manager for cleaner system profiles.
-- **Dotfile Management**: Refactored symlinking into a unified `home/lib.nix` helper (`mkDotfileLinks`) for maintainable and concise XDG configuration.
-- **Build Robustness**: Implemented `lib.mkForce` and cleanup logic to resolve Home Manager activation conflicts.
+### Recent Optimizations
+- **2026-07-14: OMP AI Coding Agent Integration**
+  - **Dynamic Linker Wrapping**: Packaged the `oh-my-pi` (omp) AI coding agent. Since Bun's standalone binary embeds its JS payload as a trailing archive, traditional `patchelf` corrupts the offset. Resolved this by wrapping the unmodified binary with the glibc dynamic interpreter (`ld-linux-x86-64.so.2`).
+  - **Declarative NUR Overlay**: Promoted the `omp` package to the personal `sgnur-packages` repository, updating the Flake inputs overlay and Home Manager packages accordingly.
+- **2026-07-13: Architecture Decoupling & Dotfiles**
+  - **Architecture Decoupling**: Moved GUI applications from `environment.systemPackages` to Home Manager for cleaner system profiles.
+  - **Dotfile Management**: Refactored symlinking into a unified `home/lib.nix` helper (`mkDotfileLinks`) for maintainable and concise XDG configuration.
+  - **Build Robustness**: Implemented `lib.mkForce` and cleanup logic to resolve Home Manager activation conflicts.
 
 ---
 

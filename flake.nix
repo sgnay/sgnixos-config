@@ -62,6 +62,7 @@
             (_final: prev: {
               univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
               nyaterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".nyaterm;
+              omp = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".omp;
             })
           ];
         }
