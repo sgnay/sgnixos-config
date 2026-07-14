@@ -60,5 +60,8 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 nix-shell -p sops --run "sops secrets.yaml"
 ```
 
+### Secrets Disaster Recovery
+If you reinstall the OS or move to a new machine, your host SSH key will change. As long as you have backed up your personal user SSH key (`~/.ssh/id_ed25519`), you can easily recover and update the keys. Detailed step-by-step instructions are documented in the **Secrets Disaster Recovery** section of [AGENTS.md](file:///etc/nixos/AGENTS.md).
+
 ### Hot-Reloading Dotfiles
 Dotfiles in `dotfiles/` are symlinked using `mkOutOfStoreSymlink`. Edits to these files apply immediately (or after app restart/reload) without needing a system rebuild.

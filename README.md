@@ -60,5 +60,8 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 nix-shell -p sops --run "sops secrets.yaml"
 ```
 
+### 密钥灾备与换机恢复
+当重装系统或更换设备导致主机密钥（`/etc/ssh/ssh_host_ed25519_key`）改变时，只要你保留有个人 SSH 私钥（`~/.ssh/id_ed25519`）的备份，即可轻松在新设备上恢复和重置密钥绑定。具体恢复步骤已记录在 [AGENTS.md](file:///etc/nixos/AGENTS.md) 的 **Secrets Disaster Recovery** 章节。
+
 ### 免重启更新配置 (Hot-Reloading)
 `dotfiles/` 目录中的配置文件都是通过 `mkOutOfStoreSymlink` 符号链接到系统中的。修改这些配置文件将立即生效（或在应用重启/重新加载后生效），无需重新构建 NixOS。

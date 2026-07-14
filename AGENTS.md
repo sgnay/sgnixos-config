@@ -59,6 +59,26 @@ systemctl --user status dms.service
 - Modifying files inside `dotfiles/` does not require a rebuild; applications will pick up changes automatically.
 - **Note**: If a conflict occurs during building due to existing `*.backup` files, clean up the conflicting `~/.config/<program>/*.backup` files.
 
+## Secrets Disaster Recovery (Key Rotation / Re-keying)
+
+If you reinstall NixOS or move to a new machine, the system host key (`/etc/ssh/ssh_host_ed25519_key`) will change. As long as you have backed up your personal user key (`~/.ssh/id_ed25519`), you can easily recover and re-encrypt the secrets:
+
+1. Restore your personal key to `/home/sgnay/.ssh/id_ed25519`.
+2. Generate the new `age` public key from the new machine's SSH host key:
+   ```bash
+   nix-shell -p ssh-to-age --run "ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub"
+   # Output: age1...
+   ```
+3. Update the `&host` public key entry in `/etc/nixos/.sops.yaml` with the new age key.
+4. Run the SOPS update keys command to decrypt the file using your personal key and re-encrypt it with the new host key:
+   ```bash
+   nix-shell -p sops --run "sops updatekeys secrets.yaml"
+   ```
+5. Apply the configuration:
+   ```bash
+   sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+   ```
+
 ## Important Notes
 
 - **Secrets Management**: Do NOT write plaintext secrets in git. Always edit `secrets.yaml` using the `sops` wrapper. Non-sensitive settings belong in `common.nix`.
