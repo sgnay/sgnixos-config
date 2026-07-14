@@ -11,8 +11,13 @@
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
 ### Recent Optimizations
+- **2026-07-14: SOPS-Nix Secrets Refactoring**
+  - **Deprecated Plaintext secrets.nix**: Completely removed the untracked `/etc/nixos/secrets.nix` file to prevent accidental deletion and plain-text exposure.
+  - **SOPS-Nix Integration**: Introduced `sops-nix` for secrets management. Converted the host's SSH host key (`/etc/ssh/ssh_host_ed25519_key`) and the user's personal key (`~/.ssh/id_ed25519`) into `age` identities, allowing transparent boot decryption and secure local editing.
+  - **Runtime Config Rendering**: Encrypted proxy credentials (Xray VLESS outbounds) inside `secrets.yaml`. They are dynamically decrypted and rendered into `/run/secrets/rendered/xray-away.json` (RAMFS) during the system activation phase. The Xray systemd service references this path directly, successfully preventing sensitive tokens/UUIDs from leaking into the world-readable `/nix/store`.
+  - **Decoupled Public Parameters**: Moved public settings (`username`, `email`, public SSH keys) to `common.nix` for clean version control.
 - **2026-07-14: OMP AI Coding Agent Integration**
-  - **Dynamic Linker Wrapping**: Packaged the `oh-my-pi` (omp) AI coding agent. Since Bun's standalone binary embeds its JS payload as a trailing archive, traditional `patchelf` corrupts the offset. Resolved this by wrapping the unmodified binary with the glibc dynamic interpreter (`ld-linux-x86-64.so.2`).
+  - **Dynamic Linker Wrapping**: Packaged the `oh-my-pi` (omp) AI coding agent. Bun's standalone binary embeds its JS payload as a trailing archive, so traditional `patchelf` corrupts the offset. Resolved this by wrapping the unmodified binary with the glibc dynamic interpreter (`ld-linux-x86-64.so.2`).
   - **Declarative NUR Overlay**: Promoted the `omp` package to the personal `sgnur-packages` repository, updating the Flake inputs overlay and Home Manager packages accordingly.
 - **2026-07-13: Architecture Decoupling & Dotfiles**
   - **Architecture Decoupling**: Moved GUI applications from `environment.systemPackages` to Home Manager for cleaner system profiles.
@@ -23,8 +28,11 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 
 ## 📁 Directory Structure (Core)
 
-- `flake.nix`: Entry point.
+- `flake.nix`: Entry point (imports `sops-nix` module).
 - `configuration.nix`: Minimal system imports.
+- `common.nix`: Public system & user variables.
+- `.sops.yaml`: SOPS key configuration and recipient rules.
+- `secrets.yaml`: SOPS encrypted configuration database.
 - `modules/system/`: System-level configuration.
 - `modules/packages/`: Minimal system-level core tools.
 - `home/`: Home Manager configuration.
@@ -43,6 +51,13 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 ```bash
 # Switch (apply now + set as default boot entry)
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+```
+
+### Secrets Maintenance
+
+```bash
+# Edit secrets.yaml using your personal SSH key (automatically decrypts/re-encrypts)
+nix-shell -p sops --run "sops secrets.yaml"
 ```
 
 ### Hot-Reloading Dotfiles
