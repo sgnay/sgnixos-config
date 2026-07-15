@@ -37,7 +37,6 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
   outputs = inputs @ {
@@ -59,7 +58,8 @@
               univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
               nyaterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".nyaterm;
               omp = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".omp;
-              sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
+              rustconn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".rustconn;
+              sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" {};
             })
           ];
         }

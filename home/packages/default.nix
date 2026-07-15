@@ -10,6 +10,7 @@
     ghostty
     clashtui
     nyaterm
+    rustconn
     helix # 命令行编辑器也属于用户级工具
 
     # 办公
