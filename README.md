@@ -11,6 +11,9 @@
 这是一个基于 **Nix Flakes** 管理的模块化、生产级 NixOS 系统配置，并将 **Home Manager** 作为 NixOS 模块进行集成。
 
 ### 近期优化
+
+- **2026-07-23: 通用 FHS 环境配置**
+  - **FHS 环境框架 (fhs.nix)**: 基于 `buildFHSEnv` 实现了通用 FHS 隔离环境 `/etc/nixos/fhs.nix`，补齐了常用的 C/C++ 运行时、X11/OpenGL 渲染库及基础开发工具。可使用 `nix-shell /etc/nixos/fhs.nix` 加载并运行未经过 Nix 补丁 (patchelf) 的第三方 Linux 二进制程序与 SDK。
 - **2026-07-14: SOPS-Nix 密钥安全重构**
   - **废弃明文 secrets.nix**: 完全移除了之前本地未跟踪且易丢失的明文 `/etc/nixos/secrets.nix`。
   - **SOPS-Nix 安全机制**: 引入 `sops-nix` 加密流程。将主机 SSH Host Key (`/etc/ssh/ssh_host_ed25519_key`) 和用户个人 SSH Key (`~/.ssh/id_ed25519`) 转换并绑定为对应的 `age` 加密实体，既支持系统无感解密，又支持用户日常免密编辑。
@@ -31,6 +34,7 @@
 - `flake.nix`: 系统配置入口，集成 `sops-nix.nixosModules.sops` 模块。
 - `configuration.nix`: 最小系统级模块导入。
 - `common.nix`: 存放非敏感的系统及用户公共参数。
+- `fhs.nix`: 基于 `buildFHSEnv` 的通用 FHS 沙盒隔离环境配置。
 - `.sops.yaml`: SOPS 密钥加解密受众规则。
 - `secrets.yaml`: 加密保存的敏感数据源。
 - `modules/system/`: 系统级基础配置。
@@ -61,7 +65,24 @@ nix-shell -p sops --run "sops secrets.yaml"
 ```
 
 ### 密钥灾备与换机恢复
+
 当重装系统或更换设备导致主机密钥（`/etc/ssh/ssh_host_ed25519_key`）改变时，只要你保留有个人 SSH 私钥（`~/.ssh/id_ed25519`）的备份，即可轻松在新设备上恢复和重置密钥绑定。具体恢复步骤已记录在 [AGENTS.md](file:///etc/nixos/AGENTS.md) 的 **Secrets Disaster Recovery** 章节。
 
 ### 免重启更新配置 (Hot-Reloading)
+
 `dotfiles/` 目录中的配置文件都是通过 `mkOutOfStoreSymlink` 符号链接到系统中的。修改这些配置文件将立即生效（或在应用重启/重新加载后生效），无需重新构建 NixOS。
+
+### FHS 常用排错技巧（查找缺失的动态链接库）
+
+如果在 FHS 环境中运行二进制程序提示 error while loading shared libraries: libXXX.so.Y: cannot open
+shared object file：
+
+1. 查缺失库：在 FHS 环境中使用 ldd 检索：
+  ldd ./path/to/your/binary
+
+2. 在 Nixpkgs 中搜包：
+  nix-locate libXXX.so.Y
+
+- 或使用 command-not-found / nix-search
+
+1. 将查到的 Nix 包名追加到 targetPkgs 列表中即可。

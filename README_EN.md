@@ -11,6 +11,8 @@
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
 ### Recent Optimizations
+- **2026-07-23: Standalone FHS Sandbox Environment**
+  - **FHS Environment (fhs.nix)**: Introduced `/etc/nixos/fhs.nix` based on `buildFHSEnv`. It bundles standard C/C++ runtimes, X11/OpenGL graphics libraries, and development utilities, allowing unpatched Linux binaries and SDKs to be executed via `nix-shell /etc/nixos/fhs.nix`.
 - **2026-07-14: SOPS-Nix Secrets Refactoring**
   - **Deprecated Plaintext secrets.nix**: Completely removed the untracked `/etc/nixos/secrets.nix` file to prevent accidental deletion and plain-text exposure.
   - **SOPS-Nix Integration**: Introduced `sops-nix` for secrets management. Converted the host's SSH host key (`/etc/ssh/ssh_host_ed25519_key`) and the user's personal key (`~/.ssh/id_ed25519`) into `age` identities, allowing transparent boot decryption and secure local editing.
@@ -31,6 +33,7 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 - `flake.nix`: Entry point (imports `sops-nix` module).
 - `configuration.nix`: Minimal system imports.
 - `common.nix`: Public system & user variables.
+- `fhs.nix`: Standalone FHS sandbox environment (buildFHSEnv).
 - `.sops.yaml`: SOPS key configuration and recipient rules.
 - `secrets.yaml`: SOPS encrypted configuration database.
 - `modules/system/`: System-level configuration.

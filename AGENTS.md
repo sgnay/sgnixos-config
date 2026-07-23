@@ -6,6 +6,9 @@
 
 This is a NixOS system configuration based on **Nix Flakes**, employing a modular design and integrating **Home Manager** to manage user configurations.
 
+- **System Upgrade Records (2026-07-23)**:
+  - **FHS Environment Configuration**: Added `fhs.nix` based on `buildFHSEnv` to provide a standard Linux FHS sandbox environment for executing unpatched third-party binaries and SDKs without requiring `patchelf`.
+
 - **System Upgrade Records (2026-07-14)**:
   - **SOPS-Nix Secrets Overhaul**: Permanently deleted the plain-text local `secrets.nix` file. Configured `sops-nix` utilizing the host's SSH host key (`/etc/ssh/ssh_host_ed25519_key`) and the user's personal key (`~/.ssh/id_ed25519`) as age decryption identities.
   - **Runtime Config Rendering**: Sensitive credentials (such as VLESS Outbounds) are encrypted in `secrets.yaml`. At boot/activation time, `sops-nix` decrypts them and dynamically renders `xray-away.json` into `/run/secrets/rendered/xray-away.json` (RAMFS). This protects credentials from being stored in the world-readable `/nix/store`.
@@ -24,6 +27,7 @@ This is a NixOS system configuration based on **Nix Flakes**, employing a modula
 ├── flake.nix                    # Flake entry point
 ├── configuration.nix            # Main configuration (imports only)
 ├── common.nix                   # Public system & user variables
+├── fhs.nix                      # Standalone FHS sandbox environment (buildFHSEnv)
 ├── .sops.yaml                   # SOPS recipient key configs
 ├── secrets.yaml                 # SOPS encrypted secrets (xray outbounds, etc.)
 ├── modules/                     # NixOS system modules
@@ -44,6 +48,9 @@ This is a NixOS system configuration based on **Nix Flakes**, employing a modula
 ```bash
 # Build and switch system configuration
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+
+# Launch FHS environment for unpatched binaries
+nix-shell /etc/nixos/fhs.nix
 
 # Edit encrypted secrets file
 nix-shell -p sops --run "sops secrets.yaml"
