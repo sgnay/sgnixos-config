@@ -1,13 +1,6 @@
 # Sunlogin remote control client
 # Module sourced from sgnur-packages (inputs.myRepo.nixosModules.sunloginclient)
-{
-  config,
-  pkgs,
-  lib,
-  inputs,
-  ...
-}:
-{
+{inputs, ...}: {
   imports = [
     inputs.myRepo.nixosModules.sunloginclient
   ];

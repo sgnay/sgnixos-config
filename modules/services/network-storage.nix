@@ -2,27 +2,31 @@
 #   kdeconnect: KDE Connect 手机与电脑互联
 #   nfs-utils:  NFS 客户端工具 + 服务端
 #   samba:      SMB/CIFS 服务端 + 客户端挂载（cifs-utils）
-{ config, pkgs, lib, ... }:
-let
+{pkgs, ...}: let
   common = import ../../common.nix;
   userName = common.username;
-in
-{
+in {
   # === 系统包: KDE Connect + NFS + Samba ===
   environment.systemPackages = with pkgs; [
-    kdePackages.kdeconnect-kde        # 手机-电脑互联
-    nfs-utils                         # NFS 客户端/服务端工具
-    samba                             # SMB/CIFS 服务端
-    cifs-utils                        # mount -t cifs 支持
+    kdePackages.kdeconnect-kde # 手机-电脑互联
+    nfs-utils # NFS 客户端/服务端工具
+    samba # SMB/CIFS 服务端
+    cifs-utils # mount -t cifs 支持
   ];
 
   # KDE Connect 需要防火墙放行
   networking.firewall = {
     allowedTCPPortRanges = [
-      { from = 1714; to = 1764; }
+      {
+        from = 1714;
+        to = 1764;
+      }
     ];
     allowedUDPPortRanges = [
-      { from = 1714; to = 1764; }
+      {
+        from = 1714;
+        to = 1764;
+      }
     ];
   };
 
@@ -40,15 +44,15 @@ in
     device = "172.20.26.100:/home/sgdata";
     fsType = "nfs";
     options = [
-      "nolock"                      # 禁用文件锁（提高 NFS 性能）
-      "nofail"                      # 挂载失败不阻塞启动
-      "noauto"                      # 开机不自动挂载
-      "x-systemd.automount"         # 按需挂载：访问目录时自动挂载
-      "x-systemd.idle-timeout=600"  # 无活动 10 分钟后自动卸载
-      "_netdev"                     # 网络文件系统，等待网络就绪
-      "soft"                        # 软挂载（超时后返回错误而非挂起）
-      "timeo=30"                    # 超时时间 3 秒（默认 0.7 秒的 30 倍）
-      "retrans=3"                   # 重试次数
+      "nolock" # 禁用文件锁（提高 NFS 性能）
+      "nofail" # 挂载失败不阻塞启动
+      "noauto" # 开机不自动挂载
+      "x-systemd.automount" # 按需挂载：访问目录时自动挂载
+      "x-systemd.idle-timeout=600" # 无活动 10 分钟后自动卸载
+      "_netdev" # 网络文件系统，等待网络就绪
+      "soft" # 软挂载（超时后返回错误而非挂起）
+      "timeo=30" # 超时时间 3 秒（默认 0.7 秒的 30 倍）
+      "retrans=3" # 重试次数
     ];
   };
 
@@ -56,8 +60,8 @@ in
 
   services.samba = {
     enable = true;
-    package = pkgs.samba;             # 显式指定包
-    openFirewall = true;              # 自动开放 137-139, 445 端口
+    package = pkgs.samba; # 显式指定包
+    openFirewall = true; # 自动开放 137-139, 445 端口
     settings = {
       global = {
         "workgroup" = "WORKGROUP";
@@ -95,16 +99,16 @@ in
   };
 
   # 将用户加入 sambashare 组（可选）
-  users.users.${userName}.extraGroups = [ "sambashare" ];
+  users.users.${userName}.extraGroups = ["sambashare"];
 
   # === Syncthing 文件同步 ===
   services.syncthing = {
     enable = true;
     user = userName;
-    dataDir = "/home/${userName}";    # 配置文件目录
+    dataDir = "/home/${userName}"; # 配置文件目录
     configDir = "/home/${userName}/.config/syncthing";
-    overrideFolders = false;           # 保留用户已有的文件夹配置
-    overrideDevices = false;           # 保留用户已有的设备配置
+    overrideFolders = false; # 保留用户已有的文件夹配置
+    overrideDevices = false; # 保留用户已有的设备配置
     guiAddress = "127.0.0.1:8384";
   };
 }

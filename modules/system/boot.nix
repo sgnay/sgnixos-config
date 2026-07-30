@@ -1,5 +1,8 @@
-{ config, lib, pkgs, ... }:
 {
+  lib,
+  pkgs,
+  ...
+}: {
   boot.loader.systemd-boot.enable = true;
   boot.loader.systemd-boot.configurationLimit = 5;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -26,5 +29,5 @@
   # 关闭控制台日志输出，防止日志从 Plymouth 背后泄漏
   boot.consoleLogLevel = 0;
   # 与 Plymouth 的 "splash" 配合，进一步压制内核消息
-  boot.kernelParams = [ "quiet" ];
+  boot.kernelParams = ["quiet"];
 }

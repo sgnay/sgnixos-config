@@ -1,7 +1,6 @@
-{ config, lib, pkgs, ... }:
-{
+{...}: {
   nix.settings = {
-    experimental-features = [ "nix-command" "flakes" ];
+    experimental-features = ["nix-command" "flakes"];
 
     substituters = [
       "https://mirrors.ustc.edu.cn/nix-channels/store"

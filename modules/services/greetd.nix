@@ -1,8 +1,10 @@
 # services/greetd.nix — 轻量登录管理器（ReGreet 图形科幻玻璃风格登录界面）
-{ config, pkgs, lib, ... }:
-let
-  common = import ../../common.nix;
-  userName = common.username;
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
 
   # regreet-wrapper — 带自动熄屏的 ReGreet 启动脚本
@@ -304,8 +306,7 @@ let
       box-shadow: 0 0 0 2px rgba(80, 160, 255, 0.5);
     }
   '';
-in
-{
+in {
   # === ReGreet 配置（programs.regreet 模块接管 greetd + cage 启动） ===
   programs.regreet = {
     enable = true;
@@ -352,8 +353,8 @@ in
         resolution = "500ms";
       };
       commands = {
-        reboot = [ "systemctl" "reboot" ];
-        poweroff = [ "systemctl" "poweroff" ];
+        reboot = ["systemctl" "reboot"];
+        poweroff = ["systemctl" "poweroff"];
       };
     };
 
@@ -361,14 +362,13 @@ in
     extraCss = sciFiCss;
 
     # cage 参数：-s 单窗口模式，-d 无装饰
-    cageArgs = [ "-s" "-d" ];
+    cageArgs = ["-s" "-d"];
   };
 
   # 覆盖 programs.regreet 模块的 mkDefault，使用带 swayidle 的包装脚本
-  services.greetd.settings.default_session.command =
-    "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
+  services.greetd.settings.default_session.command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
   # 安装 Orbitron 字体到系统（供 GTK CSS 引用）
-  fonts.packages = [ pkgs.orbitron ];
+  fonts.packages = [pkgs.orbitron];
 
   # 创建 greeter 用户（模块需要此用户存在才能启动）
   users.users.greeter = {
@@ -376,7 +376,7 @@ in
     home = "/var/lib/greeter";
     createHome = true;
     group = "greeter";
-    extraGroups = [ "video" ];
+    extraGroups = ["video"];
   };
-  users.groups.greeter = { };
+  users.groups.greeter = {};
 }

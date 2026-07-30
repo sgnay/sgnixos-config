@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-{
+{pkgs, ...}: {
   fonts.packages = with pkgs; [
     noto-fonts
     noto-fonts-cjk-sans
@@ -7,13 +6,13 @@
     noto-fonts-color-emoji
     nerd-fonts.fira-code
     nerd-fonts.symbols-only
-    fira-code              # WezTerm: "Fira Code"
-    jetbrains-mono         # WezTerm: "JetBrains Mono"
-    wqy_zenhei             # WezTerm: "WenQuanYi Zen Hei"
-    wqy_microhei           # qqmusic 中文显示
-    corefonts              # WPS 符号缺失修复 (Webdings, Arial, ...)
-    symbola                # WPS Symbol 字体补充
-    dejavu_fonts           # fontconfig 别名 Wingdings/MT Extra → DejaVu Sans
+    fira-code # WezTerm: "Fira Code"
+    jetbrains-mono # WezTerm: "JetBrains Mono"
+    wqy_zenhei # WezTerm: "WenQuanYi Zen Hei"
+    wqy_microhei # qqmusic 中文显示
+    corefonts # WPS 符号缺失修复 (Webdings, Arial, ...)
+    symbola # WPS Symbol 字体补充
+    dejavu_fonts # fontconfig 别名 Wingdings/MT Extra → DejaVu Sans
   ];
 
   # fontconfig 别名：
@@ -145,9 +144,9 @@
 
   # 字体配置：WenQuanYi Micro Hei 优先（非 VF，Electron 兼容性好）
   fonts.fontconfig.defaultFonts = {
-    sansSerif = [ "WenQuanYi Micro Hei" "Noto Sans CJK SC" "Noto Sans" ];
-    serif = [ "Noto Serif CJK SC" "Noto Serif" ];
-    monospace = [ "FiraCode Nerd Font" "Noto Sans Mono CJK SC" ];
-    emoji = [ "Noto Color Emoji" ];
+    sansSerif = ["WenQuanYi Micro Hei" "Noto Sans CJK SC" "Noto Sans"];
+    serif = ["Noto Serif CJK SC" "Noto Serif"];
+    monospace = ["FiraCode Nerd Font" "Noto Sans Mono CJK SC"];
+    emoji = ["Noto Color Emoji"];
   };
 }

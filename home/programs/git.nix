@@ -1,13 +1,7 @@
 # programs/git.nix — Git 用户配置
-{
-  config,
-  pkgs,
-  ...
-}:
-let
+{...}: let
   common = import ../../common.nix;
-in
-{
+in {
   programs.git = {
     enable = true;
     settings = {

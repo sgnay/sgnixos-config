@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-{
+{...}: {
   # PipeWire 音频服务（Wayland 标配）
   services.pipewire = {
     enable = true;

@@ -1,8 +1,4 @@
-{
-  config,
-  pkgs,
-  ...
-}: {
+{pkgs, ...}: {
   # logind 电源键/盖子行为
   services.logind.settings = {
     Login.HandlePowerKey = "ignore";

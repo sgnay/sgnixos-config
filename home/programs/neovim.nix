@@ -1,6 +1,5 @@
 # home/programs/neovim.nix — Neovim + LazyVim 配置
-{ config, pkgs, ... }:
-let
+{pkgs, ...}: let
   # LazyVim 启动配置
   lazyvimInit = pkgs.writeText "lazyvim-init.lua" ''
     -- 设置代理（国内 GitHub 直连困难）
@@ -83,8 +82,7 @@ let
       },
     })
   '';
-in
-{
+in {
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -110,4 +108,3 @@ in
     nixfmt # Nix 格式化（RFC-style）
   ];
 }
-

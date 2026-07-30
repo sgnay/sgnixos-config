@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-{
+{pkgs, ...}: {
   programs.niri.enable = true;
 
   # 使用 Thunar 替代 Nautilus 作为文件选择器

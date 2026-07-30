@@ -1,15 +1,13 @@
-{ config, pkgs, ... }:
-let
+{...}: let
   common = import ../../common.nix;
   userName = common.username;
-in
-{
+in {
   services.openssh = {
     enable = true;
     settings = {
       PermitRootLogin = "no";
       PasswordAuthentication = false;
-      AllowUsers = [ userName ];
+      AllowUsers = [userName];
     };
     openFirewall = true;
   };

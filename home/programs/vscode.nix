@@ -1,5 +1,4 @@
-{ config, pkgs, ... }:
-{
+{pkgs, ...}: {
   # VSCode 用户配置
   programs.vscode = {
     enable = true;

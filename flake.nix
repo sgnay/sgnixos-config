@@ -94,6 +94,7 @@
         alejandra.enable = true;
         statix.enable = true;
         deadnix.enable = true;
+        deadnix.settings.noLambdaPatternNames = true;
       };
     };
 

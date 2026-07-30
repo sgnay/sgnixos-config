@@ -1,11 +1,14 @@
 # home/programs/rime.nix — Rime 输入法配置（雾凇拼音 rime-ice）
-{ config, lib, pkgs, ... }:
-let
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}: let
   inherit (config.home) homeDirectory;
   rimeDir = "${homeDirectory}/.local/share/fcitx5/rime";
   rimeIcePath = "${pkgs.rime-ice}/share/rime-data";
-in
-{
+in {
   home.packages = with pkgs; [
     rime-ice
   ];

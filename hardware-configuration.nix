@@ -4,12 +4,9 @@
 {
   config,
   lib,
-  pkgs,
   modulesPath,
   ...
-}:
-
-{
+}: {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];
@@ -21,20 +18,20 @@
     "sd_mod"
     "rtsx_pci_sdmmc"
   ];
-  boot.initrd.kernelModules = [ ];
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.extraModulePackages = [ ];
+  boot.initrd.kernelModules = [];
+  boot.kernelModules = ["kvm-amd"];
+  boot.extraModulePackages = [];
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/5d4b699a-c1c7-44f1-999b-844121e0f3ce";
     fsType = "btrfs";
-    options = [ "subvol=@" ];
+    options = ["subvol=@"];
   };
 
   fileSystems."/home" = {
     device = "/dev/disk/by-uuid/5d4b699a-c1c7-44f1-999b-844121e0f3ce";
     fsType = "btrfs";
-    options = [ "subvol=@home" ];
+    options = ["subvol=@home"];
   };
 
   fileSystems."/boot" = {
@@ -47,7 +44,7 @@
   };
 
   swapDevices = [
-    { device = "/dev/disk/by-uuid/a672abb4-4908-4b90-97c4-db6164885276"; }
+    {device = "/dev/disk/by-uuid/a672abb4-4908-4b90-97c4-db6164885276";}
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

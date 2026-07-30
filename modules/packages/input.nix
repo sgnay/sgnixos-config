@@ -1,5 +1,8 @@
-{ config, pkgs, lib, ... }:
 {
+  pkgs,
+  lib,
+  ...
+}: {
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -22,6 +25,6 @@
   # fcitx5 配置工具和 rime-ice 词库
   environment.systemPackages = with pkgs; [
     qt6Packages.fcitx5-configtool
-    rime-ice                   # 雾凇拼音词库
+    rime-ice # 雾凇拼音词库
   ];
 }

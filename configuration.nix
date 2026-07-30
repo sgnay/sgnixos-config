@@ -1,11 +1,5 @@
 # configuration.nix — 最小化主配置，仅 imports 各模块
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-{
+{...}: {
   imports = [
     ./hardware-configuration.nix
 
@@ -29,7 +23,7 @@
     ./modules/desktop/audio.nix
 
     # 软件包
-    ./modules/packages                              # browsers, terminals, office, communication, editors, multimedia
+    ./modules/packages # browsers, terminals, office, communication, editors, multimedia
     ./modules/packages/file-manager.nix
     ./modules/packages/input.nix
     ./modules/packages/virtualization.nix
@@ -46,4 +40,3 @@
     ./modules/services/sunloginclient.nix
   ];
 }
-
