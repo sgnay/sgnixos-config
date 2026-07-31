@@ -1,7 +1,7 @@
 // 启动niri时自动启动的软件
 // spawn-at-startup "/usr/bin/dms" "run" // 通过 systemd 启动 dms 了
 // spawn-at-startup "qs" "-c" "noctalia-shell"
-spawn-at-startup "/usr/bin/fcitx5" "-d"
+spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "vicinae" "server"
 spawn-at-startup "cursor-clip" "--daemon"
 spawn-sh-at-startup "/usr/lib/polkit-kde-authentication-agent-1 &"

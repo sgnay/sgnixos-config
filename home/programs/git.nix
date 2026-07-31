@@ -10,6 +10,7 @@ in {
       init.defaultBranch = "main";
       pull.rebase = true;
       credential.helper = "store";
+      safe.directory = [ "/etc/nixos" ];
     };
   };
 }

@@ -3,8 +3,8 @@
 
   inputs = {
     myRepo = {
-      # url = "github:sgnay/sgnur-packages"; # 发布用
-      url = "path:/home/sgnay/0Todo/agents/sgnur-packages"; # 本地开发
+      url = "github:sgnay/sgnur-packages"; # 发布用
+      # url = "path:/home/sgnay/0Todo/agents/sgnur-packages"; # 本地开发
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # ============ 包源 ============

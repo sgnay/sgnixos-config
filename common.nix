@@ -6,7 +6,7 @@
   username = "sgnay";
   email = "sgnay@outlook.com";
   user-public-ssh-keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHXAUgplK6BSy6laSuY4A536eXxjDSYJfqR0hCEwk8Tg sgnay@sgendeavour"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIsOXp9krcWy6zzF2AK+tXDsgEtdxntEz/FVbl00hct/ sgnay@outlook.com"
   ];
 
   # 网络配置变量

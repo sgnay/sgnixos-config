@@ -9,3 +9,5 @@ dotfiles/ghostty/ghostty-shader-playground
 
 result
 result-man
+ConfigInit/hardware-configuration.nix
+hardware-configuration.nix
