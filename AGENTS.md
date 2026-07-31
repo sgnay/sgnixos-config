@@ -6,6 +6,9 @@
 
 This is a NixOS system configuration based on **Nix Flakes**, employing a modular design and integrating **Home Manager** to manage user configurations.
 
+- **System Upgrade Records (2026-07-31)**:
+  - **OxideTerm Package & Niri Launcher Fix**: Packaged `oxideterm` (AI-native workspace for SSH/remote machines in Rust/GPUI) into NixOS/Home Manager using local derivation with `makeWrapper`. Resolved Niri/Wayland GUI launcher silent crash issues caused by `nix-shell` non-interactive invocation and missing `XDG_DATA_DIRS` / `LD_LIBRARY_PATH`.
+
 - **System Upgrade Records (2026-07-23)**:
   - **FHS Environment Configuration**: Added `fhs.nix` based on `buildFHSEnv` to provide a standard Linux FHS sandbox environment for executing unpatched third-party binaries and SDKs without requiring `patchelf`.
 
@@ -90,3 +93,30 @@ If you reinstall NixOS or move to a new machine, the system host key (`/etc/ssh/
 
 - **Secrets Management**: Do NOT write plaintext secrets in git. Always edit `secrets.yaml` using the `sops` wrapper. Non-sensitive settings belong in `common.nix`.
 - `allowUnfree` is enabled globally inside Home Manager; no additional setup is required.
+
+## GUI Applications & Launcher Packaging Guide (GUI 应用与 Launcher 打包避坑指南)
+
+### 1. 核心问题现象与根因 (Symptom & Root Cause)
+- **现象**：GUI 可执行文件在终端直接运行或通过临时包装脚本运行正常，但从 Niri Launcher、fuzzel、rofi 或桌面应用菜单中点击图标**毫无反应**或**静默退出**。
+- **根因分析**：
+  1. **禁止在 Launcher 入口使用 `nix-shell`**：桌面 Launcher（如 Wayland 下的 fuzzel/rofi/niri launcher）会在非交互式（non-interactive）、无终端 TTY 且环境变量清理过的子进程中拉起 `.desktop` 中的 `Exec` 命令。在此时调用 `nix-shell` 会因缺少 TTY / 交互式 PATH 导致阻塞或报错退出。
+  2. **缺失关键环境前缀 (`XDG_DATA_DIRS`, `GDK_BACKEND`, `LD_LIBRARY_PATH`)**：GUI 应用（如基于 GPUI / GTK / Tauri / Qt 的应用）依赖系统的 Fontconfig、GSettings Schemas、Vulkan 以及 Wayland 动态库。缺少 `XDG_DATA_DIRS` 会导致应用无法加载图标/主题/Schema 在后台崩溃。
+  3. **未通过 Home Manager 进行 XDG Symlink 自动注册**：简单手写 `~/.local/share/applications` 无法得到自动规范管理，且容易写错相对命令路径。
+
+### 2. 标准解决方案与规范流程 (Best Practice Workflow)
+1. **使用 Nix 原生 Derivation + `makeWrapper` 构建标准包**：
+   - 在 `/etc/nixos/pkgs/app.nix` 或 NUR 仓库中定义 `stdenv.mkDerivation` 或 `buildRustPackage`。
+   - 使用 `makeWrapper` 将动态库路径写入 `LD_LIBRARY_PATH`：
+     ```nix
+     makeWrapper $out/bin/app-raw $out/bin/app \
+       --prefix LD_LIBRARY_PATH : "${libPath}" \
+       --prefix XDG_DATA_DIRS : "${pkgs.fontconfig}/share:${pkgs.gtk3}/share/gsettings-schemas/gtk+3-${pkgs.gtk3.version}"
+     ```
+2. **在 Derivation 中自动生成与安装 `.desktop` 文件**：
+   - 将图标复制到 `$out/share/icons/hicolor/.../apps/app.png`。
+   - 生成 `$out/share/applications/app.desktop`，`Exec` 指向 `$out/bin/app %U`。
+3. **在 Home Manager 中声明式引入 (`home/packages/default.nix`)**：
+   - 引入包 `(callPackage ../../pkgs/app.nix {})`。
+   - Home Manager 会自动将 `$out/bin/app` Symlink 至 `~/.nix-profile/bin/`，并将 `$out/share/applications/app.desktop` Symlink 至 `~/.nix-profile/share/applications/`。
+   - Niri Launcher 等桌面环境通过标准 `XDG_DATA_DIRS` 索引 `~/.nix-profile/share`，实现 100% 毫秒级稳定拉起。
+

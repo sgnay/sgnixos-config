@@ -11,6 +11,7 @@
     clashtui
     # nyaterm
     rustconn
+    oxideterm
     virt-viewer
     helix # 命令行编辑器也属于用户级工具
 
