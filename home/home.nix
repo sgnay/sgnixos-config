@@ -17,6 +17,7 @@ in {
     ./programs/rime.nix
     ./programs/vscode.nix
     ./programs/neovim.nix
+    ./programs/thunar.nix
     ./packages/default.nix # 新增用户级软件包模块
   ];
 
@@ -24,6 +25,7 @@ in {
   home.sessionVariables = {
     EDITOR = "nvim";
     VISUAL = "nvim";
+    TERMINAL = "ghostty";
   };
 
   # GTK 主题（Catppuccin Mocha + Papirus Dark 图标）

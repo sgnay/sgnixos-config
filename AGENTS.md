@@ -6,6 +6,12 @@
 
 This is a NixOS system configuration based on **Nix Flakes**, employing a modular design and integrating **Home Manager** to manage user configurations.
 
+- **System Upgrade Records (2026-08-03)**:
+  - **NFS Automount Health Check & Systemd Timer Fix**: Resolved mount point access freezing (`/home/data/_mountpoint_nfs`) caused by active `.automount` units when NFS server is unreachable (port 2049). Removed `x-systemd.automount` from `fileSystems` to prevent `systemd-fstab-generator` auto-enabling, and explicitly defined `systemd.automounts` with `wantedBy = []`. Added a declarative oneshot service `nfs-automount-watcher.service` (using `nc -z`) and `nfs-automount-watcher.timer` (15s interval) in `modules/services/network-storage.nix` to dynamically start/stop the automount unit based on port reachability.
+  - **Thunar Default Terminal Integration for Ghostty**: Configured `dotfiles/Thunar/uca.xml` with `ghostty --working-directory=%f` for "Open Terminal Here" action, added `home/programs/thunar.nix` using `mkDotfileLinks`, and set `TERMINAL="ghostty"` in `home.sessionVariables`.
+  - **Neovim Clipboard Hardening & Keymaps**: Fixed LazyVim's `VeryLazy` event resetting `vim.opt.clipboard` back to `unnamedplus`. Added `VimEnter`, `VeryLazy`, and `OptionSet` `autocmd` hooks in `home/programs/neovim.nix` to enforce `vim.opt.clipboard = ""`, reserving system clipboard interaction strictly for `<leader>y`, `<leader>d`, and `<leader>p`.
+  - **WPS Office HiDPI Scaling & Niri Launcher Fix**: Configured `QT_FONT_DPI=144` in Niri `dotfiles/niri/environment.kdl` and wrapped `wpsoffice-cn` with `symlinkJoin` + `makeWrapper` in Home Manager. Resolved Niri Launcher small UI font issue by dynamically rewriting `.desktop` `Exec` paths to point to the wrapped binaries.
+
 - **System Upgrade Records (2026-07-31)**:
   - **OxideTerm Package & Niri Launcher Fix**: Packaged `oxideterm` (AI-native workspace for SSH/remote machines in Rust/GPUI) into NixOS/Home Manager using local derivation with `makeWrapper`. Resolved Niri/Wayland GUI launcher silent crash issues caused by `nix-shell` non-interactive invocation and missing `XDG_DATA_DIRS` / `LD_LIBRARY_PATH`.
 
@@ -69,26 +75,65 @@ systemctl --user status dms.service
 - Modifying files inside `dotfiles/` does not require a rebuild; applications will pick up changes automatically.
 - **Note**: If a conflict occurs during building due to existing `*.backup` files, clean up the conflicting `~/.config/<program>/*.backup` files.
 
-## Secrets Disaster Recovery (Key Rotation / Re-keying)
+## Secrets Disaster Recovery & Key Rotation (SOPS 密钥轮换与恢复指南)
 
-If you reinstall NixOS or move to a new machine, the system host key (`/etc/ssh/ssh_host_ed25519_key`) will change. As long as you have backed up your personal user key (`~/.ssh/id_ed25519`), you can easily recover and re-encrypt the secrets:
+### 场景 1：更换/轮换用户个人 SSH 密钥 (`~/.ssh/id_ed25519`)
+当用户个人私钥泄露或主动重新生成用户 SSH 密钥时：
 
-1. Restore your personal key to `/home/sgnay/.ssh/id_ed25519`.
-2. Generate the new `age` public key from the new machine's SSH host key:
+1. **生成新的用户 SSH 密钥对**：
+   ```bash
+   ssh-keygen -t ed25519 -C "sgnay@outlook.com" -f ~/.ssh/id_ed25519 -N ""
+   ```
+2. **计算新密钥的 age 公钥**：
+   ```bash
+   nix-shell -p ssh-to-age --run "ssh-to-age < ~/.ssh/id_ed25519.pub"
+   # 输出例如：age1...
+   ```
+3. **更新配置文件**：
+-   将 `common.nix` 中的 `user-public-ssh-keys` 替换为新 SSH 公钥。
+-   将 `.sops.yaml` 中的 `&user` 字段替换为上面计算出的 `age1...` 公钥。
+4. **重新加密同步 `secrets.yaml`**：
+-   导出旧私钥（或已授权的主机私钥）的 age 私钥，并使用 `SOPS_AGE_KEY` 变量驱动 `updatekeys`：
+   ```bash
+   # 方式 A：通过旧用户私钥的 age 私钥解密并重新加密
+   OLD_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519.old")
+   SOPS_AGE_KEY="$OLD_KEY" nix-shell -p sops --run "sops updatekeys secrets.yaml -y"
+
+   # 方式 B：通过系统主机私钥解密并重新加密（需要 root 权限读取 host key）
+   HOST_KEY=$(sudo nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i /etc/ssh/ssh_host_ed25519_key")
+   SOPS_AGE_KEY="$HOST_KEY" nix-shell -p sops --run "sops updatekeys secrets.yaml -y"
+   ```
+
+---
+
+### 场景 2：重装系统或更换主机 SSH 密钥 (`/etc/ssh/ssh_host_ed25519_key`)
+当重装系统或新设备导致主机 Key 改变，但已备份恢复了用户私钥（`~/.ssh/id_ed25519`）：
+
+1. **计算新主机密钥的 age 公钥**：
    ```bash
    nix-shell -p ssh-to-age --run "ssh-to-age < /etc/ssh/ssh_host_ed25519_key.pub"
-   # Output: age1...
+   # 输出例如：age1...
    ```
-3. Update the `&host` public key entry in `/etc/nixos/.sops.yaml` with the new age key.
-4. Run the SOPS update keys command to decrypt the file using your personal key and re-encrypt it with the new host key:
+2. **更新 `.sops.yaml`**：
+-   将 `.sops.yaml` 中的 `&host` 替换为上面计算的新主机 age 公钥。
+3. **使用用户 SSH 私钥同步更新 `secrets.yaml`**：
    ```bash
-   nix-shell -p sops --run "sops updatekeys secrets.yaml"
-   ```
-5. Apply the configuration:
-   ```bash
-   sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+   USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519")
+   SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops updatekeys secrets.yaml -y"
    ```
 
+---
+
+### 验证与应用
+修改完成后，可运行以下命令验证解密：
+```bash
+USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519")
+SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops decrypt secrets.yaml"
+```
+确认无误后应用 NixOS 系统配置：
+```bash
+sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+```
 ## Important Notes
 
 - **Secrets Management**: Do NOT write plaintext secrets in git. Always edit `secrets.yaml` using the `sops` wrapper. Non-sensitive settings belong in `common.nix`.

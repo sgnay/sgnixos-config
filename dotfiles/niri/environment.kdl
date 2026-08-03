@@ -26,6 +26,7 @@ environment {
   // QT_IM_MODULE "wayland;fcitx"
   INPUT_METHOD "fcitx"
   QT_SCALE_FACTOR "1.0"
+  QT_FONT_DPI "144"
   SDL_IM_MODULE null
   GLFW_IM_MODULE null
   // GSK_RENDERER "vulkan,ngl"

@@ -12,6 +12,18 @@
 
 ### 近期优化
 
+- **2026-08-03: NFS 按需自动挂载卡死修复与声明式探针 (NFS Automount Health Check & Timer)**
+  - **根因消除与移除非必要的 fstab 生成**: 针对配置 `noauto` 但在 NFS 端口 (2049) 不通时访问 `/home/data/_mountpoint_nfs` 依然卡死的问题，移除了 `fileSystems` 中的 `x-systemd.automount` 选项，防止 `systemd-fstab-generator` 自动生成带有开机使能依赖的 autofs 单元。
+  - **声明式 Systemd Automount & 定时探针**: 在 `modules/services/network-storage.nix` 中通过 `systemd.automounts` 显式定义 `home-data-_mountpoint_nfs.automount` 并配置 `wantedBy = []`（避免 `masked` 隐患且开机默认不启 autofs）。添加 `nfs-automount-watcher.service` (oneshot `nc` 2049 端口检测) 和 `nfs-automount-watcher.timer` (15s 触发)，端口通畅时自动 `start` 自动挂载，不通时自动 `stop`，零常驻内存开销且彻底解决断网/离网时访问该目录卡死的问题。
+- **2026-08-03: Thunar 默认终端联动 Ghostty**
+  - **自定义右键动作 (uca.xml)**: 配置 `dotfiles/Thunar/uca.xml` 中的 "Open Terminal Here" 动作命令为 `ghostty --working-directory=%f`。
+  - **声明式软链接模块**: 添加 `home/programs/thunar.nix` 结合 `mkDotfileLinks` 将 `dotfiles/Thunar/uca.xml` 自动链接至 `~/.config/Thunar/uca.xml`，并在 `home.sessionVariables` 中全局指定 `TERMINAL="ghostty"`。
+- **2026-08-03: Neovim 剪贴板隔离与专有快捷键映射**
+  - **LazyVim 剪贴板防覆盖机制**: 针对 LazyVim 异步/VeryLazy 加载重新覆盖 `vim.opt.clipboard` 为 `unnamedplus` 的问题，在 `home/programs/neovim.nix` 中添加 `VimEnter`、`VeryLazy` 及 `OptionSet` 监听钩子，彻底锁死 `vim.opt.clipboard = ""`。
+  - **专用系统剪贴板快捷键**: 避免普通 `x/y/d/c` 污染系统剪贴板，配置显式快捷键 `<leader>y` (复制)、`<leader>d` (剪切)、`<leader>p` (粘贴) 与系统剪贴板 `+` 交互。
+- **2026-08-03: WPS Office 高分屏适配与 Launcher 动态路径修复**
+  - **DPI 环境变量配置**: 在 Niri 的 `dotfiles/niri/environment.kdl` 中配置 `QT_FONT_DPI=144`，全局适配基于 Qt 的 WPS Office 高分屏字体放大。
+  - **桌面 Launcher Exec 路径修复**: 针对 WPS 原版 `.desktop` 选项中 `Exec` 硬编码未包装路径导致 Niri Launcher 点击启动丢失环境变量的问题，在 `home/packages/default.nix` 中通过 `symlinkJoin` + `makeWrapper` 重写 `.desktop` 文件中的 `Exec` 路径，保证从桌面启动器与命令行拉起均能正确应用大字体设置。
 - **2026-07-23: 通用 FHS 环境配置**
   - **FHS 环境框架 (fhs.nix)**: 基于 `buildFHSEnv` 实现了通用 FHS 隔离环境 `/etc/nixos/fhs.nix`，补齐了常用的 C/C++ 运行时、X11/OpenGL 渲染库及基础开发工具。可使用 `nix-shell /etc/nixos/fhs.nix` 加载并运行未经过 Nix 补丁 (patchelf) 的第三方 Linux 二进制程序与 SDK。
 - **2026-07-14: SOPS-Nix 密钥安全重构**
@@ -64,9 +76,9 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 nix-shell -p sops --run "sops secrets.yaml"
 ```
 
-### 密钥灾备与换机恢复
+### 密钥轮换、灾备与换机恢复
 
-当重装系统或更换设备导致主机密钥（`/etc/ssh/ssh_host_ed25519_key`）改变时，只要你保留有个人 SSH 私钥（`~/.ssh/id_ed25519`）的备份，即可轻松在新设备上恢复和重置密钥绑定。具体恢复步骤已记录在 [AGENTS.md](file:///etc/nixos/AGENTS.md) 的 **Secrets Disaster Recovery** 章节。
+无论是主动更换/轮换个人 SSH 密钥（`~/.ssh/id_ed25519`），还是重装系统/更换设备导致主机密钥（`/etc/ssh/ssh_host_ed25519_key`）发生改变，完整的密钥更换与恢复步骤均已记录在 [AGENTS.md](file:///etc/nixos/AGENTS.md) 的 **Secrets Disaster Recovery & Key Rotation** 章节。
 
 ### 免重启更新配置 (Hot-Reloading)
 

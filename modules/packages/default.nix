@@ -6,5 +6,6 @@
     minicom
     screen
     putty
+    e2fsprogs
   ];
 }

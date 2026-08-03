@@ -81,6 +81,32 @@
         },
       },
     })
+
+    -- 禁用默认全局复制到系统剪贴板
+    -- （注意：LazyVim 会在 VeryLazy 事件触发时强制将 clipboard 设为 unnamedplus，因此必须用 autocmd 锁死）
+    vim.opt.clipboard = ""
+    vim.api.nvim_create_autocmd({ "VimEnter", "User" }, {
+      pattern = { "*", "VeryLazy" },
+      callback = function()
+        vim.opt.clipboard = ""
+      end,
+    })
+    vim.api.nvim_create_autocmd("OptionSet", {
+      pattern = "clipboard",
+      callback = function()
+        if #vim.opt.clipboard:get() > 0 then
+          vim.opt.clipboard = ""
+        end
+      end,
+    })
+
+    -- 仅按快捷键时复制/剪切/粘贴到系统剪贴板 (+)
+    local keymap = vim.keymap.set
+    keymap({ "n", "v" }, "<leader>y", '"+y', { desc = "复制到系统剪贴板" })
+    keymap("n", "<leader>Y", '"+Y', { desc = "复制整行到系统剪贴板" })
+    keymap({ "n", "v" }, "<leader>d", '"+d', { desc = "剪切到系统剪贴板" })
+    keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "从系统剪贴板粘贴" })
+    keymap({ "n", "v" }, "<leader>P", '"+P', { desc = "从系统剪贴板向前粘贴" })
   '';
 in {
   programs.neovim = {
