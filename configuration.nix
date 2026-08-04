@@ -37,5 +37,8 @@
 
     # 向日葵远程控制客户端
     ./modules/services/sunloginclient.nix
+
+    # 打印机与扫描仪服务
+    ./modules/services/printing.nix
   ];
 }

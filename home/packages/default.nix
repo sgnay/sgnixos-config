@@ -18,6 +18,7 @@
 
     # 办公
     drawio
+    kdePackages.okular # KDE 文档与 PDF 阅读器
     joplin-desktop
     thunderbird
     (symlinkJoin {
@@ -82,6 +83,7 @@
     cargo
     rustc
     pkg-config
+    openssl
     alsa-lib
 
     # 命令行/计算器工具
