@@ -1,6 +1,8 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   common = import ../../common.nix;
-in {
+in
+{
   networking = {
     hostName = "sgnixos";
     networkmanager.enable = true;
@@ -10,18 +12,30 @@ in {
     ];
     enableIPv6 = false;
     hosts = {
-      "127.0.0.1" = ["localhost"];
-      "172.20.26.201" = ["sgnixos"];
+      "127.0.0.1" = [ "localhost" ];
+      "172.20.26.201" = [ "sgnixos" ];
     };
     proxy.default = "http://127.0.0.1:1080";
     proxy.noProxy = "127.0.0.1,localhost,${common.network.proxyHost}";
     firewall = {
       enable = true;
       allowedTCPPorts = [
-        9090
-        9876
+        2049
+        22000
+      ];
+      allowedTCPPortRanges = [
+        {
+          from = 1714;
+          to = 1764;
+        }
+      ];
+      allowedUDPPortRanges = [
+        {
+          from = 1714;
+          to = 1764;
+        }
       ];
     };
   };
-  environment.systemPackages = with pkgs; [rustnet];
+  environment.systemPackages = with pkgs; [ rustnet ];
 }

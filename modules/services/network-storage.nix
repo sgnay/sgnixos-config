@@ -16,21 +16,7 @@ in
     cifs-utils # mount -t cifs 支持
   ];
 
-  # KDE Connect 需要防火墙放行
-  networking.firewall = {
-    allowedTCPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
-    allowedUDPPortRanges = [
-      {
-        from = 1714;
-        to = 1764;
-      }
-    ];
-  };
+
 
   # === NFS 服务端 ===
   services.nfs.server.enable = true;

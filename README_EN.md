@@ -11,6 +11,10 @@
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
 ### Recent Optimizations
+- **2026-08-03: Podman & Libvirtd/QEMU Stack Enhancement**
+  - **Podman Suite**: Enhanced `modules/packages/virtualization.nix` with Podman container runtime, Docker CLI alias (`dockerCompat = true`), `/var/run/docker.sock` socket compatibility (`dockerSocket.enable = true`), and Netavark/Aardvark-dns inter-container DNS resolution.
+  - **Libvirtd Virtualization**: Enabled `virtualisation.libvirtd` with QEMU `swtpm` (TPM 2.0 emulation for VMs like Windows 11). Configured and set autostart for the libvirt `default` NAT network.
+  - **Tooling & User Groups**: Included `virt-manager`, `virt-viewer`, `spice`, `podman-compose`, `buildah`, and `skopeo` packages, and assigned user permissions to `libvirtd` and `podman` system groups.
 - **2026-08-03: NFS Automount Freeze Fix & Declarative Timer Probe**
   - **Root Cause & fstab Generator Fix**: Addressed issue where accessing `/home/data/_mountpoint_nfs` froze operations when NFS server (port 2049) was unreachable despite `noauto` setting. Removed `x-systemd.automount` from `fileSystems` to avoid `systemd-fstab-generator` creating auto-enabled autofs triggers.
   - **Declarative Systemd Automount & Timer**: Explicitly declared `systemd.automounts` with `wantedBy = []` in `modules/services/network-storage.nix` to prevent mask issues and disable boot-time auto-enabling. Added `nfs-automount-watcher.service` (oneshot `nc` port check) and `nfs-automount-watcher.timer` (15s interval) to dynamically start the automount unit when port 2049 is reachable and stop it when unreachable, eliminating memory footprint while preventing filesystem freezes.

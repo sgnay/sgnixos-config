@@ -12,6 +12,15 @@
 
 ### 近期优化
 
+- **2026-08-04: Pot 划词翻译原生打包与 Wayland/Niri 界面修复**
+  - **原生 Derivation 打包与沙盒脱离**: 在 `sgnur-packages` 中创建原生 `pot-translation` 包，使用 `dpkg-deb` + `autoPatchelfHook` 解包官方 Deb，解决 NUR 原包中使用 `bwrap` 沙盒导致的 WebKitGTK 4.0 动态显示模式 EGL 崩溃。
+  - **WebKitGTK 4.1 / libsoup 3.0 ABI 动态修复**: 使用 `patchelf --replace-needed` 将底层依赖更新为 `webkitgtk_4_1` 及 `libsoup_3`。
+  - **AppIndicator 崩溃修复**: 在包装脚本 `LD_LIBRARY_PATH` 中注入 `libayatana-appindicator` 和 `libappindicator-gtk3`，修复 Tauri/Rust 后端在初始化系统托盘时 `dlopen()` 失败导致的 Panic。
+  - **sgnur-packages 仓库集成**: 在 `sgnur-packages` 提交并发布，在 `flake.nix` 通过 `inputs.myRepo` 全局接入 Home Manager。
+- **2026-08-03: Podman 与 Libvirtd/QEMU 容器与虚拟化栈完善**
+  - **Podman 容器栈增强**: 在 `modules/packages/virtualization.nix` 中开启 Podman 容器支持、Docker CLI 兼容命令 (`dockerCompat = true`)、`/var/run/docker.sock` 兼容套接字 (`dockerSocket.enable = true`) 以及 Netavark/Aardvark-dns 容器间域名解析。
+  - **Libvirtd 虚拟化与 TPM/UEFI**: 开启 `virtualisation.libvirtd` 并为 QEMU 启用 `swtpm` TPM 2.0 模拟（支持 Windows 11 等虚拟机）。配置并开机自动启动 Libvirt `default` NAT 网络接口。
+  - **配套工具与用户权限**: 集成 `virt-manager`, `virt-viewer`, `spice`, `podman-compose`, `buildah`, `skopeo` 等工具，并将用户添加至 `libvirtd` 与 `podman` 系统组。
 - **2026-08-03: NFS 按需自动挂载卡死修复与声明式探针 (NFS Automount Health Check & Timer)**
   - **根因消除与移除非必要的 fstab 生成**: 针对配置 `noauto` 但在 NFS 端口 (2049) 不通时访问 `/home/data/_mountpoint_nfs` 依然卡死的问题，移除了 `fileSystems` 中的 `x-systemd.automount` 选项，防止 `systemd-fstab-generator` 自动生成带有开机使能依赖的 autofs 单元。
   - **声明式 Systemd Automount & 定时探针**: 在 `modules/services/network-storage.nix` 中通过 `systemd.automounts` 显式定义 `home-data-_mountpoint_nfs.automount` 并配置 `wantedBy = []`（避免 `masked` 隐患且开机默认不启 autofs）。添加 `nfs-automount-watcher.service` (oneshot `nc` 2049 端口检测) 和 `nfs-automount-watcher.timer` (15s 触发)，端口通畅时自动 `start` 自动挂载，不通时自动 `stop`，零常驻内存开销且彻底解决断网/离网时访问该目录卡死的问题。
@@ -67,6 +76,10 @@
 ```bash
 # 编译并应用当前配置，并设为默认启动项
 sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
+# 回滚 generation
+sudo nixos-rebuild --rollback switch
+# 删除 generation
+sudo nix-env -p /nix/var/nix/profiles/system/ --delete-generations 3 4 5 ...
 ```
 
 ### 密钥日常维护

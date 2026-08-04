@@ -10,6 +10,12 @@
     # ============ 包源 ============
     # NixOS 官方软件源 - 稳定版 (nixos-26.05)
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    # community NUR
+    flake-utils.url = "github:numtide/flake-utils";
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # ============ 硬件支持 ============
     # NixOS 硬件兼容配置
@@ -47,6 +53,7 @@
       vscode-server,
       home-manager,
       pre-commit-hooks,
+      nur,
       ...
     }:
     {
@@ -56,13 +63,15 @@
           inputs.sops-nix.nixosModules.sops
           {
             nixpkgs.overlays = [
+              nur.overlays.default
               (_final: prev: {
+                pot-translation = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".pot-translation;
                 univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
-                nyaterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".nyaterm;
+                sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
                 omp = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".omp;
                 rustconn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".rustconn;
                 oxideterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".oxideterm;
-                sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
+                velotype = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".velotype;
               })
             ];
           }
@@ -84,7 +93,11 @@
 
       homeConfigurations = {
         sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+            overlays = [ nur.overlays.default ];
+          };
           modules = [ ./home/home.nix ];
           extraSpecialArgs = { inherit inputs; };
         };

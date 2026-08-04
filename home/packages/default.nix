@@ -12,10 +12,12 @@
     # nyaterm
     rustconn
     oxideterm
+    velotype
     virt-viewer
     helix # 命令行编辑器也属于用户级工具
 
     # 办公
+    drawio
     joplin-desktop
     thunderbird
     (symlinkJoin {
@@ -58,10 +60,29 @@
     flameshot
     vlc
     mpv
+    nomacs
     deadbeef-with-plugins
+    netease-cloud-music-gtk
+    # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
+    (symlinkJoin {
+      name = "qqmusic-wrapped";
+      paths = [ pkgs.qqmusic ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        wrapProgram $out/bin/qqmusic \
+          --add-flags "--ozone-platform-hint=auto --enable-features=UseOzonePlatform" \
+          --set ELECTRON_OZONE_PLATFORM_HINT auto
+      '';
+    })
 
     # 密码管理器
     keepassxc
+
+    # 开发工具 / Rust 工具链
+    cargo
+    rustc
+    pkg-config
+    alsa-lib
 
     # 命令行/计算器工具
     bc
@@ -77,16 +98,7 @@
     antigravity
     omp
 
-    # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
-    (symlinkJoin {
-      name = "qqmusic-wrapped";
-      paths = [ pkgs.qqmusic ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/qqmusic \
-          --add-flags "--ozone-platform-hint=auto --enable-features=UseOzonePlatform" \
-          --set ELECTRON_OZONE_PLATFORM_HINT auto
-      '';
-    })
+    # 翻译工具 (Pot 翻译：原生 autoPatchelf 打包 + WebKitGTK 修复)
+    pot-translation
   ];
 }
