@@ -72,6 +72,9 @@
                 rustconn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".rustconn;
                 oxideterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".oxideterm;
                 velotype = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".velotype;
+                goose = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".goose;
+                goose-desktop = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".goose-desktop;
+                simple-translation = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".simple-translation;
               })
             ];
           }

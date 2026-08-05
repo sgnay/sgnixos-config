@@ -142,6 +142,7 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 
 - **Secrets Management**: Do NOT write plaintext secrets in git. Always edit `secrets.yaml` using the `sops` wrapper. Non-sensitive settings belong in `common.nix`.
 - `allowUnfree` is enabled globally inside Home Manager; no additional setup is required.
+- **Execution Rule**: Antigravity is **STRICTLY PROHIBITED** from running `sudo nixos-rebuild switch` (or any `nixos-rebuild switch` commands). AI agents should only edit configuration files and test/verify builds (e.g. `nix build`), leaving system switching to be executed manually by the user.
 
 ## GUI Applications & Launcher Packaging Guide (GUI 应用与 Launcher 打包避坑指南)
 

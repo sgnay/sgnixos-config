@@ -22,6 +22,7 @@ in
       allowedTCPPorts = [
         2049
         22000
+        53317
       ];
       allowedTCPPortRanges = [
         {

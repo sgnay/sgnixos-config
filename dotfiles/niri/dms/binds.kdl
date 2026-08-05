@@ -13,8 +13,9 @@ binds {
     Mod+E hotkey-overlay-title="Open File Manager" { spawn "thunar"; } // 资源管理器 ，如 nautilus
     Mod+F1 hotkey-overlay-title="Restart Fcitx5" { spawn-sh "fcitx5 -rd"; }
     Mod+Z { spawn "cursor-clip"; }
-   //  Mod+Z { spawn "win11-clipboard-history"; }
-    Ctrl+Alt+Q { spawn-sh "curl '127.0.0.1:60828/selection_translate'"; }
+    // Mod+Z { spawn "win11-clipboard-history"; }
+    // Ctrl+Alt+Q { spawn-sh "curl '127.0.0.1:60828/selection_translate'"; }
+    Ctrl+Alt+Q { spawn-sh "simple-translation --switch"; }
     Mod+A { spawn-sh "input-box.sh";}
     Mod+Space hotkey-overlay-title="Application Launcher" {
         spawn "dms" "ipc" "call" "spotlight" "toggle";

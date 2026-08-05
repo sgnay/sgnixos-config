@@ -99,8 +99,11 @@
     # ai agents
     antigravity
     omp
+    goose
+    goose-desktop
 
     # 翻译工具 (Pot 翻译：原生 autoPatchelf 打包 + WebKitGTK 修复)
     pot-translation
+    simple-translation
   ];
 }
