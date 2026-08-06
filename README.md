@@ -12,11 +12,9 @@
 
 ### 近期优化
 
-- **2026-08-04: Pot 划词翻译原生打包与 Wayland/Niri 界面修复**
-  - **原生 Derivation 打包与沙盒脱离**: 在 `sgnur-packages` 中创建原生 `pot-translation` 包，使用 `dpkg-deb` + `autoPatchelfHook` 解包官方 Deb，解决 NUR 原包中使用 `bwrap` 沙盒导致的 WebKitGTK 4.0 动态显示模式 EGL 崩溃。
-  - **WebKitGTK 4.1 / libsoup 3.0 ABI 动态修复**: 使用 `patchelf --replace-needed` 将底层依赖更新为 `webkitgtk_4_1` 及 `libsoup_3`。
-  - **AppIndicator 崩溃修复**: 在包装脚本 `LD_LIBRARY_PATH` 中注入 `libayatana-appindicator` 和 `libappindicator-gtk3`，修复 Tauri/Rust 后端在初始化系统托盘时 `dlopen()` 失败导致的 Panic。
-  - **sgnur-packages 仓库集成**: 在 `sgnur-packages` 提交并发布，在 `flake.nix` 通过 `inputs.myRepo` 全局接入 Home Manager。
+- **WebKitGTK 4.1 / libsoup 3.0 ABI 动态修复**: 使用 `patchelf --replace-needed` 将底层依赖更新为 `webkitgtk_4_1` 及 `libsoup_3`。
+- **AppIndicator 崩溃修复**: 在包装脚本 `LD_LIBRARY_PATH` 中注入 `libayatana-appindicator` 和 `libappindicator-gtk3`，修复 Tauri/Rust 后端在初始化系统托盘时 `dlopen()` 失败导致的 Panic。
+- **sgnur-packages 仓库集成**: 在 `sgnur-packages` 提交并发布，在 `flake.nix` 通过 `inputs.myRepo` 全局接入 Home Manager。
 - **2026-08-03: Podman 与 Libvirtd/QEMU 容器与虚拟化栈完善**
   - **Podman 容器栈增强**: 在 `modules/packages/virtualization.nix` 中开启 Podman 容器支持、Docker CLI 兼容命令 (`dockerCompat = true`)、`/var/run/docker.sock` 兼容套接字 (`dockerSocket.enable = true`) 以及 Netavark/Aardvark-dns 容器间域名解析。
   - **Libvirtd 虚拟化与 TPM/UEFI**: 开启 `virtualisation.libvirtd` 并为 QEMU 启用 `swtpm` TPM 2.0 模拟（支持 Windows 11 等虚拟机）。配置并开机自动启动 Libvirt `default` NAT 网络接口。

@@ -65,7 +65,6 @@
             nixpkgs.overlays = [
               nur.overlays.default
               (_final: prev: {
-                pot-translation = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".pot-translation;
                 univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
                 sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
                 omp = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".omp;

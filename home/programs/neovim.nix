@@ -85,8 +85,14 @@
     -- 禁用默认全局复制到系统剪贴板
     -- （注意：LazyVim 会在 VeryLazy 事件触发时强制将 clipboard 设为 unnamedplus，因此必须用 autocmd 锁死）
     vim.opt.clipboard = ""
-    vim.api.nvim_create_autocmd({ "VimEnter", "User" }, {
-      pattern = { "*", "VeryLazy" },
+    vim.api.nvim_create_autocmd("VimEnter", {
+      pattern = "*",
+      callback = function()
+        vim.opt.clipboard = ""
+      end,
+    })
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "VeryLazy",
       callback = function()
         vim.opt.clipboard = ""
       end,

@@ -6,4 +6,24 @@ window-rule {
     match app-id="^wechat$"
     open-floating true
     open-maximized-to-edges true
+    open-on-workspace "chat"
+}
+
+// @id=wr_1785997583201357349 @name=Awesun
+window-rule {
+    match app-id="^Awesun$"
+    open-floating true
+    open-on-workspace "remote"
+}
+
+// @id=wr_1785997746278919130 @name=QQ
+window-rule {
+    match app-id="^QQ$"
+    open-on-workspace "chat"
+}
+
+// @id=wr_1785997768631433309 @name=remote-viewer
+window-rule {
+    match app-id="^remote-viewer$"
+    open-on-workspace "remote"
 }

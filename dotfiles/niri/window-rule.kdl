@@ -111,6 +111,7 @@ window-rule {
 window-rule {
     match app-id="nz.co.mega.megasync"
     match app-id="MEGAsync"
+    match app-id="nz.co.mega."
 
     open-maximized false
     open-floating true
