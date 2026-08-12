@@ -19,6 +19,7 @@ in {
     ./programs/neovim.nix
     ./programs/thunar.nix
     ./packages/default.nix # 新增用户级软件包模块
+    ./programs/swayidle.nix
   ];
 
   # 环境变量
