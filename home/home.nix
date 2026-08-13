@@ -1,7 +1,9 @@
 # home.nix — Home Manager 主配置
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   common = import ../common.nix;
-in {
+in
+{
   home.username = common.username;
   home.homeDirectory = "/home/${common.username}";
 
@@ -19,7 +21,7 @@ in {
     ./programs/neovim.nix
     ./programs/thunar.nix
     ./packages/default.nix # 新增用户级软件包模块
-    ./programs/swayidle.nix
+    # ./programs/swayidle.nix # 锁屏和熄屏，dms 有这个功能（但可能会失效），先保留做备用。
   ];
 
   # 环境变量

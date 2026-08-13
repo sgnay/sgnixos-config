@@ -38,4 +38,10 @@
 
   # 自动优化 store（硬链接重复文件）
   nix.settings.auto-optimise-store = true;
+
+  # 自动全量 store 优化（每天凌晨 3 点执行 nix store optimise）
+  nix.optimise = {
+    automatic = true;
+    dates = [ "03:00" ];
+  };
 }
