@@ -1,5 +1,6 @@
 # home/programs/neovim.nix — Neovim + LazyVim 配置
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   # LazyVim 启动配置
   lazyvimInit = pkgs.writeText "lazyvim-init.lua" ''
     -- 设置代理（国内 GitHub 直连困难）
@@ -114,7 +115,8 @@
     keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "从系统剪贴板粘贴" })
     keymap({ "n", "v" }, "<leader>P", '"+P', { desc = "从系统剪贴板向前粘贴" })
   '';
-in {
+in
+{
   programs.neovim = {
     enable = true;
     defaultEditor = true;
@@ -134,9 +136,4 @@ in {
   };
 
   xdg.configFile."nvim/lazyvim-init.lua".source = lazyvimInit;
-
-  home.packages = with pkgs; [
-    nil # Nix LSP
-    nixfmt # Nix 格式化（RFC-style）
-  ];
 }

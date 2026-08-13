@@ -3,17 +3,23 @@
 
   inputs = {
     myRepo = {
-      url = "github:sgnay/sgnur-packages"; # 发布用
-      # url = "path:/home/sgnay/0todo/sgnur-packages"; # 本地开发
+      url = "github:sgnay/sgnur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # ============ 包源 ============
     # NixOS 官方软件源 - 稳定版 (nixos-26.05)
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs.url = "nixpkgs/nixos-26.05";
     # community NUR
     flake-utils.url = "github:numtide/flake-utils";
     nur = {
       url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # 配置 unstable 源地址
+    nixpkgs-unstable.url = "nixpkgs/nixos-unstable";
+    # 语音输入法
+    fcitx5-vinput = {
+      url = "github:xifan2333/fcitx5-vinput";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -23,10 +29,7 @@
 
     # ============ 开发工具 ============
     # VSCode Server - 远程开发支持
-    vscode-server = {
-      url = "github:nix-community/nixos-vscode-server";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    vscode-server.url = "github:nix-community/nixos-vscode-server";
     # SOPS-Nix - 密钥加解密管理
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -45,6 +48,13 @@
     };
   };
 
+  nixConfig = {
+    extra-substituters = [ "https://fcitx5-vinput.cachix.org" ];
+    extra-trusted-public-keys = [
+      "fcitx5-vinput.cachix.org-1:XpX3AA6+dDIX4qJhb1QM7sbTwX6/qSlGvW8Z5NK6XdU="
+    ];
+  };
+
   outputs =
     inputs@{
       self,
@@ -56,6 +66,12 @@
       nur,
       ...
     }:
+    let
+      unstable = import inputs.nixpkgs-unstable {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
+    in
     {
       nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
         system = "x86_64-linux";
@@ -66,7 +82,8 @@
               nur.overlays.default
               (_final: prev: {
                 univpn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".univpn;
-                sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
+                sunloginclient = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".sunloginclient;
+                # sunloginclient = prev.callPackage "${inputs.myRepo}/pkgs/sunloginclient" { };
                 omp = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".omp;
                 rustconn = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".rustconn;
                 oxideterm = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".oxideterm;
@@ -74,6 +91,7 @@
                 goose = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".goose;
                 goose-desktop = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".goose-desktop;
                 simple-translation = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}".simple-translation;
+                fcitx5-vinput = inputs.fcitx5-vinput.packages."${prev.stdenv.hostPlatform.system}".default;
               })
             ];
           }
@@ -87,10 +105,10 @@
             home-manager.useGlobalPkgs = true;
             home-manager.backupFileExtension = "backup";
             home-manager.users.sgnay = import ./home/home.nix;
-            home-manager.extraSpecialArgs = { inherit inputs; };
+            home-manager.extraSpecialArgs = { inherit inputs unstable; };
           })
         ];
-        specialArgs = { inherit inputs; };
+        specialArgs = { inherit inputs unstable; };
       };
 
       homeConfigurations = {
@@ -101,7 +119,7 @@
             overlays = [ nur.overlays.default ];
           };
           modules = [ ./home/home.nix ];
-          extraSpecialArgs = { inherit inputs; };
+          extraSpecialArgs = { inherit inputs unstable; };
         };
       };
 

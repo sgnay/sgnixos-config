@@ -4,11 +4,11 @@
   lib,
   pkgs,
   ...
-}: let
-  dotfiles = import ../lib.nix {inherit lib config;};
-in {
-  home.packages = with pkgs; [fish jetbrains-mono wqy_zenhei fira-code];
-
+}:
+let
+  dotfiles = import ../lib.nix { inherit lib config; };
+in
+{
   programs.wezterm = {
     enable = true;
     extraConfig = ''
@@ -34,14 +34,12 @@ in {
   };
 
   xdg.configFile =
-    (
-      dotfiles.mkDotfileLinks "wezterm" [
-        "appearance.lua"
-        "behavior.lua"
-        "window.lua"
-        "keymaps.lua"
-      ]
-    )
+    (dotfiles.mkDotfileLinks "wezterm" [
+      "appearance.lua"
+      "behavior.lua"
+      "window.lua"
+      "keymaps.lua"
+    ])
     // (dotfiles.mkDotfileLinks "wezterm/colors" [
       "dank-theme.toml"
     ]);

@@ -4,7 +4,6 @@
 // @id=wr_1778549952646165599 @name=wechat
 window-rule {
     match app-id="^wechat$"
-    open-floating true
     open-maximized-to-edges true
     open-on-workspace "chat"
 }
@@ -12,7 +11,8 @@ window-rule {
 // @id=wr_1785997583201357349 @name=Awesun
 window-rule {
     match app-id="^Awesun$"
-    open-floating true
+    open-maximized true
+    open-maximized-to-edges true
     open-on-workspace "remote"
 }
 

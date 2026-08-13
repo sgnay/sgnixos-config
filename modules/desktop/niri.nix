@@ -8,8 +8,6 @@
   programs.xwayland.enable = true;
 
   environment.systemPackages = with pkgs; [
-    dms-shell
-    # niri 相关工具
     xdg-desktop-portal-gtk
 
     # XWayland 支持（niri 使用 xwayland-satellite 自动管理 X11 应用）

@@ -4,7 +4,8 @@
   pkgs,
   lib,
   ...
-}: let
+}:
+let
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
 
   # regreet-wrapper — 带自动熄屏的 ReGreet 启动脚本
@@ -92,7 +93,7 @@
     }
     #clock_frame label {
       font-family: "JetBrains Mono", "Orbitron", monospace;
-      font-size: 28px;
+      font-size: 56px;
       font-weight: 600;
       letter-spacing: 3px;
       color: @neon-cyan;
@@ -102,7 +103,7 @@
     /* ---- 问候语 ---- */
     #message_label {
       font-family: "Orbitron", sans-serif;
-      font-size: 14px;
+      font-size: 28px;
       font-weight: 400;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -114,7 +115,7 @@
     label {
       color: @text-secondary;
       font-family: "Orbitron", sans-serif;
-      font-size: 12px;
+      font-size: 24px;
       letter-spacing: 1px;
       text-transform: uppercase;
     }
@@ -130,7 +131,7 @@
       border-radius: 10px;
       padding: 4px 12px;
       font-family: "JetBrains Mono", monospace;
-      font-size: 14px;
+      font-size: 28px;
       transition: all 0.2s ease;
       box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
     }
@@ -153,7 +154,7 @@
       border-radius: 10px;
       padding: 6px 14px;
       font-family: "JetBrains Mono", monospace;
-      font-size: 15px;
+      font-size: 30px;
       min-height: 36px;
       transition: all 0.2s ease;
       box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -193,7 +194,7 @@
       border-radius: 10px;
       padding: 8px 28px;
       font-family: "Orbitron", sans-serif;
-      font-size: 13px;
+      font-size: 26px;
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
@@ -217,7 +218,7 @@
       border-radius: 10px;
       padding: 8px 20px;
       font-family: "Orbitron", sans-serif;
-      font-size: 11px;
+      font-size: 22px;
       letter-spacing: 1px;
       transition: all 0.2s ease;
     }
@@ -255,7 +256,7 @@
       border-radius: 10px;
       padding: 6px 18px;
       font-family: "Orbitron", sans-serif;
-      font-size: 11px;
+      font-size: 22px;
       letter-spacing: 1px;
       text-transform: uppercase;
       transition: all 0.3s ease;
@@ -282,7 +283,7 @@
     infobar label {
       color: #ff8080;
       font-family: "JetBrains Mono", monospace;
-      font-size: 13px;
+      font-size: 26px;
     }
 
     /* ---- 密码可见性切换图标 ---- */
@@ -306,7 +307,8 @@
       box-shadow: 0 0 0 2px rgba(80, 160, 255, 0.5);
     }
   '';
-in {
+in
+{
   # === ReGreet 配置（programs.regreet 模块接管 greetd + cage 启动） ===
   programs.regreet = {
     enable = true;
@@ -333,7 +335,7 @@ in {
     font = {
       package = pkgs.orbitron;
       name = "Orbitron";
-      size = 16;
+      size = 32;
     };
 
     # 配置 TOML
@@ -353,8 +355,14 @@ in {
         resolution = "500ms";
       };
       commands = {
-        reboot = ["systemctl" "reboot"];
-        poweroff = ["systemctl" "poweroff"];
+        reboot = [
+          "systemctl"
+          "reboot"
+        ];
+        poweroff = [
+          "systemctl"
+          "poweroff"
+        ];
       };
     };
 
@@ -362,13 +370,15 @@ in {
     extraCss = sciFiCss;
 
     # cage 参数：-s 单窗口模式，-d 无装饰
-    cageArgs = ["-s" "-d"];
+    cageArgs = [
+      "-s"
+      "-d"
+    ];
   };
 
   # 覆盖 programs.regreet 模块的 mkDefault，使用带 swayidle 的包装脚本
-  services.greetd.settings.default_session.command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
-  # 安装 Orbitron 字体到系统（供 GTK CSS 引用）
-  fonts.packages = [pkgs.orbitron];
+  services.greetd.settings.default_session.command =
+    "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
 
   # 创建 greeter 用户（模块需要此用户存在才能启动）
   users.users.greeter = {
@@ -376,7 +386,7 @@ in {
     home = "/var/lib/greeter";
     createHome = true;
     group = "greeter";
-    extraGroups = ["video"];
+    extraGroups = [ "video" ];
   };
-  users.groups.greeter = {};
+  users.groups.greeter = { };
 }

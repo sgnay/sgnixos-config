@@ -14,8 +14,6 @@ in {
     fsearch # 文件搜索
     satty # 截图标注
     swaybg # 壁纸
-    bibata-cursors # 光标主题
-    kdePackages.polkit-kde-agent-1
     libsForQt5.qt5ct
     nushell
     cursor-clip

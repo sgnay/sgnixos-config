@@ -1,5 +1,5 @@
 # home/packages/default.nix — 用户级软件包集中管理
-{ pkgs, ... }: {
+{ pkgs, unstable, ... }: {
   home.packages = with pkgs; [
     # 浏览器
     firefox
@@ -14,7 +14,16 @@
     oxideterm
     velotype
     virt-viewer
-    helix # 命令行编辑器也属于用户级工具
+    fish
+
+    # 字体
+    cascadia-code
+    jetbrains-mono
+    wqy_zenhei
+    fira-code
+
+    # 输入法
+    rime-ice
 
     # 办公
     drawio
@@ -45,15 +54,16 @@
     })
 
     # 通讯
-    wechat-uos
-    qq
+    unstable.qq
+    wechat
     wemeet
     telegram-desktop
     localsend
 
     # 编辑器
-    zed-editor
+    unstable.zed-editor-fhs
     lapce
+    helix # 命令行编辑器
 
     # 多媒体
     obs-studio
@@ -62,7 +72,7 @@
     vlc
     mpv
     nomacs
-    deadbeef-with-plugins
+    deadbeef
     netease-cloud-music-gtk
     # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
     (symlinkJoin {
@@ -92,17 +102,27 @@
     # 压缩/解压工具
     unar
     peazip
+    unrar
 
     # 剪贴板工具
     wl-clipboard
 
     # ai agents
-    antigravity
+    unstable.antigravity-cli
+    unstable.antigravity-ide-fhs
+    unstable.pi-coding-agent
     omp
     goose
     goose-desktop
 
     # 翻译工具
     simple-translation
+
+    # 其它
+    ## neovim 依赖
+    nil # Nix LSP
+    nixfmt # Nix 格式化（RFC-style）
+    ## 身份认证 UI，不记得在哪依赖了，先留着
+    kdePackages.polkit-kde-agent-1
   ];
 }
