@@ -34,12 +34,6 @@ in
     ];
   };
 
-  # 系统内置打印管理与扫描 GUI 工具
-  environment.systemPackages = with pkgs; [
-    cups
-    system-config-printer # GTK 打印机配置与管理工具
-    simple-scan           # 极简 GUI 扫描工具
-  ];
 
   # 将主用户添加至打印 (lp) 与扫描 (scanner) 系统权限组
   users.groups.scanner.members = [ common.username ];

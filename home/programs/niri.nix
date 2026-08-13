@@ -7,17 +7,6 @@
 }: let
   dotfiles = import ../lib.nix {inherit lib config;};
 in {
-  home.packages = with pkgs; [
-    dms-shell
-    quickshell # DMS 运行时依赖
-    vicinae # 应用启动器
-    fsearch # 文件搜索
-    satty # 截图标注
-    swaybg # 壁纸
-    libsForQt5.qt5ct
-    nushell
-    cursor-clip
-  ];
 
   # niri 配置 — 可变符号链接，编辑 /etc/nixos/dotfiles/niri/ 即生效
   xdg.configFile =

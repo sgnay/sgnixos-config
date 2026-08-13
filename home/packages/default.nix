@@ -1,128 +1,131 @@
 # home/packages/default.nix — 用户级软件包集中管理
+# 所有用户级包（home.packages）统一在此声明，按功能分类
+# 自定义打包（symlinkJoin 等）在 wrapped.nix 中
 { pkgs, unstable, ... }: {
-  home.packages = with pkgs; [
-    # 浏览器
-    firefox
-    google-chrome
+  home.packages =
+    with pkgs;
+    [
+      # ========== 浏览器 ==========
+      firefox
+      google-chrome
 
-    # 终端
-    wezterm
-    ghostty
-    clashtui
-    # nyaterm
-    rustconn
-    oxideterm
-    velotype
-    virt-viewer
-    fish
+      # ========== 串口/终端工具 ==========
+      picocom
+      minicom
+      screen
+      wezterm
+      ghostty
+      rustconn
+      oxideterm
+      nushell
+      putty
+      # nyaterm
 
-    # 字体
-    cascadia-code
-    jetbrains-mono
-    wqy_zenhei
-    fira-code
+      # ========== 输入法 ==========
+      qt6Packages.fcitx5-configtool
 
-    # 输入法
-    rime-ice
+      # ========== 办公 ==========
+      drawio
+      kdePackages.okular # KDE 文档与 PDF 阅读器
+      nomacs
+      thunderbird
+      sunshine
 
-    # 办公
-    drawio
-    kdePackages.okular # KDE 文档与 PDF 阅读器
-    joplin-desktop
-    thunderbird
-    (symlinkJoin {
-      name = "wpsoffice-cn-scaled";
-      paths = [ wpsoffice-cn ];
-      nativeBuildInputs = [ makeWrapper ];
-      postBuild = ''
-        for prog in wps et wpp wpspdf; do
-          if [ -e "$out/bin/$prog" ]; then
-            wrapProgram "$out/bin/$prog" \
-              --set QT_FONT_DPI "144"
-          fi
-        done
+      # ========== 通讯/社交 ==========
+      unstable.qq
+      wechat
+      wemeet
+      telegram-desktop
+      localsend
 
-        for desktop in $out/share/applications/*.desktop; do
-          if [ -f "$desktop" ]; then
-            rm -f "$desktop"
-            cp ${wpsoffice-cn}/share/applications/$(basename "$desktop") "$desktop"
-            chmod +w "$desktop"
-            sed -i "s|/nix/store/[^/]*/bin/|$out/bin/|g" "$desktop"
-          fi
-        done
-      '';
-    })
+      # ========== 编辑器/IDE ==========
+      unstable.zed-editor-fhs
+      lapce
+      helix # 命令行编辑器
+      velotype
+      joplin-desktop
 
-    # 通讯
-    unstable.qq
-    wechat
-    wemeet
-    telegram-desktop
-    localsend
+      # ========== 多媒体 ==========
+      obs-studio
+      vlc
+      mpv
+      deadbeef
+      netease-cloud-music-gtk
 
-    # 编辑器
-    unstable.zed-editor-fhs
-    lapce
-    helix # 命令行编辑器
+      # ========== 密码管理器 ==========
+      keepassxc
 
-    # 多媒体
-    obs-studio
-    sunshine
-    flameshot
-    vlc
-    mpv
-    nomacs
-    deadbeef
-    netease-cloud-music-gtk
-    # 包装 qqmusic 添加 Electron 标志，改善 Wayland 下字体渲染
-    (symlinkJoin {
-      name = "qqmusic-wrapped";
-      paths = [ pkgs.qqmusic ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        wrapProgram $out/bin/qqmusic \
-          --add-flags "--ozone-platform-hint=auto --enable-features=UseOzonePlatform" \
-          --set ELECTRON_OZONE_PLATFORM_HINT auto
-      '';
-    })
+      # ========== 开发工具 / Rust 工具链 ==========
+      cargo
+      rustc
+      pkg-config
+      openssl
+      alsa-lib
 
-    # 密码管理器
-    keepassxc
+      # ========== 压缩/解压 ==========
+      unar
+      peazip
+      unrar
 
-    # 开发工具 / Rust 工具链
-    cargo
-    rustc
-    pkg-config
-    openssl
-    alsa-lib
+      # ========== 剪贴板工具 ==========
+      wl-clipboard
 
-    # 命令行/计算器工具
-    bc
+      # ========== AI 代理 ==========
+      unstable.antigravity-cli
+      unstable.antigravity-ide-fhs
+      unstable.pi-coding-agent
+      omp
+      goose
+      goose-desktop
 
-    # 压缩/解压工具
-    unar
-    peazip
-    unrar
+      # ========== 翻译工具 ==========
+      simple-translation
 
-    # 剪贴板工具
-    wl-clipboard
+      # ========== CLI 工具 ==========
+      bat
+      dust
+      fd
+      eza
+      sd
+      yazi
+      zoxide
+      starship
 
-    # ai agents
-    unstable.antigravity-cli
-    unstable.antigravity-ide-fhs
-    unstable.pi-coding-agent
-    omp
-    goose
-    goose-desktop
+      # ========== 桌面环境&工具 ==========
+      cosmic-icons
+      pop-icon-theme
+      cosmic-wallpapers
+      cosmic-screenshot
+      cosmic-randr
+      xdg-desktop-portal-gtk
+      # xwayland-satellite # xwayland 支持(可能是多余的，但是先保留)
+      dms-shell
+      quickshell # DMS 运行时依赖
+      vicinae # 应用启动器
+      fsearch # 文件搜索
+      satty # 截图标注
+      flameshot # 截图工具
+      swaybg # 壁纸
+      libsForQt5.qt5ct
+      cursor-clip
+      kdePackages.polkit-kde-agent-1 # 身份认证 UI
+      kdePackages.kdeconnect-kde # 手机-电脑互联
 
-    # 翻译工具
-    simple-translation
+      # ========== 文件管理 ==========
+      thunar
+      megasync
+      catppuccin-gtk # GTK 主题
+      adwaita-icon-theme # StatusNotifier 图标（fcitx5 托盘）也提供 input-keyboard-symbolic 等
+      papirus-icon-theme # 现代扁平图标集
 
-    # 其它
-    ## neovim 依赖
-    nil # Nix LSP
-    nixfmt # Nix 格式化（RFC-style）
-    ## 身份认证 UI，不记得在哪依赖了，先留着
-    kdePackages.polkit-kde-agent-1
-  ];
+      # ========== 网络代理 ==========
+      xray
+      v2ray-geoip
+      v2ray-domain-list-community
+      clash-verge-rev
+      clashtui
+    ]
+
+    # 导入自定义重新包装的包（symlinkJoin 等）
+    ++ (import ./wrapped.nix { inherit pkgs; });
 }

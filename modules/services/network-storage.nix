@@ -6,18 +6,7 @@
 let
   common = import ../../common.nix;
   userName = common.username;
-in
-{
-  # === 系统包: KDE Connect + NFS + Samba ===
-  environment.systemPackages = with pkgs; [
-    kdePackages.kdeconnect-kde # 手机-电脑互联
-    nfs-utils # NFS 客户端/服务端工具
-    samba # SMB/CIFS 服务端
-    cifs-utils # mount -t cifs 支持
-  ];
-
-
-
+in {
   # === NFS 服务端 ===
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''

@@ -6,11 +6,4 @@
 
   # 启用 XWayland 以支持 X11 应用（如 WPS Office）
   programs.xwayland.enable = true;
-
-  environment.systemPackages = with pkgs; [
-    xdg-desktop-portal-gtk
-
-    # XWayland 支持（niri 使用 xwayland-satellite 自动管理 X11 应用）
-    xwayland-satellite
-  ];
 }

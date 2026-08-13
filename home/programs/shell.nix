@@ -29,14 +29,4 @@ in {
 
   programs.starship.enable = true;
 
-  home.packages = with pkgs; [
-    bat
-    dust
-    fd
-    eza
-    sd
-    yazi
-    zoxide
-    starship
-  ];
 }

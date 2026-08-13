@@ -17,12 +17,4 @@
   # 将 COSMIC 会话加入 greetd 会话列表
   services.displayManager.sessionPackages = [pkgs.cosmic-session];
 
-  # COSMIC 生态中可能有用的系统级包（niri 桌面下也能用）
-  environment.systemPackages = with pkgs; [
-    cosmic-icons # COSMIC 图标集
-    pop-icon-theme # Pop!_OS 图标主题
-    cosmic-wallpapers # COSMIC 壁纸
-    cosmic-screenshot # 截图工具
-    cosmic-randr # 显示器管理 CLI
-  ];
 }

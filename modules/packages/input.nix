@@ -8,11 +8,15 @@
     enable = true;
     type = "fcitx5";
     fcitx5.addons = with pkgs; [
-      fcitx5-rime
       fcitx5-gtk
       fcitx5-nord
       fcitx5-fluent
       catppuccin-fcitx5
+      (fcitx5-rime.override {
+        rimeDataPkgs = [
+          rime-ice
+        ];
+      })
       fcitx5-vinput
     ];
   };
@@ -24,8 +28,4 @@
     XMODIFIERS = "@im=fcitx";
   };
 
-  # fcitx5 配置工具和 rime-ice 词库
-  environment.systemPackages = with pkgs; [
-    qt6Packages.fcitx5-configtool
-  ];
 }

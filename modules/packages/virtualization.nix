@@ -22,16 +22,6 @@ in {
   # GUI 虚拟机管理工具
   programs.virt-manager.enable = true;
 
-  # 安装 Podman 与 Libvirt 常用配套工具
-  environment.systemPackages = with pkgs; [
-    podman-compose
-    buildah
-    skopeo
-    virt-viewer
-    spice
-    spice-gtk
-  ];
-
   # 将用户加入 libvirtd 与 podman 管理组
   users.groups.libvirtd.members = [common.username];
   users.groups.podman.members = [common.username];

@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ ... }:
 let
   common = import ../../common.nix;
 in
@@ -38,5 +38,4 @@ in
       ];
     };
   };
-  environment.systemPackages = with pkgs; [ rustnet ];
 }

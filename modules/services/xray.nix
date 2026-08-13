@@ -234,13 +234,6 @@
     ];
   };
 in {
-  environment.systemPackages = with pkgs; [
-    xray
-    v2ray-geoip
-    v2ray-domain-list-community
-    clash-verge-rev
-  ];
-
   sops.secrets.xray-outbounds = {
     sopsFile = ../../secrets.yaml;
   };
