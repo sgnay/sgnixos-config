@@ -208,15 +208,15 @@ return {
 	-- 外部主题 DankTheme
 	-- color_scheme = "DankTheme",
 	-- 透明度
-	window_background_opacity = 0.75,
+	window_background_opacity = 0.85,
 	-- 字体
 	font = wezterm.font("JetBrains Mono", { weight = "Regular" }),
 	-- 字体大小设为 16
 	font_size = 16,
-	font = wezterm.font_with_fallback {
-	  'Fira Code',
-	  'WenQuanYi Zen Hei',
-	},
+	font = wezterm.font_with_fallback({
+		"Fira Code",
+		"WenQuanYi Zen Hei",
+	}),
 	-- 如果后续需要更多字体配置
 	-- font_rules = {...},
 }

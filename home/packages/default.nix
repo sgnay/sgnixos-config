@@ -76,6 +76,7 @@
       omp
       goose
       goose-desktop
+      deepseek-reasonix
 
       # ========== 翻译工具 ==========
       simple-translation
@@ -119,10 +120,10 @@
 
       # ========== 网络代理 ==========
       xray
-      v2ray-geoip
-      v2ray-domain-list-community
-      clash-verge-rev
-      clashtui
+      unstable.v2ray-geoip
+      unstable.v2ray-domain-list-community
+      unstable.clash-verge-rev
+      unstable.clashtui
     ]
 
     # 导入自定义重新包装的包（symlinkJoin 等）

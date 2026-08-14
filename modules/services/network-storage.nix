@@ -6,7 +6,8 @@
 let
   common = import ../../common.nix;
   userName = common.username;
-in {
+in
+{
   # === NFS 服务端 ===
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
