@@ -33,7 +33,6 @@
 
       # ========== 通讯/社交 ==========
       unstable.qq
-      wechat
       wemeet
       telegram-desktop
       localsend
@@ -98,7 +97,7 @@
       cosmic-screenshot
       cosmic-randr
       xdg-desktop-portal-gtk
-      # xwayland-satellite # xwayland 支持(可能是多余的，但是先保留)
+      xwayland-satellite # niri 的内置 X11 兼容层运行时依赖
       dms-shell
       quickshell # DMS 运行时依赖
       vicinae # 应用启动器
@@ -127,5 +126,5 @@
     ]
 
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix { inherit pkgs; });
+    ++ (import ./wrapped.nix { inherit pkgs unstable; });
 }
