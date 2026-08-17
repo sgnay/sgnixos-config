@@ -12,6 +12,13 @@
 
 ### 近期优化
 
+- **2026-08-16: Xray 多模式代理架构重构与统一入口**
+  - **统一本地入口**: 本地终端及应用统一指向 `HTTP 127.0.0.1:1080` 及 `SOCKS5 127.0.0.1:1081`。
+  - **4 种 Xray 服务与原生互斥**: 在 `modules/services/xray.nix` 中通过模版生成器声明 4 个具名服务 (`xray-public`, `xray-home`, `xray-clash`, `xray-none`)，通过 Systemd `conflicts` 实现 100% 自动互斥。`xray-public.service` 开机默认自启。
+  - **多 Shell 别名支持**: 在 Fish (`dotfiles/fish/config.fish`) 与 Bash (`home/programs/shell.nix`) 中同步配置 5 个代理别名命令 (`proxy-public`, `proxy-home`, `proxy-clash`, `proxy-on`, `proxy-off`)。
+- **2026-08-16: SOPS 密钥解密工作流与 Ed25519 适配优化**
+  - **因由与修复**: `sops` 默认仅自动探查 `/home/sgnay/.ssh/id_rsa`，直接运行无法自动匹配 `id_ed25519` 密钥对应的 age 身份。
+  - **标准化解密流程**: 记录并规范使用 `SOPS_AGE_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519")` 驱动 `sops` 编辑与解密 `secrets.yaml` 的标准指令。
 - **WebKitGTK 4.1 / libsoup 3.0 ABI 动态修复**: 使用 `patchelf --replace-needed` 将底层依赖更新为 `webkitgtk_4_1` 及 `libsoup_3`。
 - **AppIndicator 崩溃修复**: 在包装脚本 `LD_LIBRARY_PATH` 中注入 `libayatana-appindicator` 和 `libappindicator-gtk3`，修复 Tauri/Rust 后端在初始化系统托盘时 `dlopen()` 失败导致的 Panic。
 - **sgnur-packages 仓库集成**: 在 `sgnur-packages` 提交并发布，在 `flake.nix` 通过 `inputs.myRepo` 全局接入 Home Manager。
@@ -78,13 +85,21 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 sudo nixos-rebuild --rollback switch
 # 删除 generation
 sudo nix-env -p /nix/var/nix/profiles/system/ --delete-generations 3 4 5 ...
+# 手动清理
+ls -ahl /nix/var/nix/gcroots /nix/var/nix/profiles/
+sudo ln -s $(readlink -f /nix/var/nix/gcroots/keep-system-1) /nix/var/nix/profiles/system-1-link
+sudo ln -s $(readlink -f /nix/var/nix/profiles/system-2-link) /nix/var/nix/gcroots/keep-system-2
+nix-collect-garbage -d
+sudo nix-collect-garbage -d
+sudo nix store gc
+sudo nix store optimise
 ```
 
 ### 密钥日常维护
 
 ```bash
-# 解密并编辑密文配置文件 (会自动解密并在保存退出时自动重新加密)
-nix-shell -p sops --run "sops secrets.yaml"
+# 解密并编辑密文配置文件 (使用 id_ed25519 转换得到的 SOPS_AGE_KEY)
+USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519") SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops secrets.yaml"
 ```
 
 ### 密钥轮换、灾备与换机恢复

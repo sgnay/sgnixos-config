@@ -1,9 +1,12 @@
 # home/packages/default.nix — 用户级软件包集中管理
 # 所有用户级包（home.packages）统一在此声明，按功能分类
 # 自定义打包（symlinkJoin 等）在 wrapped.nix 中
-{ pkgs, unstable, ... }: {
-  home.packages =
-    with pkgs;
+{
+  pkgs,
+  unstable,
+  ...
+}: {
+  home.packages = with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -50,6 +53,7 @@
       mpv
       deadbeef
       netease-cloud-music-gtk
+      unstable.qqmusic
 
       # ========== 密码管理器 ==========
       keepassxc
@@ -122,10 +126,10 @@
       xray
       unstable.v2ray-geoip
       unstable.v2ray-domain-list-community
-      unstable.clash-verge-rev
-      unstable.clashtui
+      clash-verge-rev
+      unstable.sing-box
+      unstable.sing-geoip
     ]
-
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix { inherit pkgs unstable; });
+    ++ (import ./wrapped.nix {inherit pkgs unstable;});
 }

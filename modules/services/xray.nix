@@ -1,13 +1,11 @@
-# services/xray.nix — Xray 代理客户端，双模式 GeoIP 分流
+# services/xray.nix — Xray 代理客户端，支持多模式切换 (public / home / clash / none)
 {
   config,
   lib,
   pkgs,
   ...
 }: let
-  common = import ../../common.nix;
-
-  # 公共入站（xray / xray-home 共用）
+  # 公共入站（统一使用 1080 HTTP 和 1081 SOCKS）
   commonInbounds = [
     {
       port = 1080;
@@ -36,7 +34,7 @@
     }
   ];
 
-  # 公共出站
+  # 公共基础出站
   directOut = {
     tag = "direct";
     protocol = "freedom";
@@ -45,24 +43,36 @@
       sockopt = {domainStrategy = "UseIP";};
     };
   };
-  localOut = {
-    tag = "local-proxy";
-    protocol = "http";
-    settings.servers = [
-      {
-        address = common.network.proxyHost;
-        port = common.network.proxyPort;
-      }
-    ];
-  };
   blockOut = {
     tag = "block";
     protocol = "blackhole";
     settings.response.type = "http";
   };
 
+  # 模式专属上游出站
+  homeOut = {
+    tag = "home-proxy";
+    protocol = "http";
+    settings.servers = [
+      {
+        address = "172.20.26.100";
+        port = 1080;
+      }
+    ];
+  };
+  clashOut = {
+    tag = "clash-proxy";
+    protocol = "http";
+    settings.servers = [
+      {
+        address = "127.0.0.1";
+        port = 7890;
+      }
+    ];
+  };
+
   # DNS 配置
-  awayDns = {
+  commonDns = {
     hosts = {
       "domain:googleapis.cn" = "googleapis.com";
       "dns.alidns.com" = ["223.5.5.5" "223.6.6.6" "2400:3200::1" "2400:3200:baba::1"];
@@ -97,7 +107,7 @@
     tag = "dns-module";
   };
 
-  # 国内 DNS 服务器 IP 列表（用于路由直连规则）
+  # 国内 DNS 服务器 IP 列表
   cnDnsIps = [
     "223.5.5.5"
     "223.6.6.6"
@@ -136,20 +146,14 @@
     "52.80.60.30"
   ];
 
-  # 路由规则
-  awayRules = [
+  # 通用路由规则生成器
+  mkRules = targetTag: [
     # 封锁 UDP 443（QUIC 干扰）
     {
       type = "field";
       network = "udp";
       port = "443";
       outboundTag = "block";
-    }
-    # Google 走代理
-    {
-      type = "field";
-      domain = ["geosite:google"];
-      outboundTag = "proxy-xhttp";
     }
     # 私有地址直连
     {
@@ -193,39 +197,40 @@
     {
       type = "field";
       inboundTag = ["dns-module"];
-      outboundTag = "proxy-xhttp";
+      outboundTag = targetTag;
     }
-    # 兜底：未匹配以上规则的流量全部走代理
+    # 兜底：未匹配以上规则的流量转至指定目标出站
     {
       type = "field";
       network = "tcp,udp";
-      outboundTag = "proxy-xhttp";
+      outboundTag = targetTag;
     }
   ];
 
-  # ---- xray-home (本地网关) ----
-  mkHomeConfig = {
+  # 非敏感配置生成器 (home / clash / none)
+  mkConfig = {
+    outbounds,
+    targetTag,
+  }: {
     inbounds = commonInbounds;
-    outbounds = [directOut localOut blockOut]; # 只有直连和本地代理，无 VLESS
+    outbounds = outbounds;
     routing = {
-      domainStrategy = "IPOnDemand";
-      rules = [
-        {
-          type = "field";
-          ip = ["geoip:cn" "geoip:private"];
-          outboundTag = "direct";
-        }
-        {
-          type = "field";
-          network = "tcp,udp";
-          outboundTag = "local-proxy";
-        }
-      ];
+      domainStrategy = "AsIs";
+      rules = mkRules targetTag;
     };
+    dns = commonDns;
     log.loglevel = "warning";
   };
 
-  # 合并 geoip.dat + geosite.dat 到同一目录供 Xray 使用
+  # 4 个互斥服务名称列表
+  allServices = [
+    "xray-public.service"
+    "xray-home.service"
+    "xray-clash.service"
+    "xray-none.service"
+  ];
+
+  # 合并 geoip.dat + geosite.dat
   xrayAssets = pkgs.symlinkJoin {
     name = "xray-assets";
     paths = [
@@ -238,20 +243,20 @@ in {
     sopsFile = ../../secrets.yaml;
   };
 
-  sops.templates."xray-away.json".content = ''
+  # SOPS 动态渲染加密的 Public 配置
+  sops.templates."xray-public.json".content = ''
     {
       "inbounds": ${builtins.toJSON commonInbounds},
       "outbounds": [
         ${builtins.toJSON directOut},
-        ${builtins.toJSON localOut},
         ${builtins.toJSON blockOut},
         ${config.sops.placeholder."xray-outbounds"}
       ],
       "routing": {
         "domainStrategy": "AsIs",
-        "rules": ${builtins.toJSON awayRules}
+        "rules": ${builtins.toJSON (mkRules "proxy-xhttp")}
       },
-      "dns": ${builtins.toJSON awayDns},
+      "dns": ${builtins.toJSON commonDns},
       "log": {
         "loglevel": "warning"
       }
@@ -259,14 +264,14 @@ in {
   '';
 
   systemd.services = {
-    xray = {
-      description = "Xray Proxy (Away: VLESS+REALITY)";
+    xray-public = {
+      description = "Xray Proxy (Public: VLESS+REALITY)";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      conflicts = ["xray-home.service"];
+      conflicts = builtins.filter (s: s != "xray-public.service") allServices;
       serviceConfig = {
         Type = "simple";
-        ExecStart = "${pkgs.xray}/bin/xray run -config ${config.sops.templates."xray-away.json".path}";
+        ExecStart = "${pkgs.xray}/bin/xray run -config ${config.sops.templates."xray-public.json".path}";
         Restart = "on-failure";
         RestartSec = 5;
         Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
@@ -274,14 +279,55 @@ in {
     };
 
     xray-home = {
-      description = "Xray Proxy (Home: Local)";
+      description = "Xray Proxy (Home: Upstream 172.20.26.100:1080)";
       after = ["network.target"];
       wantedBy = lib.mkForce [];
-      conflicts = ["xray.service"];
+      conflicts = builtins.filter (s: s != "xray-home.service") allServices;
       serviceConfig = {
         Type = "simple";
         ExecStart = "${pkgs.xray}/bin/xray run -config ${
-          pkgs.writeText "xray-home.json" (builtins.toJSON mkHomeConfig)
+          pkgs.writeText "xray-home.json" (builtins.toJSON (mkConfig {
+            outbounds = [directOut blockOut homeOut];
+            targetTag = "home-proxy";
+          }))
+        }";
+        Restart = "on-failure";
+        RestartSec = 5;
+        Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
+      };
+    };
+
+    xray-clash = {
+      description = "Xray Proxy (Clash: Upstream 127.0.0.1:7890)";
+      after = ["network.target"];
+      wantedBy = lib.mkForce [];
+      conflicts = builtins.filter (s: s != "xray-clash.service") allServices;
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.xray}/bin/xray run -config ${
+          pkgs.writeText "xray-clash.json" (builtins.toJSON (mkConfig {
+            outbounds = [directOut blockOut clashOut];
+            targetTag = "clash-proxy";
+          }))
+        }";
+        Restart = "on-failure";
+        RestartSec = 5;
+        Environment = "XRAY_LOCATION_ASSET=${xrayAssets}";
+      };
+    };
+
+    xray-none = {
+      description = "Xray Proxy (None: 100% Direct Fallback)";
+      after = ["network.target"];
+      wantedBy = lib.mkForce [];
+      conflicts = builtins.filter (s: s != "xray-none.service") allServices;
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${pkgs.xray}/bin/xray run -config ${
+          pkgs.writeText "xray-none.json" (builtins.toJSON (mkConfig {
+            outbounds = [directOut blockOut];
+            targetTag = "direct";
+          }))
         }";
         Restart = "on-failure";
         RestartSec = 5;

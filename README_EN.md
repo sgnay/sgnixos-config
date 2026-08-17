@@ -11,6 +11,13 @@
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
 ### Recent Optimizations
+- **2026-08-16: Xray Multi-Mode Proxy Architecture Redesign & Unified Endpoint**
+  - **Unified Local Endpoint**: Standardized all local proxy entrypoints to `HTTP 127.0.0.1:1080` & `SOCKS5 127.0.0.1:1081`.
+  - **4 Xray Services with Systemd Mutual Exclusion**: Declared 4 systemd units (`xray-public`, `xray-home`, `xray-clash`, `xray-none`) in `modules/services/xray.nix` using a DRY config generator, with Systemd `conflicts` ensuring automatic mutual exclusion. `xray-public.service` is enabled by default on boot.
+  - **Dual Shell Alias Support**: Configured 5 proxy alias commands (`proxy-public`, `proxy-home`, `proxy-clash`, `proxy-on`, `proxy-off`) for both Fish (`dotfiles/fish/config.fish`) and Bash (`home/programs/shell.nix`).
+- **2026-08-16: SOPS Decryption Workflow & Ed25519 Key Resolution Fix**
+  - **Root Cause & Fix**: `sops` defaults to checking `/home/sgnay/.ssh/id_rsa`, failing to automatically match `id_ed25519` SSH keys to their derived age identity.
+  - **Standardized Decryption Command**: Documented using `USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519") SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops secrets.yaml"` for editing `secrets.yaml`.
 - **2026-08-03: Podman & Libvirtd/QEMU Stack Enhancement**
   - **Podman Suite**: Enhanced `modules/packages/virtualization.nix` with Podman container runtime, Docker CLI alias (`dockerCompat = true`), `/var/run/docker.sock` socket compatibility (`dockerSocket.enable = true`), and Netavark/Aardvark-dns inter-container DNS resolution.
   - **Libvirtd Virtualization**: Enabled `virtualisation.libvirtd` with QEMU `swtpm` (TPM 2.0 emulation for VMs like Windows 11). Configured and set autostart for the libvirt `default` NAT network.
@@ -75,8 +82,8 @@ sudo nixos-rebuild switch --flake /etc/nixos#sgnixos
 ### Secrets Maintenance
 
 ```bash
-# Edit secrets.yaml using your personal SSH key (automatically decrypts/re-encrypts)
-nix-shell -p sops --run "sops secrets.yaml"
+# Edit secrets.yaml using your personal Ed25519 SSH key
+USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519") SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops secrets.yaml"
 ```
 
 ### Secrets Disaster Recovery
