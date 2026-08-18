@@ -5,8 +5,10 @@
   pkgs,
   unstable,
   ...
-}: {
-  home.packages = with pkgs;
+}:
+{
+  home.packages =
+    with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -22,6 +24,7 @@
       oxideterm
       nushell
       putty
+      starship
       # nyaterm
 
       # ========== 输入法 ==========
@@ -64,6 +67,7 @@
       pkg-config
       openssl
       alsa-lib
+      python3
 
       # ========== 压缩/解压 ==========
       unar
@@ -89,11 +93,13 @@
       bat
       dust
       fd
+      fzf
       eza
       sd
       yazi
       zoxide
-      starship
+      jq
+      dig
 
       # ========== 桌面环境&工具 ==========
       cosmic-icons
@@ -114,9 +120,10 @@
       cursor-clip
       kdePackages.polkit-kde-agent-1 # 身份认证 UI
       kdePackages.kdeconnect-kde # 手机-电脑互联
+      tesseract # OCR 识别引擎
 
       # ========== 文件管理 ==========
-      thunar
+      nautilus
       megasync
       catppuccin-gtk # GTK 主题
       adwaita-icon-theme # StatusNotifier 图标（fcitx5 托盘）也提供 input-keyboard-symbolic 等
@@ -131,5 +138,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix {inherit pkgs unstable;});
+    ++ (import ./wrapped.nix { inherit pkgs unstable; });
 }

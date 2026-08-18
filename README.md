@@ -86,13 +86,15 @@ sudo nixos-rebuild --rollback switch
 # 删除 generation
 sudo nix-env -p /nix/var/nix/profiles/system/ --delete-generations 3 4 5 ...
 # 手动清理
-ls -ahl /nix/var/nix/gcroots /nix/var/nix/profiles/
+ls -l /nix/var/nix/{gcroots,profiles}
 sudo ln -s $(readlink -f /nix/var/nix/gcroots/keep-system-1) /nix/var/nix/profiles/system-1-link
 sudo ln -s $(readlink -f /nix/var/nix/profiles/system-2-link) /nix/var/nix/gcroots/keep-system-2
 nix-collect-garbage -d
 sudo nix-collect-garbage -d
 sudo nix store gc
 sudo nix store optimise
+# 查看阻止垃圾回收的 result
+nix-store --gc --print-roots
 ```
 
 ### 密钥日常维护

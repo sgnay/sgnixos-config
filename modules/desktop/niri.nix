@@ -1,9 +1,7 @@
-{pkgs, ...}: {
+{ pkgs, ... }: {
   programs.niri.enable = true;
-
-  # 使用 Thunar 替代 Nautilus 作为文件选择器
-  programs.niri.useNautilus = false;
-
+  # 如果使用其它文件管理器替代 Nautilus，设置为 false
+  programs.niri.useNautilus = true;
   # 启用 XWayland 以支持 X11 应用（如 WPS Office）
   programs.xwayland.enable = true;
 }

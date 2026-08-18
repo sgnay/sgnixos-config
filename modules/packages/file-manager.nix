@@ -1,4 +1,9 @@
-{pkgs, ...}: {
-  # Thunar 文件管理器支持
-  programs.thunar.enable = true;
+{ pkgs, ... }: {
+  programs.nautilus-open-any-terminal = {
+    enable = true;
+    terminal = "ghostty";
+  };
+  services.gvfs.enable = true;
+  # services.udisks2.enable = true;
+  # services.devmon.enable = true;
 }

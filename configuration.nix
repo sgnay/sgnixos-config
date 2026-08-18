@@ -1,5 +1,5 @@
 # configuration.nix — 最小化主配置，仅 imports 各模块
-{...}: {
+{ pkgs, ... }: {
   imports = [
     ./hardware-configuration.nix
 
@@ -27,7 +27,6 @@
     ./modules/packages/file-manager.nix
     ./modules/packages/input.nix
     ./modules/packages/virtualization.nix
-    ./modules/packages/thunar-themes.nix
 
     # 网络存储服务
     ./modules/services/network-storage.nix
@@ -41,4 +40,19 @@
     # 打印机与扫描仪服务
     ./modules/services/printing.nix
   ];
+
+  # FSTRIM 定时清理 (优化 SSD/NVMe 寿命与性能)
+  systemd.services.fstrim = {
+    path = [ pkgs.util-linux ];
+    serviceConfig.Type = "oneshot";
+    serviceConfig.ExecStart = "${pkgs.util-linux}/bin/fstrim -v /";
+  };
+
+  systemd.timers.fstrim = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "weekly";
+      RandomizedDelaySec = "3600";
+    };
+  };
 }

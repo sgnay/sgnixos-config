@@ -57,6 +57,16 @@ nix-shell /etc/nixos/fhs.nix
 
 # Check active user services
 systemctl --user status dms.service
+# Manual cleanup
+ls -l /nix/var/nix/{gcroots,profiles}
+sudo ln -s $(readlink -f /nix/var/nix/gcroots/keep-system-1) /nix/var/nix/profiles/system-1-link
+sudo ln -s $(readlink -f /nix/var/nix/profiles/system-2-link) /nix/var/nix/gcroots/keep-system-2
+nix-collect-garbage -d
+sudo nix-collect-garbage -d
+sudo nix store gc
+sudo nix store optimise
+# Check what prevents garbage collection
+nix-store --gc --print-roots
 ```
 
 ## Key Rotation & Disaster Recovery
