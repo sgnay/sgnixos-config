@@ -10,7 +10,7 @@ in
       common.network.primaryDNS
       "4.2.2.1"
     ];
-    enableIPv6 = false;
+    enableIPv6 = true;
     hosts = {
       "127.0.0.1" = [ "localhost" ];
       "172.20.26.201" = [ "sgnixos" ];

@@ -27,6 +27,7 @@ window-rule {
     // since this is the default config, and we want no false positives.
     // You can get away with just app-id="wezterm" if you want.
     match app-id=r#"^org\.wezfurlong\.wezterm$"#
+    match app-id="QQ"
     default-column-width { proportion 0.75; }
     default-window-height { proportion 1.0; }
 }
@@ -118,7 +119,7 @@ window-rule {
 }
 
 window-rule {
-    match app-id="vlc"
+    match app-id="vlc|QQ"
     open-maximized true
     default-column-width { proportion 1.0; }
     default-window-height { proportion 1.0; }
