@@ -3,9 +3,9 @@
     Login.HandlePowerKey = "ignore";
     Login.HandleSuspendKey = "ignore";
     Login.HandleHibernateKey = "ignore";
-    Login.HandleLidSwitch = "ignore";
-    Login.HandleLidSwitchDocked = "ignore";
-    Login.HandleLidSwitchExternalPower = "ignore";
+    Login.HandleLidSwitch = "lock";
+    Login.HandleLidSwitchDocked = "lock";
+    Login.HandleLidSwitchExternalPower = "lock";
   };
 
   environment.variables.EDITOR = "nvim";
