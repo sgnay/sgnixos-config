@@ -40,6 +40,8 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # oh-my-pi AI 编程助手
+    omp.url = "github:can1357/oh-my-pi";
 
     # ============ Home Manager ============
     home-manager = {
@@ -49,92 +51,104 @@
   };
 
   nixConfig = {
-    extra-substituters = ["https://fcitx5-vinput.cachix.org"];
+    extra-substituters = [
+      "https://fcitx5-vinput.cachix.org"
+      "https://nix-community.cachix.org"
+    ];
     extra-trusted-public-keys = [
       "fcitx5-vinput.cachix.org-1:XpX3AA6+dDIX4qJhb1QM7sbTwX6/qSlGvW8Z5NK6XdU="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
     ];
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    nixos-hardware,
-    vscode-server,
-    home-manager,
-    pre-commit-hooks,
-    nur,
-    ...
-  }: let
-    unstable = import inputs.nixpkgs-unstable {
-      system = "x86_64-linux";
-      config.allowUnfree = true;
-    };
-  in {
-    nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        inputs.sops-nix.nixosModules.sops
-        {
-          nixpkgs.overlays = [
-            (_final: prev: let
-              myPkgs = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}";
-            in {
-              univpn = myPkgs.univpn;
-              sunloginclient = myPkgs.sunloginclient;
-              omp = myPkgs.omp;
-              rustconn = myPkgs.rustconn;
-              oxideterm = myPkgs.oxideterm;
-              velotype = myPkgs.velotype;
-              goose = myPkgs.goose;
-              goose-desktop = myPkgs.goose-desktop;
-              deepseek-reasonix = myPkgs.deepseek-reasonix;
-              simple-translation = myPkgs.simple-translation;
-              fcitx5-vinput = inputs.fcitx5-vinput.packages."${prev.stdenv.hostPlatform.system}".default;
-            })
-          ];
-        }
-        ./configuration.nix
-        vscode-server.nixosModules.default
-        nixos-hardware.nixosModules.common-cpu-amd
-        home-manager.nixosModules.home-manager
-        (_: {
-          services.vscode-server.enable = true;
-          programs.nix-ld.enable = true;
-          home-manager.useGlobalPkgs = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.sgnay = import ./home/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs unstable;};
-        })
-      ];
-      specialArgs = {inherit inputs unstable;};
-    };
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nixos-hardware,
+      vscode-server,
+      home-manager,
+      pre-commit-hooks,
+      nur,
+      ...
+    }:
+    let
+      unstable = import inputs.nixpkgs-unstable {
+        system = "x86_64-linux";
+        config.allowUnfree = true;
+      };
+    in
+    {
+      nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          inputs.sops-nix.nixosModules.sops
+          {
+            nixpkgs.overlays = [
+              (
+                _final: prev:
+                let
+                  myPkgs = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}";
+                in
+                {
+                  univpn = myPkgs.univpn;
+                  sunloginclient = myPkgs.sunloginclient;
+                  rustconn = myPkgs.rustconn;
+                  oxideterm = myPkgs.oxideterm;
+                  nyaterm = myPkgs.nyaterm;
+                  velotype = myPkgs.velotype;
+                  goose = myPkgs.goose;
+                  goose-desktop = myPkgs.goose-desktop;
+                  deepseek-reasonix = myPkgs.deepseek-reasonix;
+                  simple-translation = myPkgs.simple-translation;
+                  simple-ocr = myPkgs.simple-ocr;
+                  fcitx5-vinput = inputs.fcitx5-vinput.packages."${prev.stdenv.hostPlatform.system}".default;
+                }
+              )
+            ];
+          }
+          ./configuration.nix
+          vscode-server.nixosModules.default
+          nixos-hardware.nixosModules.common-cpu-amd
+          home-manager.nixosModules.home-manager
+          (_: {
+            services.vscode-server.enable = true;
+            programs.nix-ld.enable = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.sgnay = import ./home/home.nix;
+            home-manager.extraSpecialArgs = { inherit inputs unstable; };
+          })
+        ];
+        specialArgs = { inherit inputs unstable; };
+      };
 
-    homeConfigurations = {
-      sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-          overlays = [nur.overlays.default];
+      homeConfigurations = {
+        sgnay = inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config.allowUnfree = true;
+            overlays = [ nur.overlays.default ];
+          };
+          modules = [ ./home/home.nix ];
+          extraSpecialArgs = { inherit inputs unstable; };
         };
-        modules = [./home/home.nix];
-        extraSpecialArgs = {inherit inputs unstable;};
+      };
+
+      # Pre-commit checks
+      checks.x86_64-linux.pre-commit-check = pre-commit-hooks.lib.x86_64-linux.run {
+        src = ./.;
+        hooks = {
+          alejandra.enable = true;
+          statix.enable = true;
+          deadnix.enable = true;
+          deadnix.settings.noLambdaPatternNames = true;
+        };
+      };
+
+      devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
+        inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
+        buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
       };
     };
-
-    # Pre-commit checks
-    checks.x86_64-linux.pre-commit-check = pre-commit-hooks.lib.x86_64-linux.run {
-      src = ./.;
-      hooks = {
-        alejandra.enable = true;
-        statix.enable = true;
-        deadnix.enable = true;
-        deadnix.settings.noLambdaPatternNames = true;
-      };
-    };
-
-    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
-      buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
-    };
-  };
 }

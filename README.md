@@ -45,9 +45,6 @@
   - **SOPS-Nix 安全机制**: 引入 `sops-nix` 加密流程。将主机 SSH Host Key (`/etc/ssh/ssh_host_ed25519_key`) 和用户个人 SSH Key (`~/.ssh/id_ed25519`) 转换并绑定为对应的 `age` 加密实体，既支持系统无感解密，又支持用户日常免密编辑。
   - **动态渲染模板**: 敏感的代理客户端凭据 (如 Xray VLESS outbounds) 归档到 `secrets.yaml` 中，在系统激活时由 `sops-nix` 拼接其他常规变量动态渲染生成 `/run/secrets/rendered/xray-away.json`。Xray 服务启动参数改由动态指向该 RAMFS 安全路径，彻底规避了敏感凭据暴露到全局可读 `/nix/store` 的漏洞。
   - **非敏感变量下沉**: 将 `username`、`email`、`user-public-ssh-keys` 等不具备安全风险的参数解耦下沉到 `common.nix`，使其可安全地被 Git 跟踪和管理。
-- **2026-07-14: OMP AI 编程助手集成**
-  - **动态链接器包装**: 打包了 `oh-my-pi` (omp) AI 编程助手。由于 Bun 单文件可执行文件将 JS 载荷打包在文件尾部（Trailer 机制），传统的 `patchelf` 会破坏其偏移量。我们通过使用 glibc 动态解释器 (`ld-linux-x86-64.so.2`) 包裹未修改的原始二进制文件解决了此问题。
-  - **声明式 NUR Overlay**: 将 `omp` 软件包发布到个人 `sgnur-packages` 仓库，并更新了 Flake 输入的 Overlay 和 Home Manager 的软件包配置。
 - **2026-07-13: 架构解耦与 Dotfiles 整理**
   - **软件解耦**: 将 GUI 应用程序从系统级的 `environment.systemPackages` 迁移至 Home Manager，使系统 Profile 更干净。
   - **Dotfiles 管理**: 将符号链接逻辑重构为统一的 `home/lib.nix` 辅助函数 (`mkDotfileLinks`)，使 XDG 配置更加清晰和易维护。

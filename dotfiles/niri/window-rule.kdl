@@ -52,10 +52,12 @@ window-rule {
     match app-id=r#"^xdg-desktop-portal$"#
     match app-id="fsearch"
     match app-id=r#"firefox$"# title="^Picture-in-Picture$"
+    match app-id=r#"org.gnome.Nautilus"# title="Open Directory"
     match app-id=r#"thunar$|Thunar$"# title="^重命名"
     match app-id="pot"
     match app-id=r#"org.quickshell$"#
     match app-id="simple-translation"
+    match app-id="simple-ocr"
     open-floating true
 }
 window-rule {

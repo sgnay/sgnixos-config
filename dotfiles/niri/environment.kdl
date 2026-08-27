@@ -21,9 +21,6 @@ environment {
   // XDG_DATA_DIRS "$HOME/.local/share" "$XDG_DATA_DIRS"
   // https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland#Sway
   XMODIFIERS "@im=fcitx"
-  // GTK_IM_MODULE "fcitx"
-  // QT_IM_MODULE "fcitx"
-  // QT_IM_MODULE "wayland;fcitx"
   INPUT_METHOD "fcitx"
   QT_SCALE_FACTOR "1.0"
   QT_FONT_DPI "144"

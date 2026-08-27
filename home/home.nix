@@ -11,6 +11,8 @@ in
 
   # 程序配置模块
   imports = [
+    ./programs/config.nix # 公共配置和临时配置
+    ./packages/default.nix # 用户级软件包模块
     ./programs/git.nix
     ./programs/shell.nix
     ./programs/niri.nix
@@ -19,8 +21,8 @@ in
     ./programs/rime.nix
     ./programs/vscode.nix
     ./programs/neovim.nix
-    ./packages/default.nix # 新增用户级软件包模块
-    # ./programs/swayidle.nix # 锁屏和熄屏，dms 有这个功能（但可能会失效），先保留做备用。
+    ./programs/npm.nix
+    ./programs/omp.nix
   ];
 
   # 环境变量

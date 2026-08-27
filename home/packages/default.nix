@@ -25,7 +25,7 @@
       nushell
       putty
       starship
-      # nyaterm
+      nyaterm
 
       # ========== 输入法 ==========
       qt6Packages.fcitx5-configtool
@@ -52,18 +52,22 @@
 
       # ========== 多媒体 ==========
       obs-studio
+      unstable.shotcut
       vlc
       mpv
       deadbeef
       netease-cloud-music-gtk
       unstable.qqmusic
+      unstable.ffmpeg
 
       # ========== 密码管理器 ==========
       keepassxc
 
       # ========== 开发工具 / Rust 工具链 ==========
       cargo
+      clippy
       rustc
+      rustfmt
       pkg-config
       openssl
       alsa-lib
@@ -78,16 +82,13 @@
       wl-clipboard
 
       # ========== AI 代理 ==========
-      unstable.antigravity-cli
-      unstable.antigravity-ide-fhs
-      unstable.pi-coding-agent
-      omp
       goose
       goose-desktop
       deepseek-reasonix
 
       # ========== 翻译工具 ==========
       simple-translation
+      simple-ocr
 
       # ========== CLI 工具 ==========
       bat
@@ -100,7 +101,8 @@
       zoxide
       jq
       dig
-
+      unstable.rustnet
+      # unstable.wltr  # missing from unstable
       # ========== 桌面环境&工具 ==========
       cosmic-icons
       pop-icon-theme

@@ -41,6 +41,10 @@ return {
 		-- 移动 tab 顺序
 		{ key = "UpArrow", mods = "CTRL", action = act.MoveTabRelative(-1) },
 		{ key = "DownArrow", mods = "CTRL", action = act.MoveTabRelative(1) },
+		-- 向左移动标签页（例如 Ctrl+Shift+Left）
+		{ key = "LeftArrow", mods = "CTRL|SHIFT", action = act.MoveTabRelative(-1) },
+		-- 向右移动标签页（例如 Ctrl+Shift+Right）
+		{ key = "RightArrow", mods = "CTRL|SHIFT", action = act.MoveTabRelative(1) },
 	},
 	mouse_bindings = {
 		-- 鼠标选择复制到 Clipboard（剪切板）和 Primary Selection（主缓冲区/选中即复制）

@@ -1,0 +1,88 @@
+advisor:
+  enabled: true
+memory:
+  backend: local
+startup:
+  quiet: true
+  showSplash: false
+composer:
+  shape: pi
+steeringMode: one-at-a-time
+interruptMode: immediate
+theme:
+  dark: titanium
+  light: light
+symbolPreset: nerd
+setupVersion: 2
+colorBlindMode: false
+statusLine:
+  preset: default
+  separator: powerline-thin
+modelRoles:
+  default: freellmapi/auto:high
+  smol: freellmapi/auto:high
+  slow: freellmapi/auto:high
+  plan: freellmapi/auto:high
+  vision: google/gemini-3.1-pro-preview
+  advisor: freellmapi/auto:high
+  task: freellmapi/auto:high
+defaultThinkingLevel: high
+hideThinkingBlock: false
+thinkingBudgets:
+  minimal: 1024
+  low: 2048
+  medium: 8192
+  high: 16384
+  xhigh: 32768
+  max: 32768
+tools:
+  format: auto
+  approvalMode: write
+  approval:
+    bash: allow
+    read: allow
+    edit: allow
+    eval: prompt
+bash:
+  enabled: true
+  autoBackground:
+    enabled: true
+    thresholdMs: 60000
+  patterns:
+    - match: "rm -rf *"
+      approval: prompt
+    - match: "git push --force*"
+      approval: prompt
+    - match: "sudo *"
+      approval: prompt
+    - match: "dd *"
+      approval: deny
+lsp:
+  enabled: true
+  lazy: true
+  shared: true
+  diagnosticsOnWrite: true
+  diagnosticsOnEdit: false
+  formatOnWrite: false
+compaction:
+  enabled: true
+  methodOrder:
+    - remote
+    - snapcompact
+    - handoff
+    - shake
+    - soft
+  midTurnEnabled: true
+  thresholdPercent: 80
+  keepRecentTokens: 20000
+providers:
+  webSearchOrder:
+    - Kimi
+    - SearXNG
+    - Z.AI
+    - gemini
+    - perplexity
+    - exa
+  cacheRetention: auto
+disabledProviders:
+  []

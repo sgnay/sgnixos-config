@@ -1,20 +1,26 @@
-{pkgs, ...}: let
+{ pkgs, ... }:
+let
   common = import ../../common.nix;
   userName = common.username;
-in {
+in
+{
   programs.fish.enable = true;
 
   users.users.${userName} = {
     isNormalUser = true;
     description = userName;
     shell = pkgs.fish;
-    extraGroups = ["networkmanager" "wheel"];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ];
     openssh.authorizedKeys.keys = common.user-public-ssh-keys;
     packages = with pkgs; [
       uv
-      nodejs
+      nodejs_latest
       wget
       aria2
+      vim
     ];
   };
 
@@ -26,19 +32,19 @@ in {
     '';
     extraRules = [
       {
-        groups = ["wheel"];
+        groups = [ "wheel" ];
         commands = [
           {
             command = "/run/current-system/sw/bin/nixos-rebuild";
-            options = ["NOPASSWD"];
+            options = [ "NOPASSWD" ];
           }
           {
             command = "/run/current-system/sw/bin/nix";
-            options = ["NOPASSWD"];
+            options = [ "NOPASSWD" ];
           }
           {
             command = "/run/current-system/sw/bin/nix-collect-garbage";
-            options = ["NOPASSWD"];
+            options = [ "NOPASSWD" ];
           }
         ];
       }
