@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   # 字体包（系统级：安装到系统字体路径，全局可用）
   fonts.packages = with pkgs; [
     noto-fonts
@@ -160,6 +160,6 @@
       "FiraCode Nerd Font"
       "Noto Sans Mono CJK SC"
     ];
-    emoji = [ "Noto Color Emoji" ];
+    emoji = ["Noto Color Emoji"];
   };
 }

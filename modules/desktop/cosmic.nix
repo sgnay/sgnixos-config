@@ -16,5 +16,4 @@
 
   # 将 COSMIC 会话加入 greetd 会话列表
   services.displayManager.sessionPackages = [pkgs.cosmic-session];
-
 }

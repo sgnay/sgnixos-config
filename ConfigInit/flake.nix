@@ -17,22 +17,31 @@
       url = "github:nix-community/nixos-vscode-server";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
   };
 
-  outputs = { self, nixpkgs, nixos-hardware, vscode-server, ... }@inputs: {
+  outputs = {
+    self,
+    nixpkgs,
+    nixos-hardware,
+    vscode-server,
+    ...
+  } @ inputs: {
     nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       modules = [
         ./configuration.nix
         vscode-server.nixosModules.default
         nixos-hardware.nixosModules.common-cpu-amd
-        ({ config, pkgs, ... }: {
+        ({
+          config,
+          pkgs,
+          ...
+        }: {
           services.vscode-server.enable = true;
           programs.nix-ld.enable = true;
         })
       ];
-      specialArgs = { inherit inputs; };
+      specialArgs = {inherit inputs;};
     };
   };
 }

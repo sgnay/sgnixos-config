@@ -3,18 +3,15 @@
 {
   pkgs,
   unstable,
-}:
-let
+}: let
   inherit (pkgs) symlinkJoin makeWrapper;
-in
-[
-
+in [
   # WeChat 包装：
   # — 设置 QT_IM_MODULE=fcitx 环境变量以支持 fcitx 输入法
   (symlinkJoin {
     name = "wechat-wrapped";
-    paths = [ unstable.wechat ];
-    nativeBuildInputs = [ makeWrapper ];
+    paths = [unstable.wechat];
+    nativeBuildInputs = [makeWrapper];
     postBuild = ''
       if [ -e "$out/bin/wechat" ]; then
         wrapProgram "$out/bin/wechat" \
@@ -37,8 +34,8 @@ in
   # — 添加 QT_IM_MODULE=fcitx 环境变量以支持 fcitx 输入法
   (symlinkJoin {
     name = "wpsoffice-cn-wrapped";
-    paths = [ pkgs.wpsoffice-cn ];
-    nativeBuildInputs = [ makeWrapper ];
+    paths = [pkgs.wpsoffice-cn];
+    nativeBuildInputs = [makeWrapper];
     postBuild = ''
       for prog in wps et wpp wpspdf; do
         if [ -e "$out/bin/$prog" ]; then

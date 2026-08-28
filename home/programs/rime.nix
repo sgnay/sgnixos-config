@@ -4,16 +4,14 @@
   lib,
   pkgs,
   ...
-}:
-let
+}: let
   inherit (config.home) homeDirectory;
   rimeDir = "${homeDirectory}/.local/share/fcitx5/rime";
   rimeDataPath = "${pkgs.rime-data}/share/rime-data";
   rimeIcePath = "${pkgs.rime-ice}/share/rime-data";
-in
-{
+in {
   # rime 基础数据及 rime-ice 词库通过 home.activation 创建符号链接到用户 rime 目录
-  home.activation.setupRimeIce = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.setupRimeIce = lib.hm.dag.entryAfter ["writeBoundary"] ''
     # 创建 rime 用户目录
     mkdir -p "${rimeDir}"
 
@@ -57,7 +55,7 @@ in
   '';
 
   # Rime 配置文件（直接写入，使 rime 可检测改动触发部署）
-  home.activation.setupRimeConfig = lib.hm.dag.entryAfter [ "setupRimeIce" ] ''
+  home.activation.setupRimeConfig = lib.hm.dag.entryAfter ["setupRimeIce"] ''
         # default.custom.yaml — 设定 rime-ice 为默认方案
         cat > "${rimeDir}/default.custom.yaml" << 'YAMLEOF'
     patch:

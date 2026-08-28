@@ -1,16 +1,16 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
-
-let
+{
+  config,
+  pkgs,
+  ...
+}: let
   # 从本地文件导入敏感数据
   secrets = import ./secrets.nix;
   common = import ./common.nix;
   userName = secrets.username;
-in
-{
+in {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
@@ -63,8 +63,8 @@ in
     ];
     enableIPv6 = false;
     hosts = {
-      "127.0.0.1" = [ "localhost" ];
-      "172.20.26.201" = [ "sgnixos" ];
+      "127.0.0.1" = ["localhost"];
+      "172.20.26.201" = ["sgnixos"];
     };
   };
 
@@ -108,20 +108,20 @@ in
     enable = true;
     extraRules = [
       {
-        groups = [ "wheel" ];
+        groups = ["wheel"];
         commands = [
           # nixos-rebuild 及其内部调用的 nix 命令
           {
             command = "/run/current-system/sw/bin/nixos-rebuild";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
           {
             command = "/run/current-system/sw/bin/nix";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
           {
             command = "/run/current-system/sw/bin/nix-collect-garbage";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
         ];
       }
@@ -159,7 +159,7 @@ in
     settings = {
       PermitRootLogin = "no"; # disable root login
       PasswordAuthentication = false; # disable password login
-      AllowUsers = [ userName ];
+      AllowUsers = [userName];
     };
     openFirewall = true;
   };

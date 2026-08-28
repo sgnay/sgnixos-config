@@ -4,11 +4,9 @@
   lib,
   pkgs,
   ...
-}:
-let
-  dotfiles = import ../lib.nix { inherit lib config; };
-in
-{
+}: let
+  dotfiles = import ../lib.nix {inherit lib config;};
+in {
   xdg.configFile =
     (dotfiles.mkDotfileLinks "ghostty" [
       "config.ghostty"

@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   services.logind.settings = {
     Login.HandlePowerKey = "ignore";
     Login.HandleSuspendKey = "ignore";

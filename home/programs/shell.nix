@@ -4,13 +4,11 @@
   lib,
   pkgs,
   ...
-}:
-let
-  dotfiles = import ../lib.nix { inherit lib config; };
+}: let
+  dotfiles = import ../lib.nix {inherit lib config;};
 
   commonProxyEnv = "export HTTP_PROXY=http://127.0.0.1:1080 HTTPS_PROXY=http://127.0.0.1:1080 ALL_PROXY=socks5://127.0.0.1:1081 NO_PROXY=localhost,127.0.0.1,::1,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16 http_proxy=$HTTP_PROXY https_proxy=$HTTPS_PROXY all_proxy=$ALL_PROXY no_proxy=$NO_PROXY";
-in
-{
+in {
   programs.fish = {
     enable = true;
   };
@@ -34,10 +32,10 @@ in
     // {
       "fish/config.fish" = {
         # 这里需要覆盖默认配置，mkForce 只作用于单文件，因此还需要提取 source 的值
-        source = lib.mkForce (dotfiles.mkDotfileLinks "fish" [ "config.fish" ])."fish/config.fish".source;
+        source = lib.mkForce (dotfiles.mkDotfileLinks "fish" ["config.fish"])."fish/config.fish".source;
       };
     }
-    // (dotfiles.mkDotfileLinks "starship" [ "starship.toml" ]);
+    // (dotfiles.mkDotfileLinks "starship" ["starship.toml"]);
 
   programs.starship.enable = true;
 }

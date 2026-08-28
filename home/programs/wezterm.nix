@@ -4,11 +4,9 @@
   lib,
   pkgs,
   ...
-}:
-let
-  dotfiles = import ../lib.nix { inherit lib config; };
-in
-{
+}: let
+  dotfiles = import ../lib.nix {inherit lib config;};
+in {
   programs.wezterm = {
     enable = true;
     extraConfig = ''

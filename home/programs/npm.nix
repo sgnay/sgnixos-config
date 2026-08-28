@@ -3,10 +3,8 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }: let
-  username = config.home.username;
   homeDir = config.home.homeDirectory;
 in {
   programs.npm = {
@@ -18,7 +16,5 @@ in {
   };
 
   # 将 npm 全局 bin 目录加入 PATH
-  home.sessionVariables = lib.mkForce {
-    PATH = "${homeDir}/.npm-global/bin:/run/current-system/sw/bin:/run/wrappers/bin:/usr/bin:/bin";
-  };
+  home.sessionPath = ["${homeDir}/.npm-global/bin"];
 }

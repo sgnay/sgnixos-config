@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   programs.niri.enable = true;
   # 如果使用其它文件管理器替代 Nautilus，设置为 false
   programs.niri.useNautilus = true;

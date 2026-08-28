@@ -1,6 +1,5 @@
 # home/programs/neovim.nix — Neovim + LazyVim 配置
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   # LazyVim 启动配置
   lazyvimInit = pkgs.writeText "lazyvim-init.lua" ''
     -- 本地代理探活：仅当 127.0.0.1:1080 可达时才启用代理环境变量
@@ -137,8 +136,7 @@ let
     keymap({ "n", "v" }, "<leader>p", '"+p', { desc = "从系统剪贴板粘贴" })
     keymap({ "n", "v" }, "<leader>P", '"+P', { desc = "从系统剪贴板向前粘贴" })
   '';
-in
-{
+in {
   programs.neovim = {
     enable = true;
     defaultEditor = true;

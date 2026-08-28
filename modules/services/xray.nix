@@ -266,7 +266,11 @@ in {
   systemd.services = {
     xray-public = {
       description = "Xray Proxy (Public: VLESS+REALITY)";
-      after = ["network.target"];
+      after = [
+        "network.target"
+        "sops-nix.service"
+      ];
+      wants = ["sops-nix.service"];
       wantedBy = ["multi-user.target"];
       conflicts = builtins.filter (s: s != "xray-public.service") allServices;
       serviceConfig = {

@@ -4,7 +4,6 @@
 {
   config,
   lib,
-  pkgs,
   modulesPath,
   ...
 }: {
@@ -23,23 +22,11 @@
   boot.initrd.kernelModules = ["dm-snapshot"];
   boot.kernelModules = ["kvm-amd"];
   boot.extraModulePackages = [];
-  boot.zswap = {
-    enable = true; # /sys/module/zswap/parameters/enabled
-    compressor = "zstd"; # lz4 | zstd | lzo (默认 lz4)
-    zpool = "zsmalloc"; # zbud | z3fold
-    maxPoolPercent = 20; # 最大占用物理内存百分比
-    shrinkerEnabled = true; # 允许压缩池被 shrinker 回收
-    acceptThresholdPercent = 25; # 填充到此阈值时才启用压缩写入
-  };
 
   fileSystems."/" = {
     device = "/dev/mapper/sgnay-root";
     fsType = "btrfs";
-    options = [
-      "subvol=@root"
-      "compress=zstd:1"
-      "noatime"
-    ];
+    options = ["subvol=@root"];
   };
 
   fileSystems."/home" = {
@@ -63,10 +50,7 @@
   };
 
   swapDevices = [
-    {
-      device = "/dev/mapper/sgnay-swap";
-      options = ["discard"];
-    }
+    {device = "/dev/mapper/sgnay-swap";}
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

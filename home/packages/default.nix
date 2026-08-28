@@ -5,10 +5,8 @@
   pkgs,
   unstable,
   ...
-}:
-{
-  home.packages =
-    with pkgs;
+}: {
+  home.packages = with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -18,13 +16,11 @@
       picocom
       minicom
       screen
-      wezterm
       ghostty
       rustconn
       oxideterm
       nushell
       putty
-      starship
       nyaterm
 
       # ========== 输入法 ==========
@@ -127,7 +123,6 @@
       # ========== 文件管理 ==========
       nautilus
       megasync
-      catppuccin-gtk # GTK 主题
       adwaita-icon-theme # StatusNotifier 图标（fcitx5 托盘）也提供 input-keyboard-symbolic 等
       papirus-icon-theme # 现代扁平图标集
 
@@ -140,5 +135,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix { inherit pkgs unstable; });
+    ++ (import ./wrapped.nix {inherit pkgs unstable;});
 }

@@ -7,7 +7,6 @@
 }: let
   dotfiles = import ../lib.nix {inherit lib config;};
 in {
-
   # niri 配置 — 可变符号链接，编辑 /etc/nixos/dotfiles/niri/ 即生效
   xdg.configFile =
     (dotfiles.mkDotfileLinks "niri" [

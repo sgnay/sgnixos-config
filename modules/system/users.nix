@@ -1,9 +1,7 @@
-{ pkgs, ... }:
-let
+{pkgs, ...}: let
   common = import ../../common.nix;
   userName = common.username;
-in
-{
+in {
   programs.fish.enable = true;
 
   users.users.${userName} = {
@@ -32,19 +30,27 @@ in
     '';
     extraRules = [
       {
-        groups = [ "wheel" ];
+        groups = ["wheel"];
         commands = [
           {
             command = "/run/current-system/sw/bin/nixos-rebuild";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
           {
-            command = "/run/current-system/sw/bin/nix";
-            options = [ "NOPASSWD" ];
+            command = "/run/current-system/sw/bin/nix store optimise";
+            options = ["NOPASSWD"];
+          }
+          {
+            command = "/run/current-system/sw/bin/nix store gc";
+            options = ["NOPASSWD"];
+          }
+          {
+            command = "/run/current-system/sw/bin/nix store verify";
+            options = ["NOPASSWD"];
           }
           {
             command = "/run/current-system/sw/bin/nix-collect-garbage";
-            options = [ "NOPASSWD" ];
+            options = ["NOPASSWD"];
           }
         ];
       }

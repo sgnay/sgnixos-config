@@ -2,8 +2,7 @@
   pkgs,
   lib,
   ...
-}:
-{
+}: {
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -27,5 +26,4 @@
     QT_IM_MODULE = lib.mkForce "";
     XMODIFIERS = "@im=fcitx";
   };
-
 }

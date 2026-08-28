@@ -1,5 +1,5 @@
 # configuration.nix — 最小化主配置，仅 imports 各模块
-{ pkgs, ... }: {
+{pkgs, ...}: {
   imports = [
     ./hardware-configuration.nix
 

@@ -4,8 +4,7 @@
   pkgs,
   lib,
   ...
-}:
-let
+}: let
   bgPath = "${pkgs.cosmic-wallpapers}/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg";
 
   # regreet-wrapper — 带自动熄屏的 ReGreet 启动脚本
@@ -313,8 +312,7 @@ let
       box-shadow: 0 0 0 2px rgba(80, 160, 255, 0.5);
     }
   '';
-in
-{
+in {
   # === ReGreet 配置（programs.regreet 模块接管 greetd + cage 启动） ===
   programs.regreet = {
     enable = true;
@@ -383,8 +381,7 @@ in
   };
 
   # 覆盖 programs.regreet 模块的 mkDefault，使用带 swayidle 的包装脚本
-  services.greetd.settings.default_session.command =
-    "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
+  services.greetd.settings.default_session.command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.cage} ${lib.escapeShellArgs config.programs.regreet.cageArgs} -- ${lib.getExe regreetWrapper}";
 
   # 创建 greeter 用户（模块需要此用户存在才能启动）
   users.users.greeter = {
@@ -392,7 +389,7 @@ in
     home = "/var/lib/greeter";
     createHome = true;
     group = "greeter";
-    extraGroups = [ "video" ];
+    extraGroups = ["video"];
   };
-  users.groups.greeter = { };
+  users.groups.greeter = {};
 }

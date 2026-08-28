@@ -1,8 +1,7 @@
 {...}: {
   nix.settings = {
     experimental-features = ["nix-command" "flakes"];
-    trusted-users = [ "root" "@wheel" ];
-
+    trusted-users = ["root" "@wheel"];
 
     substituters = [
       "https://mirrors.ustc.edu.cn/nix-channels/store"
@@ -31,11 +30,11 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  # 自动垃圾回收：每周执行，最多保留 5 个 generation
+  # 自动垃圾回收：每周执行，删除 14 天前的旧代次
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--keep-generations 5";
+    options = "--delete-older-than 14d";
   };
 
   # 自动优化 store（硬链接重复文件）
@@ -44,6 +43,6 @@
   # 自动全量 store 优化（每天凌晨 3 点执行 nix store optimise）
   nix.optimise = {
     automatic = true;
-    dates = [ "03:00" ];
+    dates = ["03:00"];
   };
 }

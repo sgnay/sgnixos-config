@@ -2,18 +2,18 @@
 #   kdeconnect: KDE Connect 手机与电脑互联
 #   nfs-utils:  NFS 客户端工具 + 服务端
 #   samba:      SMB/CIFS 服务端 + 客户端挂载（cifs-utils）
-{ pkgs, lib, ... }:
-let
+{
+  pkgs,
+  lib,
+  ...
+}: let
   common = import ../../common.nix;
   userName = common.username;
-in
-{
+in {
   # === NFS 服务端 ===
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
-    # 在此添加 NFS 共享目录，例如：
-    # /export    *(rw,fsid=0,no_subtree_check)
-    # /export/shared  *(rw,nohide,insecure,no_subtree_check)
+    /home/data/Downloads 172.20.26.0/24(rw,sync,no_subtree_check)
   '';
 
   fileSystems."/home/data/_mountpoint_nfs" = {
@@ -35,7 +35,7 @@ in
   systemd.automounts = [
     {
       where = "/home/data/_mountpoint_nfs";
-      wantedBy = [ ]; # 不在任何开机 target 中自动启用
+      wantedBy = []; # 不在任何开机 target 中自动启用
       automountConfig = {
         TimeoutIdleSec = "600s";
         MountTimeoutSec = "5s";
@@ -46,10 +46,13 @@ in
   # NFS 端口探针服务：检测 2049 端口，可达则启动 automount，不可达则停止 automount
   systemd.services.nfs-automount-watcher = {
     description = "NFS Automount Health Check & Dynamic Toggle";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
     serviceConfig = {
       Type = "oneshot";
+      StandardOutput = "null";
+      StandardError = "null";
+      LogLevelMax = "warning";
       ExecStart = pkgs.writeShellScript "nfs-watcher" ''
         NFS_HOST="172.20.26.100"
         NFS_PORT=2049
@@ -57,27 +60,24 @@ in
 
         if ${pkgs.netcat-openbsd}/bin/nc -z -w 2 "$NFS_HOST" "$NFS_PORT" >/dev/null 2>&1; then
           if ! ${pkgs.systemd}/bin/systemctl is-active --quiet "$AUTOMOUNT_UNIT"; then
-            echo "NFS server $NFS_HOST:$NFS_PORT is reachable, starting $AUTOMOUNT_UNIT..."
             ${pkgs.systemd}/bin/systemctl start "$AUTOMOUNT_UNIT"
           fi
         else
           if ${pkgs.systemd}/bin/systemctl is-active --quiet "$AUTOMOUNT_UNIT"; then
-            echo "NFS server $NFS_HOST:$NFS_PORT is unreachable, stopping $AUTOMOUNT_UNIT..."
             ${pkgs.systemd}/bin/systemctl stop "$AUTOMOUNT_UNIT"
           fi
         fi
       '';
     };
   };
-
-  # 定时器：每 15 秒运行一次探针服务（替代常驻死循环进程，极其节省资源）
+  # 定时器：每 60 秒运行一次探针服务（大幅降低唤醒频率与能耗）
   systemd.timers.nfs-automount-watcher = {
     description = "Timer for NFS Automount Health Check";
-    wantedBy = [ "timers.target" ];
+    wantedBy = ["timers.target"];
     timerConfig = {
-      OnBootSec = "5s";
-      OnUnitActiveSec = "15s";
-      AccuracySec = "1s";
+      OnBootSec = "15s";
+      OnUnitActiveSec = "60s";
+      AccuracySec = "5s";
     };
   };
 
@@ -118,22 +118,24 @@ in
   };
 
   # 禁用 samba.target, samba-smbd, samba-nmbd 的开机自启动
-  systemd.targets.samba.wantedBy = lib.mkForce [ ];
-  systemd.services.samba-smbd.wantedBy = lib.mkForce [ ];
-  systemd.services.samba-nmbd.wantedBy = lib.mkForce [ ];
+  systemd.targets.samba.wantedBy = lib.mkForce [];
+  systemd.services.samba-smbd.wantedBy = lib.mkForce [];
+  systemd.services.samba-nmbd.wantedBy = lib.mkForce [];
 
   # 启用 Samba 的 NetBIOS 名称解析服务
   services.samba-wsdd = {
     enable = true;
     openFirewall = true;
   };
+  systemd.services.samba-wsdd.wantedBy = lib.mkForce [];
 
   # 将用户加入 sambashare 组（可选）
-  users.users.${userName}.extraGroups = [ "sambashare" ];
+  users.users.${userName}.extraGroups = ["sambashare"];
 
   # === Syncthing 文件同步 ===
   services.syncthing = {
     enable = true;
+    openDefaultPorts = true;
     user = userName;
     dataDir = "/home/${userName}"; # 配置文件目录
     configDir = "/home/${userName}/.config/syncthing";
