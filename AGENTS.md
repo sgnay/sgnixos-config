@@ -19,6 +19,11 @@ Modular NixOS system managed via **Nix Flakes** with **Home Manager** integrated
    USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519") SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops secrets.yaml"
    ```
 3. **No Plaintext Secrets**: Never write plaintext credentials in git files. Store public settings in `common.nix` and encrypted secrets in `secrets.yaml`.
+4. **Sudo Privileges**: Sudo `NOPASSWD` is strictly limited to safe maintenance commands:
+   - `sudo nixos-rebuild`
+   - `sudo nix store optimise`, `sudo nix store gc`, `sudo nix store verify`
+   - `sudo nix-collect-garbage`
+   Arbitrary `sudo nix` subcommands (e.g. `nix shell`, `nix run`, `nix daemon`) require user authentication and MUST NOT be invoked by agents.
 
 ## Project Structure
 
@@ -32,6 +37,7 @@ Modular NixOS system managed via **Nix Flakes** with **Home Manager** integrated
 ├── secrets.yaml                 # SOPS encrypted secret database
 ├── statix.toml                  # Statix (Nix linter) configuration
 ├── upgrade-version.sh           # NixOS/Home-Manager version bump helper
+├── REVIEW.md                    # Architecture review & security audit report
 ├── ConfigInit/                  # Legacy (non-flake) init scaffold for fresh installs
 ├── modules/                     # NixOS system modules
 │   ├── desktop/                 # Niri / Cosmic / Audio / Fonts
@@ -51,6 +57,9 @@ Modular NixOS system managed via **Nix Flakes** with **Home Manager** integrated
 ```bash
 # Verify system build (Dry build without switching)
 nix build .#nixosConfigurations.sgnixos.config.system.build.toplevel
+
+# Run all pre-commit checks (Alejandra, Statix, Deadnix)
+nix build .#checks.x86_64-linux.pre-commit-check --no-link
 
 # Edit encrypted secrets file
 USER_KEY=$(nix-shell -p ssh-to-age --run "ssh-to-age -private-key -i ~/.ssh/id_ed25519") SOPS_AGE_KEY="$USER_KEY" nix-shell -p sops --run "sops secrets.yaml"

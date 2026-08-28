@@ -16,7 +16,7 @@ in {
       # 防止终端编码不一致导致乱码。
       core.quotePath = false;
       # 多行编辑
-      core.editor = "vim";
+      core.editor = "nvim";
     };
   };
 }

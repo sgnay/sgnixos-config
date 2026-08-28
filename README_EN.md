@@ -11,6 +11,13 @@
 A modular, production-grade NixOS configuration managed via **Nix Flakes**, with **Home Manager** integrated as a NixOS module.
 
 ### Recent Optimizations
+- **2026-08-28: System Architecture Audit, Security Hardening & Service Tuning**
+  - **Sudo Privilege Hardening**: Revoked wildcard `NOPASSWD: .../nix` to close GTFOBins arbitrary root shell escalation; restricted permissions to safe subcommands: `nix store optimise`, `nix store gc`, `nix store verify`, `nixos-rebuild`, and `nix-collect-garbage`.
+  - **Garbage Collection Timer Fix**: Replaced invalid parameter `--keep-generations 5` with `--delete-older-than 14d` in `nix.gc.options`, resolving failure exits on weekly automated GC runs.
+  - **NFS Probe Tuning & Downloads Export**: Extended NFS health check probe interval from 15s to 60s and enabled `LogLevelMax=warning` & `StandardOutput=null`, ending CPU wakeups and journal flooding; exported `/home/data/Downloads` to local LAN (`172.20.26.0/24`) with read/write permissions; disabled unused `samba-wsdd` autostart.
+  - **Btrfs Transparent Compression**: Enabled `compress=zstd:1` and `noatime` on the root (`/`) subvolume, reducing SSD wear and saving disk space for Nix Store closures.
+  - **Firewall & Services Alignment**: Opened UDP 53317 for LocalSend peer discovery, enabled `programs.kdeconnect.enable` for automated port and DBus management, and enabled `services.syncthing.openDefaultPorts`.
+  - **Environment Variables & Code Cleanup**: Migrated npm PATH injection to `home.sessionPath` to prevent overriding user profile paths; eliminated cross-module package duplicates; formatted all Nix files with Alejandra and validated pre-commit hooks.
 - **2026-08-16: Xray Multi-Mode Proxy Architecture Redesign & Unified Endpoint**
   - **Unified Local Endpoint**: Standardized all local proxy entrypoints to `HTTP 127.0.0.1:1080` & `SOCKS5 127.0.0.1:1081`.
   - **4 Xray Services with Systemd Mutual Exclusion**: Declared 4 systemd units (`xray-public`, `xray-home`, `xray-clash`, `xray-none`) in `modules/services/xray.nix` using a DRY config generator, with Systemd `conflicts` ensuring automatic mutual exclusion. `xray-public.service` is enabled by default on boot.
@@ -24,7 +31,7 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
   - **Tooling & User Groups**: Included `virt-manager`, `virt-viewer`, `spice`, `podman-compose`, `buildah`, and `skopeo` packages, and assigned user permissions to `libvirtd` and `podman` system groups.
 - **2026-08-03: NFS Automount Freeze Fix & Declarative Timer Probe**
   - **Root Cause & fstab Generator Fix**: Addressed issue where accessing `/home/data/_mountpoint_nfs` froze operations when NFS server (port 2049) was unreachable despite `noauto` setting. Removed `x-systemd.automount` from `fileSystems` to avoid `systemd-fstab-generator` creating auto-enabled autofs triggers.
-  - **Declarative Systemd Automount & Timer**: Explicitly declared `systemd.automounts` with `wantedBy = []` in `modules/services/network-storage.nix` to prevent mask issues and disable boot-time auto-enabling. Added `nfs-automount-watcher.service` (oneshot `nc` port check) and `nfs-automount-watcher.timer` (15s interval) to dynamically start the automount unit when port 2049 is reachable and stop it when unreachable, eliminating memory footprint while preventing filesystem freezes.
+  - **Declarative Systemd Automount & Timer**: Explicitly declared `systemd.automounts` with `wantedBy = []` in `modules/services/network-storage.nix` to prevent mask issues and disable boot-time auto-enabling. Added `nfs-automount-watcher.service` (oneshot `nc` 2049 port check with `LogLevelMax=warning` silent logging) and `nfs-automount-watcher.timer` (60s interval) to dynamically start the automount unit when port 2049 is reachable and stop it when unreachable, eliminating memory footprint while preventing filesystem freezes.
 - **2026-08-03: Thunar Default Terminal Integration for Ghostty**
   - **Custom Action (uca.xml)**: Configured `dotfiles/Thunar/uca.xml` with `ghostty --working-directory=%f` for the "Open Terminal Here" action.
   - **Declarative Symlinking**: Added `home/programs/thunar.nix` using `mkDotfileLinks` to link `dotfiles/Thunar/uca.xml` to `~/.config/Thunar/uca.xml`, and set `TERMINAL="ghostty"` in `home.sessionVariables`.
@@ -88,6 +95,8 @@ sudo nix store gc
 sudo nix store optimise
 # Check what prevents garbage collection
 nix-store --gc --print-roots
+# Run all pre-commit checks (Alejandra, Statix, Deadnix)
+nix build .#checks.x86_64-linux.pre-commit-check --no-link
 ```
 
 ### Secrets Maintenance

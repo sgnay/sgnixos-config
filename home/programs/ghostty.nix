@@ -2,7 +2,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }: let
   dotfiles = import ../lib.nix {inherit lib config;};

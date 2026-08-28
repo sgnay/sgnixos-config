@@ -117,14 +117,12 @@
       libsForQt5.qt5ct
       cursor-clip
       kdePackages.polkit-kde-agent-1 # 身份认证 UI
-      kdePackages.kdeconnect-kde # 手机-电脑互联
       tesseract # OCR 识别引擎
 
       # ========== 文件管理 ==========
       nautilus
       megasync
       adwaita-icon-theme # StatusNotifier 图标（fcitx5 托盘）也提供 input-keyboard-symbolic 等
-      papirus-icon-theme # 现代扁平图标集
 
       # ========== 网络代理 ==========
       xray

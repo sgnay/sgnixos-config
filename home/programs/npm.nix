@@ -1,10 +1,6 @@
 # home/programs/npm.nix — npm 全局包配置
 # 解决 npx 在 NixOS 上无写入权限的问题
-{
-  config,
-  lib,
-  ...
-}: let
+{config, ...}: let
   homeDir = config.home.homeDirectory;
 in {
   programs.npm = {

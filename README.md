@@ -12,6 +12,13 @@
 
 ### 近期优化
 
+- **2026-08-28: 系统配置架构审计、安全加固与服务调优**
+  - **Sudo 权限收紧与安全防护**: 废除通配性 `sudo nix` 免密授权，规避 GTFOBins 任意 root shell 提权后门；精确白名单仅放行 `nix store optimise`、`nix store gc`、`nix store verify`、`nixos-rebuild` 与 `nix-collect-garbage`。
+  - **垃圾回收定时器修复**: 将 `nix.gc.options` 中的非法参数 `--keep-generations 5` 纠正为 `--delete-older-than 14d`，彻底解决系统装机以来后台 GC 任务 100% 报错退出的隐患。
+  - **NFS 探针治理与下载共享**: 将 NFS 探针轮询周期拉长至 60s，并配置 `LogLevelMax=warning` 与 `StandardOutput=null` 静默策略，终结百万级 journal 日志刷屏与 CPU 频繁唤醒；新增 `/home/data/Downloads` 对内网 (`172.20.26.0/24`) 读写导出，关闭未使用的 `samba-wsdd` 开机自启。
+  - **Btrfs 性能优化**: 根分区 (`/`) 挂载参数开启 `compress=zstd:1` 与 `noatime`，大幅节省 Nix Store SSD 占用并提升 I/O 效率。
+  - **防火墙与网络服务联动**: 补齐 LocalSend 局域网广播端口 (UDP 53317)，启用 `programs.kdeconnect.enable` 原生接管端口与 DBus 策略，Syncthing 开启 `openDefaultPorts`。
+  - **环境变量与规范化修复**: 重构 NPM PATH 注入机制为标准 `home.sessionPath`，杜绝 `lib.mkForce` 覆盖用户 profile 路径；清理跨层级包声明冗余；全库通过 Alejandra 格式化与 Pre-commit checks。
 - **2026-08-16: Xray 多模式代理架构重构与统一入口**
   - **统一本地入口**: 本地终端及应用统一指向 `HTTP 127.0.0.1:1080` 及 `SOCKS5 127.0.0.1:1081`。
   - **4 种 Xray 服务与原生互斥**: 在 `modules/services/xray.nix` 中通过模版生成器声明 4 个具名服务 (`xray-public`, `xray-home`, `xray-clash`, `xray-none`)，通过 Systemd `conflicts` 实现 100% 自动互斥。`xray-public.service` 开机默认自启。
@@ -28,7 +35,7 @@
   - **配套工具与用户权限**: 集成 `virt-manager`, `virt-viewer`, `spice`, `podman-compose`, `buildah`, `skopeo` 等工具，并将用户添加至 `libvirtd` 与 `podman` 系统组。
 - **2026-08-03: NFS 按需自动挂载卡死修复与声明式探针 (NFS Automount Health Check & Timer)**
   - **根因消除与移除非必要的 fstab 生成**: 针对配置 `noauto` 但在 NFS 端口 (2049) 不通时访问 `/home/data/_mountpoint_nfs` 依然卡死的问题，移除了 `fileSystems` 中的 `x-systemd.automount` 选项，防止 `systemd-fstab-generator` 自动生成带有开机使能依赖的 autofs 单元。
-  - **声明式 Systemd Automount & 定时探针**: 在 `modules/services/network-storage.nix` 中通过 `systemd.automounts` 显式定义 `home-data-_mountpoint_nfs.automount` 并配置 `wantedBy = []`（避免 `masked` 隐患且开机默认不启 autofs）。添加 `nfs-automount-watcher.service` (oneshot `nc` 2049 端口检测) 和 `nfs-automount-watcher.timer` (15s 触发)，端口通畅时自动 `start` 自动挂载，不通时自动 `stop`，零常驻内存开销且彻底解决断网/离网时访问该目录卡死的问题。
+  - **声明式 Systemd Automount & 定时探针**: 在 `modules/services/network-storage.nix` 中通过 `systemd.automounts` 显式定义 `home-data-_mountpoint_nfs.automount` 并配置 `wantedBy = []`（避免 `masked` 隐患且开机默认不启 autofs）。添加 `nfs-automount-watcher.service` (oneshot `nc` 2049 端口检测，配置 `LogLevelMax=warning` 静默日志) 和 `nfs-automount-watcher.timer` (60s 触发)，端口通畅时自动 `start` 自动挂载，不通时自动 `stop`，零常驻内存开销且彻底解决断网/离网时访问该目录卡死的问题。
 - **2026-08-03: Thunar 默认终端联动 Ghostty**
   - **自定义右键动作 (uca.xml)**: 配置 `dotfiles/Thunar/uca.xml` 中的 "Open Terminal Here" 动作命令为 `ghostty --working-directory=%f`。
   - **声明式软链接模块**: 添加 `home/programs/thunar.nix` 结合 `mkDotfileLinks` 将 `dotfiles/Thunar/uca.xml` 自动链接至 `~/.config/Thunar/uca.xml`，并在 `home.sessionVariables` 中全局指定 `TERMINAL="ghostty"`。
@@ -95,6 +102,8 @@ nix-store --gc --print-roots
 # nix 规范和格式检查
 statix check flake.nix
 alejandra -c flake.nix
+# 全库规范与预提交检查 (Alejandra, Statix, Deadnix)
+nix build .#checks.x86_64-linux.pre-commit-check --no-link
 ```
 
 ### 密钥日常维护

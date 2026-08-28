@@ -59,7 +59,13 @@
   fileSystems."/home/sdata" = {
     device = "/dev/disk/by-uuid/0A083C6B083C5841";
     fsType = "ntfs3";
-    options = ["nofail"];
+    options = [
+      "nofail"
+      "uid=1000"
+      "gid=100"
+      "windows_names"
+      "iocharset=utf8"
+    ];
   };
 
   swapDevices = [
