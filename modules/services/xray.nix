@@ -213,7 +213,7 @@
     targetTag,
   }: {
     inbounds = commonInbounds;
-    outbounds = outbounds;
+    inherit outbounds;
     routing = {
       domainStrategy = "AsIs";
       rules = mkRules targetTag;

@@ -30,6 +30,9 @@ Modular NixOS system managed via **Nix Flakes** with **Home Manager** integrated
 ├── fhs.nix                      # Standalone FHS environment (buildFHSEnv)
 ├── .sops.yaml                   # SOPS recipient age keys configuration
 ├── secrets.yaml                 # SOPS encrypted secret database
+├── statix.toml                  # Statix (Nix linter) configuration
+├── upgrade-version.sh           # NixOS/Home-Manager version bump helper
+├── ConfigInit/                  # Legacy (non-flake) init scaffold for fresh installs
 ├── modules/                     # NixOS system modules
 │   ├── desktop/                 # Niri / Cosmic / Audio / Fonts
 │   ├── packages/                # Core system packages & virtualization

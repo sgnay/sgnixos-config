@@ -19,7 +19,7 @@ statusLine:
   preset: default
   separator: powerline-thin
 modelRoles:
-  default: freellmapi/auto:high
+  default: empero/glm-5.3-flash
   smol: freellmapi/auto:high
   slow: freellmapi/auto:high
   plan: freellmapi/auto:high
@@ -49,13 +49,13 @@ bash:
     enabled: true
     thresholdMs: 60000
   patterns:
-    - match: "rm -rf *"
+    - match: rm -rf *
       approval: prompt
-    - match: "git push --force*"
+    - match: git push *
       approval: prompt
-    - match: "sudo *"
+    - match: sudo *
       approval: prompt
-    - match: "dd *"
+    - match: dd *
       approval: deny
 lsp:
   enabled: true

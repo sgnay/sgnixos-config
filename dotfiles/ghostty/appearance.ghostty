@@ -25,4 +25,4 @@ mouse-hide-while-typing = true
 confirm-close-surface = false
 
 # === 着色器特效 ===
-custom-shader = ghostty-shader-playground/public/shaders/cursor_smear.glsl
+custom-shader = shaders/cursor_smear.glsl

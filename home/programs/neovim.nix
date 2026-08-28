@@ -3,13 +3,35 @@
 let
   # LazyVim 启动配置
   lazyvimInit = pkgs.writeText "lazyvim-init.lua" ''
-    -- 设置代理（国内 GitHub 直连困难）
-    local proxy_url = "http://127.0.0.1:1080"
-    vim.env.GIT_HTTP_PROXY = proxy_url
-    vim.env.GIT_HTTPS_PROXY = proxy_url
-    vim.env.HTTP_PROXY = proxy_url
-    vim.env.HTTPS_PROXY = proxy_url
-    vim.env.ALL_PROXY = proxy_url
+    -- 本地代理探活：仅当 127.0.0.1:1080 可达时才启用代理环境变量
+    -- （代理关闭时首次 clone lazy.nvim 会因走死代理而失败/挂起）
+    local function proxyAlive(host, port)
+      local ok, conn = pcall(vim.loop.new_tcp)
+      if not ok or not conn then
+        return false
+      end
+      local alive, done = false, false
+      conn:connect(host, port, function(err)
+        alive = err == nil
+        done = true
+        conn:close()
+      end)
+      -- vim.wait 会驱动事件循环，让 connect 回调执行（最多等 2s）
+      vim.wait(2000, function() return done end, 50)
+      if not done then
+        pcall(function() conn:close() end)
+      end
+      return alive
+    end
+
+    if proxyAlive("127.0.0.1", 1080) then
+      local proxy_url = "http://127.0.0.1:1080"
+      vim.env.GIT_HTTP_PROXY = proxy_url
+      vim.env.GIT_HTTPS_PROXY = proxy_url
+      vim.env.HTTP_PROXY = proxy_url
+      vim.env.HTTPS_PROXY = proxy_url
+      vim.env.ALL_PROXY = proxy_url
+    end
 
     -- 设置 lazy.nvim 的安装路径
     local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"

@@ -42,17 +42,8 @@
   ];
 
   # FSTRIM 定时清理 (优化 SSD/NVMe 寿命与性能)
-  systemd.services.fstrim = {
-    path = [ pkgs.util-linux ];
-    serviceConfig.Type = "oneshot";
-    serviceConfig.ExecStart = "${pkgs.util-linux}/bin/fstrim -v /";
-  };
-
-  systemd.timers.fstrim = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "weekly";
-      RandomizedDelaySec = "3600";
-    };
+  services.fstrim = {
+    enable = true;
+    interval = "weekly";
   };
 }

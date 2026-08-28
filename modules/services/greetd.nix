@@ -15,10 +15,16 @@ let
     # cage 支持 idle-notify（swayidle 可检测空闲），但不支持 output-power-management（wlopm 不可用）
     # 因此使用 wlr-randr --off/--on 通过 output-management 协议控制输出开关
     #
-    # 输出名称 'eDP-1' 为笔记本内屏，若有外接显示器需在此扩展
+    # 动态检测笔记本内屏输出名称（匹配 eDP-*），避免硬编码 eDP-1
+    EDP_OUTPUT=$(${lib.getExe pkgs.wlr-randr} --list 2>/dev/null \
+      | grep '^output eDP' \
+      | awk '{print $2}' \
+      | head -n1)
+    [ -z "$EDP_OUTPUT" ] && EDP_OUTPUT="eDP-1"
+
     ${lib.getExe pkgs.swayidle} \
-      timeout 180 '${lib.getExe pkgs.wlr-randr} --output eDP-1 --off' \
-      resume  '${lib.getExe pkgs.wlr-randr} --output eDP-1 --on' &
+      timeout 180 '${lib.getExe pkgs.wlr-randr} --output '"$EDP_OUTPUT"' --off' \
+      resume  '${lib.getExe pkgs.wlr-randr} --output '"$EDP_OUTPUT"' --on' &
     SWAYIDLE_PID=$!
     trap 'kill "$SWAYIDLE_PID" 2>/dev/null' EXIT
 

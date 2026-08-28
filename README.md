@@ -92,6 +92,9 @@ sudo nix store gc
 sudo nix store optimise
 # 查看阻止垃圾回收的 result
 nix-store --gc --print-roots
+# nix 规范和格式检查
+statix check flake.nix
+alejandra -c flake.nix
 ```
 
 ### 密钥日常维护

@@ -1,8 +1,5 @@
-# 备份文件
-*.backup
-
-# 升级脚本备份
-*.backup.*
+# 备份文件（含 home-manager 备份与升级脚本备份）
+*.backup*
 
 # Ghostty shader playground（嵌套 git 仓库）
 dotfiles/ghostty/ghostty-shader-playground

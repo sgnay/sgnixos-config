@@ -17,10 +17,8 @@ in
       "appearance.ghostty"
       "binds.ghostty"
     ])
-    // (dotfiles.mkDotfileLinks "ghostty/ghostty-shader-playground/public/shaders" [
+    // (dotfiles.mkDotfileLinks "ghostty/shaders" [
       "cursor_smear.glsl"
-    ])
-    // (dotfiles.mkDotfileLinks "ghostty/ghostty-shader-playground/public/misc" [
       "ghostty_wrapper.glsl"
     ]);
 }
