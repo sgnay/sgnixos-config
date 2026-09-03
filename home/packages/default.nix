@@ -4,11 +4,10 @@
 {
   pkgs,
   unstable,
+  inputs,
   ...
-}:
-{
-  home.packages =
-    with pkgs;
+}: {
+  home.packages = with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -46,7 +45,6 @@
       lapce
       helix # 命令行编辑器
       velotype
-      ferrite
       joplin-desktop
 
       # ========== 多媒体 ==========
@@ -139,5 +137,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix { inherit pkgs unstable; });
+    ++ (import ./wrapped.nix {inherit pkgs unstable inputs;});
 }

@@ -1,6 +1,9 @@
 # home.nix — Home Manager 主配置
-{ pkgs, common, ... }:
 {
+  pkgs,
+  common,
+  ...
+}: {
   home.username = common.username;
   home.homeDirectory = "/home/${common.username}";
 

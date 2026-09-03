@@ -1,4 +1,4 @@
-{ ... }: {
+{...}: {
   nix.settings = {
     experimental-features = [
       "nix-command"
@@ -50,6 +50,6 @@
   # 自动全量 store 优化（每天凌晨 3 点执行 nix store optimise）
   nix.optimise = {
     automatic = true;
-    dates = [ "03:00" ];
+    dates = ["03:00"];
   };
 }

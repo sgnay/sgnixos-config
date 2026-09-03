@@ -3,6 +3,7 @@
 {
   pkgs,
   unstable,
+  inputs,
 }: let
   inherit (pkgs) symlinkJoin makeWrapper;
 in [
@@ -54,4 +55,44 @@ in [
       done
     '';
   })
+
+  # Ferrite 包装：
+  # — 注入 Wayland / OpenGL / Vulkan / X11 运行时动态链接库（解决 winit 运行时 NoWaylandLib 错误）
+  # — 安装桌面启动项 (.desktop) 与应用图标
+  (let
+    runtimeLibs = with pkgs; [
+      wayland
+      libxkbcommon
+      libGL
+      vulkan-loader
+      libx11
+      libxcursor
+      libxi
+      libxrandr
+      libxcb
+      fontconfig
+      freetype
+    ];
+  in
+    symlinkJoin {
+      name = "ferrite-wrapped";
+      paths = [pkgs.ferrite];
+      nativeBuildInputs = [makeWrapper];
+      postBuild = ''
+        wrapProgram "$out/bin/ferrite" \
+          --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath runtimeLibs}"
+
+        mkdir -p $out/share/applications $out/share/icons/hicolor
+        if [ -d "${inputs.ferrite}/assets/icons/linux" ]; then
+          cp ${inputs.ferrite}/assets/icons/linux/ferrite.desktop $out/share/applications/
+          sed -i "s|^Exec=ferrite|Exec=$out/bin/ferrite|g" $out/share/applications/ferrite.desktop
+          for size in 16x16 32x32 48x48 64x64 128x128 256x256 512x512; do
+            if [ -f "${inputs.ferrite}/assets/icons/linux/$size/ferrite.png" ]; then
+              mkdir -p $out/share/icons/hicolor/$size/apps
+              cp "${inputs.ferrite}/assets/icons/linux/$size/ferrite.png" $out/share/icons/hicolor/$size/apps/
+            fi
+          done
+        fi
+      '';
+    })
 ]

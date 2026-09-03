@@ -3,8 +3,7 @@
   pkgs,
   common,
   ...
-}:
-{
+}: {
   # 开启 CUPS 打印服务并配置常用品牌打印机驱动
   services.printing = {
     enable = true;
@@ -41,6 +40,6 @@
   };
 
   # 将主用户添加至打印 (lp) 与扫描 (scanner) 系统权限组
-  users.groups.scanner.members = [ common.username ];
-  users.groups.lp.members = [ common.username ];
+  users.groups.scanner.members = [common.username];
+  users.groups.lp.members = [common.username];
 }

@@ -74,112 +74,106 @@
     ];
   };
 
-  outputs =
-    inputs@{
-      self,
-      nixpkgs,
-      nixos-hardware,
-      vscode-server,
-      home-manager,
-      pre-commit-hooks,
-      ...
-    }:
-    let
-      system = "x86_64-linux"; # 统一定义系统架构标识符
-      common = import ./common.nix;
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    nixos-hardware,
+    vscode-server,
+    home-manager,
+    pre-commit-hooks,
+    ...
+  }: let
+    system = "x86_64-linux"; # 统一定义系统架构标识符
+    common = import ./common.nix;
 
-      unstable = import inputs.nixpkgs-unstable {
-        inherit system;
-        config.allowUnfree = true;
-      };
-
-      specialArgs = {
-        inherit inputs unstable common;
-      };
-
-      customOverlay =
-        _final: prev:
-        let
-          targetSystem = prev.stdenv.hostPlatform.system;
-          getDefault = flake: flake.packages.${targetSystem}.default;
-          myPkgs = inputs.myRepo.packages.${targetSystem};
-        in
-        {
-          inherit (myPkgs)
-            univpn
-            sunloginclient
-            oxideterm
-            nyaterm
-            velotype
-            goose
-            goose-desktop
-            deepseek-reasonix
-            simple-translation
-            simple-ocr
-            ;
-          fcitx5-vinput = getDefault inputs.fcitx5-vinput;
-          omp = (getDefault inputs.omp).overrideAttrs (_oldAttrs: {
-            __noSandbox = true;
-          });
-          rustconn = getDefault inputs.rustconn;
-          ferrite = getDefault inputs.ferrite;
-        };
-    in
-    {
-      overlays.default = customOverlay;
-
-      nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
-        inherit system specialArgs;
-        modules = [
-          inputs.sops-nix.nixosModules.sops
-          {
-            nixpkgs.overlays = [ customOverlay ];
-          }
-          ./configuration.nix
-          vscode-server.nixosModules.default
-          nixos-hardware.nixosModules.common-cpu-amd
-          home-manager.nixosModules.home-manager
-          (_: {
-            services.vscode-server.enable = true;
-            programs.nix-ld.enable = true;
-            home-manager.useGlobalPkgs = true;
-            home-manager.backupFileExtension = "backup";
-            home-manager.users.sgnay = import ./home/home.nix;
-            home-manager.extraSpecialArgs = specialArgs;
-          })
-        ];
-      };
-
-      homeConfigurations = {
-        sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-            overlays = [ customOverlay ];
-          };
-          modules = [ ./home/home.nix ];
-          extraSpecialArgs = specialArgs;
-        };
-      };
-
-      # Pre-commit checks
-      checks.${system}.pre-commit-check = pre-commit-hooks.lib.${system}.run {
-        src = ./.;
-        hooks = {
-          alejandra.enable = true;
-          statix.enable = true;
-          deadnix.enable = true;
-          deadnix.settings.noLambdaPatternNames = true;
-        };
-      };
-
-      devShells.${system}.default =
-        let
-          check = self.checks.${system}.pre-commit-check;
-        in
-        nixpkgs.legacyPackages.${system}.mkShell {
-          inherit (check) shellHook;
-          buildInputs = check.enabledPackages;
-        };
+    unstable = import inputs.nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
     };
+
+    specialArgs = {
+      inherit inputs unstable common;
+    };
+
+    customOverlay = _final: prev: let
+      targetSystem = prev.stdenv.hostPlatform.system;
+      getDefault = flake: flake.packages.${targetSystem}.default;
+      myPkgs = inputs.myRepo.packages.${targetSystem};
+    in {
+      inherit
+        (myPkgs)
+        univpn
+        sunloginclient
+        oxideterm
+        nyaterm
+        velotype
+        goose
+        goose-desktop
+        deepseek-reasonix
+        simple-translation
+        simple-ocr
+        ;
+      fcitx5-vinput = getDefault inputs.fcitx5-vinput;
+      omp = (getDefault inputs.omp).overrideAttrs (_oldAttrs: {
+        __noSandbox = true;
+      });
+      rustconn = getDefault inputs.rustconn;
+      ferrite = getDefault inputs.ferrite;
+    };
+  in {
+    overlays.default = customOverlay;
+
+    nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
+      inherit system specialArgs;
+      modules = [
+        inputs.sops-nix.nixosModules.sops
+        {
+          nixpkgs.overlays = [customOverlay];
+        }
+        ./configuration.nix
+        vscode-server.nixosModules.default
+        nixos-hardware.nixosModules.common-cpu-amd
+        home-manager.nixosModules.home-manager
+        (_: {
+          services.vscode-server.enable = true;
+          programs.nix-ld.enable = true;
+          home-manager.useGlobalPkgs = true;
+          home-manager.backupFileExtension = "backup";
+          home-manager.users.sgnay = import ./home/home.nix;
+          home-manager.extraSpecialArgs = specialArgs;
+        })
+      ];
+    };
+
+    homeConfigurations = {
+      sgnay = inputs.home-manager.lib.homeManagerConfiguration {
+        pkgs = import nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+          overlays = [customOverlay];
+        };
+        modules = [./home/home.nix];
+        extraSpecialArgs = specialArgs;
+      };
+    };
+
+    # Pre-commit checks
+    checks.${system}.pre-commit-check = pre-commit-hooks.lib.${system}.run {
+      src = ./.;
+      hooks = {
+        alejandra.enable = true;
+        statix.enable = true;
+        deadnix.enable = true;
+        deadnix.settings.noLambdaPatternNames = true;
+      };
+    };
+
+    devShells.${system}.default = let
+      check = self.checks.${system}.pre-commit-check;
+    in
+      nixpkgs.legacyPackages.${system}.mkShell {
+        inherit (check) shellHook;
+        buildInputs = check.enabledPackages;
+      };
+  };
 }

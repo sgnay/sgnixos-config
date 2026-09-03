@@ -2,7 +2,7 @@
 # 所有系统级包（environment.systemPackages）统一在此声明，按功能分类
 # 字体包由 modules/desktop/fonts.nix 中的 fonts.packages 管理
 # 自定义打包（symlinkJoin 等）在 wrapped.nix 中
-{ pkgs, ... }: {
+{pkgs, ...}: {
   environment.systemPackages = with pkgs; [
     # ========== 系统基础工具 ==========
     neovim
@@ -31,6 +31,5 @@
     nfs-utils # NFS 客户端/服务端工具
     samba # SMB/CIFS 服务端
     cifs-utils # mount -t cifs 支持
-
   ];
 }
