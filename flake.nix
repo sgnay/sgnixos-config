@@ -2,15 +2,10 @@
   description = "A custom NixOS flake for sgnay";
 
   inputs = {
-    myRepo = {
-      url = "github:sgnay/sgnur-packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     # ============ 包源 ============
     # NixOS 官方软件源 - 稳定版 (nixos-26.05)
     nixpkgs.url = "nixpkgs/nixos-26.05";
     # community NUR
-    flake-utils.url = "github:numtide/flake-utils";
     nur = {
       url = "github:nix-community/NUR";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -40,8 +35,26 @@
       url = "github:cachix/pre-commit-hooks.nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # oh-my-pi AI 编程助手
-    omp.url = "github:can1357/oh-my-pi";
+    # oh-my-pi, AI Coding agent
+    omp = {
+      url = "github:can1357/oh-my-pi/v18.0.10";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # RustConn, connection manager
+    rustconn = {
+      url = "github:totoshko88/RustConn";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # Ferrite, text editor for Markdown
+    ferrite = {
+      url = "github:OlaProeis/Ferrite";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # custom nur repo
+    myRepo = {
+      url = "github:sgnay/sgnur-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # ============ Home Manager ============
     home-manager = {
@@ -61,91 +74,112 @@
     ];
   };
 
-  outputs = inputs @ {
-    self,
-    nixpkgs,
-    nixos-hardware,
-    vscode-server,
-    home-manager,
-    pre-commit-hooks,
-    ...
-  }: let
-    unstable = import inputs.nixpkgs-unstable {
-      system = "x86_64-linux";
-      config.allowUnfree = true;
-    };
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      nixos-hardware,
+      vscode-server,
+      home-manager,
+      pre-commit-hooks,
+      ...
+    }:
+    let
+      system = "x86_64-linux"; # 统一定义系统架构标识符
+      common = import ./common.nix;
 
-    customOverlay = _final: prev: let
-      myPkgs = inputs.myRepo.packages."${prev.stdenv.hostPlatform.system}";
-    in {
-      inherit
-        (myPkgs)
-        univpn
-        sunloginclient
-        rustconn
-        oxideterm
-        nyaterm
-        velotype
-        goose
-        goose-desktop
-        deepseek-reasonix
-        simple-translation
-        simple-ocr
-        ;
-      fcitx5-vinput = inputs.fcitx5-vinput.packages."${prev.stdenv.hostPlatform.system}".default;
-    };
-  in {
-    overlays.default = customOverlay;
+      unstable = import inputs.nixpkgs-unstable {
+        inherit system;
+        config.allowUnfree = true;
+      };
 
-    nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        inputs.sops-nix.nixosModules.sops
+      specialArgs = {
+        inherit inputs unstable common;
+      };
+
+      customOverlay =
+        _final: prev:
+        let
+          targetSystem = prev.stdenv.hostPlatform.system;
+          getDefault = flake: flake.packages.${targetSystem}.default;
+          myPkgs = inputs.myRepo.packages.${targetSystem};
+        in
         {
-          nixpkgs.overlays = [customOverlay];
-        }
-        ./configuration.nix
-        vscode-server.nixosModules.default
-        nixos-hardware.nixosModules.common-cpu-amd
-        home-manager.nixosModules.home-manager
-        (_: {
-          services.vscode-server.enable = true;
-          programs.nix-ld.enable = true;
-          home-manager.useGlobalPkgs = true;
-          home-manager.backupFileExtension = "backup";
-          home-manager.users.sgnay = import ./home/home.nix;
-          home-manager.extraSpecialArgs = {inherit inputs unstable;};
-        })
-      ];
-      specialArgs = {inherit inputs unstable;};
-    };
-
-    homeConfigurations = {
-      sgnay = inputs.home-manager.lib.homeManagerConfiguration {
-        pkgs = import nixpkgs {
-          system = "x86_64-linux";
-          config.allowUnfree = true;
-          overlays = [customOverlay];
+          inherit (myPkgs)
+            univpn
+            sunloginclient
+            oxideterm
+            nyaterm
+            velotype
+            goose
+            goose-desktop
+            deepseek-reasonix
+            simple-translation
+            simple-ocr
+            ;
+          fcitx5-vinput = getDefault inputs.fcitx5-vinput;
+          omp = (getDefault inputs.omp).overrideAttrs (_oldAttrs: {
+            __noSandbox = true;
+          });
+          rustconn = getDefault inputs.rustconn;
+          ferrite = getDefault inputs.ferrite;
         };
-        modules = [./home/home.nix];
-        extraSpecialArgs = {inherit inputs unstable;};
-      };
-    };
+    in
+    {
+      overlays.default = customOverlay;
 
-    # Pre-commit checks
-    checks.x86_64-linux.pre-commit-check = pre-commit-hooks.lib.x86_64-linux.run {
-      src = ./.;
-      hooks = {
-        alejandra.enable = true;
-        statix.enable = true;
-        deadnix.enable = true;
-        deadnix.settings.noLambdaPatternNames = true;
+      nixosConfigurations.sgnixos = nixpkgs.lib.nixosSystem {
+        inherit system specialArgs;
+        modules = [
+          inputs.sops-nix.nixosModules.sops
+          {
+            nixpkgs.overlays = [ customOverlay ];
+          }
+          ./configuration.nix
+          vscode-server.nixosModules.default
+          nixos-hardware.nixosModules.common-cpu-amd
+          home-manager.nixosModules.home-manager
+          (_: {
+            services.vscode-server.enable = true;
+            programs.nix-ld.enable = true;
+            home-manager.useGlobalPkgs = true;
+            home-manager.backupFileExtension = "backup";
+            home-manager.users.sgnay = import ./home/home.nix;
+            home-manager.extraSpecialArgs = specialArgs;
+          })
+        ];
       };
-    };
 
-    devShells.x86_64-linux.default = nixpkgs.legacyPackages.x86_64-linux.mkShell {
-      inherit (self.checks.x86_64-linux.pre-commit-check) shellHook;
-      buildInputs = self.checks.x86_64-linux.pre-commit-check.enabledPackages;
+      homeConfigurations = {
+        sgnay = inputs.home-manager.lib.homeManagerConfiguration {
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+            overlays = [ customOverlay ];
+          };
+          modules = [ ./home/home.nix ];
+          extraSpecialArgs = specialArgs;
+        };
+      };
+
+      # Pre-commit checks
+      checks.${system}.pre-commit-check = pre-commit-hooks.lib.${system}.run {
+        src = ./.;
+        hooks = {
+          alejandra.enable = true;
+          statix.enable = true;
+          deadnix.enable = true;
+          deadnix.settings.noLambdaPatternNames = true;
+        };
+      };
+
+      devShells.${system}.default =
+        let
+          check = self.checks.${system}.pre-commit-check;
+        in
+        nixpkgs.legacyPackages.${system}.mkShell {
+          inherit (check) shellHook;
+          buildInputs = check.enabledPackages;
+        };
     };
-  };
 }

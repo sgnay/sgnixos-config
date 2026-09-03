@@ -1,5 +1,8 @@
-{pkgs, ...}: let
-  common = import ../../common.nix;
+{
+  pkgs,
+  common,
+  ...
+}: let
   userName = common.username;
 in {
   programs.fish.enable = true;

@@ -19,13 +19,13 @@ statusLine:
   preset: default
   separator: powerline-thin
 modelRoles:
-  default: empero/glm-5.3-flash
   smol: freellmapi/auto:high
   slow: freellmapi/auto:high
   plan: freellmapi/auto:high
   vision: google/gemini-3.1-pro-preview
   advisor: freellmapi/auto:high
   task: freellmapi/auto:high
+  default: google-antigravity/gemini-3.7-flash:high
 defaultThinkingLevel: high
 hideThinkingBlock: false
 thinkingBudgets:

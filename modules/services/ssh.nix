@@ -1,5 +1,4 @@
-{...}: let
-  common = import ../../common.nix;
+{common, ...}: let
   userName = common.username;
 in {
   services.openssh = {

@@ -1,6 +1,8 @@
-{pkgs, ...}: let
-  common = import ../../common.nix;
-in {
+{
+  pkgs,
+  common,
+  ...
+}: {
   # Podman 容器支持与 Docker 兼容性配置
   virtualisation.podman = {
     enable = true;

@@ -1,6 +1,8 @@
-{lib, ...}: let
-  common = import ../../common.nix;
-in {
+{
+  lib,
+  common,
+  ...
+}: {
   networking = {
     hostName = "sgnixos";
     networkmanager.enable = true;

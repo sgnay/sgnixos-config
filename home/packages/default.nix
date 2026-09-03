@@ -5,8 +5,10 @@
   pkgs,
   unstable,
   ...
-}: {
-  home.packages = with pkgs;
+}:
+{
+  home.packages =
+    with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -44,6 +46,7 @@
       lapce
       helix # 命令行编辑器
       velotype
+      ferrite
       joplin-desktop
 
       # ========== 多媒体 ==========
@@ -64,6 +67,8 @@
       clippy
       rustc
       rustfmt
+      mold
+      clang
       pkg-config
       openssl
       alsa-lib
@@ -81,6 +86,7 @@
       goose
       goose-desktop
       deepseek-reasonix
+      unstable.mcp-nixos
 
       # ========== 翻译工具 ==========
       simple-translation
@@ -133,5 +139,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix {inherit pkgs unstable;});
+    ++ (import ./wrapped.nix { inherit pkgs unstable; });
 }

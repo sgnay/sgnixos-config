@@ -1,7 +1,5 @@
 # programs/git.nix — Git 用户配置
-{...}: let
-  common = import ../../common.nix;
-in {
+{common, ...}: {
   programs.git = {
     enable = true;
     settings = {

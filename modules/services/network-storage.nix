@@ -5,9 +5,9 @@
 {
   pkgs,
   lib,
+  common,
   ...
 }: let
-  common = import ../../common.nix;
   userName = common.username;
 in {
   # === NFS 服务端 ===

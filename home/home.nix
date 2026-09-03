@@ -1,7 +1,6 @@
 # home.nix — Home Manager 主配置
-{pkgs, ...}: let
-  common = import ../common.nix;
-in {
+{ pkgs, common, ... }:
+{
   home.username = common.username;
   home.homeDirectory = "/home/${common.username}";
 

@@ -29,4 +29,5 @@ environment {
   // GSK_RENDERER "vulkan,ngl"
   GSK_RENDERER "gl"
   XDG_CURRENT_DESKTOP "Hyprland"
+  SSL_CERT_DIR "/etc/ssl/certs"
 }

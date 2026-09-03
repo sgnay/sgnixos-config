@@ -1,8 +1,9 @@
 # modules/services/printing.nix — CUPS 打印服务、打印机驱动与 SANE 扫描仪支持
-{ pkgs, ... }:
-let
-  common = import ../../common.nix;
-in
+{
+  pkgs,
+  common,
+  ...
+}:
 {
   # 开启 CUPS 打印服务并配置常用品牌打印机驱动
   services.printing = {
