@@ -82,7 +82,6 @@
 
       # ========== AI 代理 ==========
       goose
-      goose-desktop
       deepseek-reasonix
       unstable.mcp-nixos
 

@@ -50,6 +50,11 @@
       url = "github:OlaProeis/Ferrite";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Goosse AI agent
+    goose = {
+      url = "github:aaif-goose/goose";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # custom nur repo
     myRepo = {
       url = "github:sgnay/sgnur-packages";
@@ -107,8 +112,6 @@
         oxideterm
         nyaterm
         velotype
-        goose
-        goose-desktop
         deepseek-reasonix
         simple-translation
         simple-ocr
@@ -119,6 +122,16 @@
       });
       rustconn = getDefault inputs.rustconn;
       ferrite = getDefault inputs.ferrite;
+      goose = (getDefault inputs.goose).overrideAttrs (_oldAttrs: {
+        doCheck = false;
+        cargoDeps = prev.rustPlatform.importCargoLock {
+          lockFile = "${inputs.goose}/Cargo.lock";
+          outputHashes = {
+            "cudaforge-0.1.6" = "sha256-w0e/mfx08BkphDEFEWxuyxyZu/gHiG0m6RHx+3BLzDY=";
+            "agent-client-protocol-2.0.0" = "sha256-62Bc5XLIx38npCkmijutjJOxjfESg3+m/Ih409ELXNQ=";
+          };
+        };
+      });
     };
   in {
     overlays.default = customOverlay;
