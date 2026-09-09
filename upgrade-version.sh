@@ -14,6 +14,10 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# 最近一次备份文件路径（用于摘要显示真实路径）
+COMMON_BACKUP_FILE=""
+FLAKE_BACKUP_FILE=""
+
 # 打印信息
 info() { echo -e "${GREEN}[INFO]${NC} $1"; }
 warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
@@ -73,7 +77,9 @@ update_flake_inputs() {
     
     # 备份文件
     backup_file "$COMMON_FILE"
+    COMMON_BACKUP_FILE="${COMMON_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
     backup_file "$FLAKE_FILE"
+    FLAKE_BACKUP_FILE="${FLAKE_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
     
     # 使用 sed 更新版本号
     # 匹配 nixos-XX.XX 和 release-XX.XX
@@ -105,8 +111,16 @@ show_changes() {
     echo "  - 版本号:                      $VERSION"
     echo "  - 来源:                        $COMMON_FILE"
     echo "  - 已更新:                      $FLAKE_FILE"
-    echo "  - 备份:                        $COMMON_FILE.backup.*"
-    echo "  - 备份:                        $FLAKE_FILE.backup.*"
+    if [[ -n "$COMMON_BACKUP_FILE" ]]; then
+        echo "  - 备份:                        $COMMON_BACKUP_FILE"
+    else
+        echo "  - 备份:                        $COMMON_FILE.backup.*"
+    fi
+    if [[ -n "$FLAKE_BACKUP_FILE" ]]; then
+        echo "  - 备份:                        $FLAKE_BACKUP_FILE"
+    else
+        echo "  - 备份:                        $FLAKE_FILE.backup.*"
+    fi
     echo ""
     info "下一步:"
     echo "  1. 检查变更: git diff $FLAKE_FILE $COMMON_FILE"

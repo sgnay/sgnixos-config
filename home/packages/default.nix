@@ -6,8 +6,10 @@
   unstable,
   inputs,
   ...
-}: {
-  home.packages = with pkgs;
+}:
+{
+  home.packages =
+    with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -23,9 +25,6 @@
       nushell
       putty
       nyaterm
-
-      # ========== 输入法 ==========
-      qt6Packages.fcitx5-configtool
 
       # ========== 办公 ==========
       drawio
@@ -136,5 +135,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix {inherit pkgs unstable inputs;});
+    ++ (import ./wrapped.nix { inherit pkgs unstable inputs; });
 }

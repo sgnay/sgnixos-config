@@ -23,6 +23,7 @@
     ./programs/neovim.nix
     ./programs/npm.nix
     ./programs/omp.nix
+    ./programs/input.nix
   ];
 
   # 环境变量

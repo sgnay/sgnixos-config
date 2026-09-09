@@ -33,6 +33,7 @@ x-scheme-handler/goose=goose.desktop
 audio/mpeg=mpv.desktop
 x-scheme-handler/file=org.gnome.Nautilus.desktop
 inode/directory=org.gnome.Nautilus.desktop
+application/vnd.efi.iso=peazip.desktop
 
 [Added Associations]
 x-scheme-handler/http=firefox.desktop;
@@ -71,3 +72,4 @@ application/x-bat=lapce.desktop;
 application/vnd.rar=peazip.desktop;
 image/jpeg=org.nomacs.ImageLounge.desktop;
 audio/mpeg=mpv.desktop;
+application/vnd.efi.iso=peazip.desktop;

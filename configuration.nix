@@ -25,7 +25,6 @@
     # 软件包
     ./modules/packages # browsers, terminals, office, communication, editors, multimedia
     ./modules/packages/file-manager.nix
-    ./modules/packages/input.nix
     ./modules/packages/virtualization.nix
 
     # 网络存储服务
