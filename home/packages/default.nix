@@ -6,10 +6,8 @@
   unstable,
   inputs,
   ...
-}:
-{
-  home.packages =
-    with pkgs;
+}: {
+  home.packages = with pkgs;
     [
       # ========== 浏览器 ==========
       firefox
@@ -19,6 +17,8 @@
       picocom
       minicom
       screen
+      zellij
+      unstable.rmux
       ghostty
       rustconn
       oxideterm
@@ -45,6 +45,7 @@
       helix # 命令行编辑器
       velotype
       joplin-desktop
+      mdcat # 命令行查看 markdown
 
       # ========== 多媒体 ==========
       obs-studio
@@ -70,6 +71,8 @@
       openssl
       alsa-lib
       python3
+      lua
+      luafilesystem
 
       # ========== 压缩/解压 ==========
       unar
@@ -99,6 +102,7 @@
       zoxide
       jq
       dig
+      fastfetch
       unstable.rustnet
       # unstable.wltr  # missing from unstable
       # ========== 桌面环境&工具 ==========
@@ -135,5 +139,5 @@
       unstable.sing-geoip
     ]
     # 导入自定义重新包装的包（symlinkJoin 等）
-    ++ (import ./wrapped.nix { inherit pkgs unstable inputs; });
+    ++ (import ./wrapped.nix {inherit pkgs unstable inputs;});
 }

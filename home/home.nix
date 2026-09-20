@@ -3,11 +3,13 @@
   pkgs,
   common,
   ...
-}: {
-  home.username = common.username;
-  home.homeDirectory = "/home/${common.username}";
-
-  home.stateVersion = "26.05";
+}:
+{
+  home = {
+    username = common.username;
+    homeDirectory = "/home/${common.username}";
+    stateVersion = "26.05";
+  };
 
   # 程序配置模块
   imports = [

@@ -12,6 +12,7 @@
     gcc # C 编译器（Mason 等工具依赖）
     tree
     e2fsprogs
+    ntfsprogs
     bc
 
     # ========== Nix 开发工具 ==========

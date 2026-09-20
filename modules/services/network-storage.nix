@@ -7,9 +7,11 @@
   lib,
   common,
   ...
-}: let
+}:
+let
   userName = common.username;
-in {
+in
+{
   # === NFS 服务端 ===
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
@@ -35,7 +37,7 @@ in {
   systemd.automounts = [
     {
       where = "/home/data/_mountpoint_nfs";
-      wantedBy = []; # 不在任何开机 target 中自动启用
+      wantedBy = [ ]; # 不在任何开机 target 中自动启用
       automountConfig = {
         TimeoutIdleSec = "600s";
         MountTimeoutSec = "5s";
@@ -46,8 +48,8 @@ in {
   # NFS 端口探针服务：检测 2049 端口，可达则启动 automount，不可达则停止 automount
   systemd.services.nfs-automount-watcher = {
     description = "NFS Automount Health Check & Dynamic Toggle";
-    after = ["network-online.target"];
-    wants = ["network-online.target"];
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     serviceConfig = {
       Type = "oneshot";
       StandardOutput = "null";
@@ -73,7 +75,7 @@ in {
   # 定时器：每 60 秒运行一次探针服务（大幅降低唤醒频率与能耗）
   systemd.timers.nfs-automount-watcher = {
     description = "Timer for NFS Automount Health Check";
-    wantedBy = ["timers.target"];
+    wantedBy = [ "timers.target" ];
     timerConfig = {
       OnBootSec = "15s";
       OnUnitActiveSec = "60s";
@@ -81,66 +83,67 @@ in {
     };
   };
 
-  # === Samba 服务端 ===
-
-  services.samba = {
-    enable = true;
-    package = pkgs.samba; # 显式指定包
-    openFirewall = true; # 自动开放 137-139, 445 端口
-    settings = {
-      global = {
-        "workgroup" = "WORKGROUP";
-        "server string" = "sgnixos";
-        "netbios name" = "sgnixos";
-        "security" = "user";
-        # 使用 smbpasswd 设置用户密码:
-        #   sudo smbpasswd -a ${userName}
-        "map to guest" = "Bad User";
-        "guest account" = "nobody";
-      };
-      # 默认共享目录示例（可根据需要调整）
-      # homes = {
-      #   comment = "Home Directories";
-      #   browseable = "no";
-      #   read only = "no";
-      #   "valid users" = "%S";
-      # };
-      # public = {
-      #   path = "/srv/samba/public";
-      #   comment = "Public Share";
-      #   public = "yes";
-      #   "writable" = "yes";
-      #   "guest ok" = "yes";
-      #   "create mask" = "0644";
-      #   "directory mask" = "0755";
-      # };
-    };
+  # 禁用 samba.target, samba-smbd, samba-nmbd, samba-wsdd 的开机自启动
+  systemd = {
+    targets.samba.wantedBy = lib.mkForce [ ];
+    services.samba-smbd.wantedBy = lib.mkForce [ ];
+    services.samba-nmbd.wantedBy = lib.mkForce [ ];
+    services.samba-wsdd.wantedBy = lib.mkForce [ ];
   };
-
-  # 禁用 samba.target, samba-smbd, samba-nmbd 的开机自启动
-  systemd.targets.samba.wantedBy = lib.mkForce [];
-  systemd.services.samba-smbd.wantedBy = lib.mkForce [];
-  systemd.services.samba-nmbd.wantedBy = lib.mkForce [];
-
-  # 启用 Samba 的 NetBIOS 名称解析服务
-  services.samba-wsdd = {
-    enable = true;
-    openFirewall = true;
-  };
-  systemd.services.samba-wsdd.wantedBy = lib.mkForce [];
 
   # 将用户加入 sambashare 组（可选）
-  users.users.${userName}.extraGroups = ["sambashare"];
+  users.users.${userName}.extraGroups = [ "sambashare" ];
 
-  # === Syncthing 文件同步 ===
-  services.syncthing = {
-    enable = true;
-    openDefaultPorts = true;
-    user = userName;
-    dataDir = "/home/${userName}"; # 配置文件目录
-    configDir = "/home/${userName}/.config/syncthing";
-    overrideFolders = false; # 保留用户已有的文件夹配置
-    overrideDevices = false; # 保留用户已有的设备配置
-    guiAddress = "127.0.0.1:8384";
+  services = {
+    # Samba 服务端配置
+    samba = {
+      enable = true;
+      package = pkgs.samba; # 显式指定包
+      openFirewall = true; # 自动开放 137-139, 445 端口
+      settings = {
+        global = {
+          "workgroup" = "WORKGROUP";
+          "server string" = "sgnixos";
+          "netbios name" = "sgnixos";
+          "security" = "user";
+          # 使用 smbpasswd 设置用户密码:
+          #   sudo smbpasswd -a ${userName}
+          "map to guest" = "Bad User";
+          "guest account" = "nobody";
+        };
+        # 默认共享目录示例（可根据需要调整）
+        # homes = {
+        #   comment = "Home Directories";
+        #   browseable = "no";
+        #   read only = "no";
+        #   "valid users" = "%S";
+        # };
+        # public = {
+        #   path = "/srv/samba/public";
+        #   comment = "Public Share";
+        #   public = "yes";
+        #   "writable" = "yes";
+        #   "guest ok" = "yes";
+        #   "create mask" = "0644";
+        #   "directory mask" = "0755";
+        # };
+      };
+    };
+    # 启用 Samba 的 NetBIOS 名称解析服务
+    samba-wsdd = {
+      enable = true;
+      openFirewall = true;
+    };
+    # Syncthing 文件同步
+    syncthing = {
+      enable = true;
+      openDefaultPorts = true;
+      user = userName;
+      dataDir = "/home/${userName}"; # 配置文件目录
+      configDir = "/home/${userName}/.config/syncthing";
+      overrideFolders = false; # 保留用户已有的文件夹配置
+      overrideDevices = false; # 保留用户已有的设备配置
+      guiAddress = "127.0.0.1:8384";
+    };
   };
 }

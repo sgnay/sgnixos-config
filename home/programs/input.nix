@@ -25,9 +25,10 @@
 
   # fcitx5 环境变量（Wayland 下 GTK/Qt 使用 text-input 协议，设空值以免干扰）
   home.sessionVariables = {
-    GTK_IM_MODULE = lib.mkForce "";
-    QT_IM_MODULE = lib.mkForce "";
     XMODIFIERS = "@im=fcitx";
+    INPUT_METHOD = "fcitx";
+    QT_IM_MODULE = lib.mkForce "";
+    GTK_IM_MODULE = lib.mkForce "";
   };
 
   # fcitx5-vinput 语音输入守护进程。

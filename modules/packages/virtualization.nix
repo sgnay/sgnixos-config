@@ -2,7 +2,8 @@
   pkgs,
   common,
   ...
-}: {
+}:
+{
   # Podman 容器支持与 Docker 兼容性配置
   virtualisation.podman = {
     enable = true;
@@ -25,6 +26,8 @@
   programs.virt-manager.enable = true;
 
   # 将用户加入 libvirtd 与 podman 管理组
-  users.groups.libvirtd.members = [common.username];
-  users.groups.podman.members = [common.username];
+  users.groups = {
+    libvirtd.members = [ common.username ];
+    podman.members = [ common.username ];
+  };
 }
