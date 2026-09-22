@@ -13,6 +13,7 @@
 
     # 服务
     ./modules/services/ssh.nix
+    ./modules/services/kache.nix
     ./modules/services/greetd.nix
     ./modules/services/xray.nix
 
