@@ -25,7 +25,7 @@ modelRoles:
   vision: google/gemini-3.1-pro-preview
   advisor: freellmapi/auto:high
   task: freellmapi/auto:high
-  default: freellmapi/auto:high
+  default: opencode-go/omen-alpha
 defaultThinkingLevel: high
 hideThinkingBlock: false
 thinkingBudgets:
@@ -42,7 +42,7 @@ tools:
     bash: allow
     read: allow
     edit: allow
-    eval: prompt
+    eval: allow
 bash:
   enabled: true
   autoBackground:

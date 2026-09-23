@@ -3,10 +3,9 @@
   pkgs,
   common,
   ...
-}:
-{
+}: {
   home = {
-    username = common.username;
+    inherit (common) username;
     homeDirectory = "/home/${common.username}";
     stateVersion = "26.05";
   };

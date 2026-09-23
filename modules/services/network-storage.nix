@@ -7,11 +7,9 @@
   lib,
   common,
   ...
-}:
-let
+}: let
   userName = common.username;
-in
-{
+in {
   # === NFS 服务端 ===
   services.nfs.server.enable = true;
   services.nfs.server.exports = ''
@@ -37,7 +35,7 @@ in
   systemd.automounts = [
     {
       where = "/home/data/_mountpoint_nfs";
-      wantedBy = [ ]; # 不在任何开机 target 中自动启用
+      wantedBy = []; # 不在任何开机 target 中自动启用
       automountConfig = {
         TimeoutIdleSec = "600s";
         MountTimeoutSec = "5s";
@@ -48,8 +46,8 @@ in
   # NFS 端口探针服务：检测 2049 端口，可达则启动 automount，不可达则停止 automount
   systemd.services.nfs-automount-watcher = {
     description = "NFS Automount Health Check & Dynamic Toggle";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
+    after = ["network-online.target"];
+    wants = ["network-online.target"];
     serviceConfig = {
       Type = "oneshot";
       StandardOutput = "null";
@@ -75,7 +73,7 @@ in
   # 定时器：每 60 秒运行一次探针服务（大幅降低唤醒频率与能耗）
   systemd.timers.nfs-automount-watcher = {
     description = "Timer for NFS Automount Health Check";
-    wantedBy = [ "timers.target" ];
+    wantedBy = ["timers.target"];
     timerConfig = {
       OnBootSec = "15s";
       OnUnitActiveSec = "60s";
@@ -85,14 +83,14 @@ in
 
   # 禁用 samba.target, samba-smbd, samba-nmbd, samba-wsdd 的开机自启动
   systemd = {
-    targets.samba.wantedBy = lib.mkForce [ ];
-    services.samba-smbd.wantedBy = lib.mkForce [ ];
-    services.samba-nmbd.wantedBy = lib.mkForce [ ];
-    services.samba-wsdd.wantedBy = lib.mkForce [ ];
+    targets.samba.wantedBy = lib.mkForce [];
+    services.samba-smbd.wantedBy = lib.mkForce [];
+    services.samba-nmbd.wantedBy = lib.mkForce [];
+    services.samba-wsdd.wantedBy = lib.mkForce [];
   };
 
   # 将用户加入 sambashare 组（可选）
-  users.users.${userName}.extraGroups = [ "sambashare" ];
+  users.users.${userName}.extraGroups = ["sambashare"];
 
   services = {
     # Samba 服务端配置

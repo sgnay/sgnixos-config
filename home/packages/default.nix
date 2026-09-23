@@ -24,7 +24,7 @@
       oxideterm
       nushell
       putty
-      nyaterm
+      # nyaterm
 
       # ========== 办公 ==========
       drawio
@@ -86,6 +86,7 @@
       goose
       deepseek-reasonix
       unstable.mcp-nixos
+      unstable.antigravity-cli
 
       # ========== 翻译工具 ==========
       simple-translation

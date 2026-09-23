@@ -4,8 +4,7 @@
   pkgs,
   lib,
   ...
-}:
-{
+}: {
   i18n.inputMethod = {
     enable = true;
     type = "fcitx5";
@@ -37,15 +36,15 @@
   systemd.user.services."vinput-daemon" = {
     Unit = {
       Description = "fcitx5-vinput voice input daemon";
-      PartOf = [ "fcitx5-daemon.service" ];
-      After = [ "fcitx5-daemon.service" ];
+      PartOf = ["fcitx5-daemon.service"];
+      After = ["fcitx5-daemon.service"];
     };
     Service = {
       ExecStart = "${pkgs.fcitx5-vinput}/bin/vinput-daemon";
       Restart = "on-failure";
     };
     Install = {
-      WantedBy = [ "fcitx5-daemon.service" ];
+      WantedBy = ["fcitx5-daemon.service"];
     };
   };
 }

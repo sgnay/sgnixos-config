@@ -5,10 +5,7 @@
 #   - RUSTC_WRAPPER 系统环境变量 (services.kache.rustcWrapper, 默认 true)
 #   - /etc/kache/config.toml (services.kache.settings)
 #   - 可选后台 daemon (systemd user service)
-{
-  inputs,
-  ...
-}: {
+{inputs, ...}: {
   imports = [inputs.kache.nixosModules.kache];
   services.kache = {
     enable = true;

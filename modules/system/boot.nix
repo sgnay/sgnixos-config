@@ -2,8 +2,7 @@
   lib,
   pkgs,
   ...
-}:
-{
+}: {
   boot = {
     loader = {
       systemd-boot.enable = true;
@@ -22,7 +21,7 @@
     # 关闭控制台日志输出，防止日志从 Plymouth 背后泄漏
     consoleLogLevel = 0;
     # 与 Plymouth 的 "splash" 配合，进一步压制内核消息
-    kernelParams = [ "quiet" ];
+    kernelParams = ["quiet"];
   };
 
   # 主线稳定内核 — 作为 specialisation 保留备选
