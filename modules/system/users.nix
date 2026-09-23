@@ -14,6 +14,7 @@ in {
     extraGroups = [
       "networkmanager"
       "wheel"
+      "disk" # aTrust 的 deviceId 生成需要读取 NVMe/IDE 设备文件
     ];
     openssh.authorizedKeys.keys = common.user-public-ssh-keys;
     packages = with pkgs; [

@@ -30,6 +30,8 @@ Modular NixOS system managed via **Nix Flakes** with **Home Manager** integrated
 ```
 /etc/nixos/
 ├── flake.nix                    # Flake entry point & module imports
+├── apps/                        # Application flake inputs sub-flake & overlay
+│   └── flake.nix                # App inputs (omp/goose/...), overlay & passthrough
 ├── configuration.nix            # System-level entry point (minimal imports)
 ├── common.nix                   # Public system & user variables
 ├── fhs.nix                      # Standalone FHS environment (buildFHSEnv)

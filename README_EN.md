@@ -63,6 +63,7 @@ A modular, production-grade NixOS configuration managed via **Nix Flakes**, with
 - `fhs.nix`: Standalone FHS sandbox environment (buildFHSEnv).
 - `.sops.yaml`: SOPS key configuration and recipient rules.
 - `secrets.yaml`: SOPS encrypted configuration database.
+- `apps/`: Application flake input sub-flake (omp / goose / kache / ...): declares the app inputs, exports `overlays.default`, and passes the sub-flakes back to the main flake's `inputs` under their original names so module references stay unchanged; add or group-update apps only in `apps/flake.nix` (`nix flake update apps`).
 - `modules/system/`: System-level configuration.
 - `modules/packages/`: Minimal system-level core tools.
 - `home/`: Home Manager configuration.
