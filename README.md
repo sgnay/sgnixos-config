@@ -67,6 +67,7 @@
 - `fhs.nix`: 基于 `buildFHSEnv` 的通用 FHS 沙盒隔离环境配置。
 - `.sops.yaml`: SOPS 密钥加解密受众规则。
 - `secrets.yaml`: 加密保存的敏感数据源。
+- `apps/`: 应用类 flake input 子 flake（omp / goose / kache 等），集中声明应用 inputs、输出 `overlays.default`，并按原名透传回主 flake 的 `inputs` 供模块使用；应用的增删与分组更新只改 `apps/flake.nix`（`nix flake update apps`）。
 - `modules/system/`: 系统级基础配置。
 - `modules/packages/`: 系统级最小核心工具包。
 - `home/`: Home Manager 用户配置。
