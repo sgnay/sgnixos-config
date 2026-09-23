@@ -243,6 +243,24 @@
         "type": "github"
       }
     },
+    "flake-utils_4": {
+      "inputs": {
+        "systems": "systems_6"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "goose": {
       "inputs": {
         "flake-utils": "flake-utils_2",
@@ -520,6 +538,7 @@
         "omp": "omp",
         "pre-commit-hooks": "pre-commit-hooks",
         "rustconn": "rustconn",
+        "simple-translation": "simple-translation",
         "sops-nix": "sops-nix",
         "vscode-server": "vscode-server"
       }
@@ -629,6 +648,27 @@
         "type": "github"
       }
     },
+    "simple-translation": {
+      "inputs": {
+        "flake-utils": "flake-utils_4",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790134433,
+        "narHash": "sha256-Oof09Lrhgj7Zn0+dtSHqSU6AD1xJseAJvJo2AcbBGTw=",
+        "owner": "sgnay",
+        "repo": "simple-translation",
+        "rev": "4df7ca2cccee991a88f251944aa17db17f1180a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sgnay",
+        "repo": "simple-translation",
+        "type": "github"
+      }
+    },
     "sops-nix": {
       "inputs": {
         "nixpkgs": [
@@ -710,6 +750,21 @@
       }
     },
     "systems_5": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
+        "type": "github"
+      }
+    },
+    "systems_6": {
       "locked": {
         "lastModified": 1681028828,
         "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
