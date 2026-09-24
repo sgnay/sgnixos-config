@@ -107,7 +107,6 @@
           velotype
           deepseek-reasonix
           simple-ocr
-          atrust
           ;
         luafilesystem = prev.luaPackages.luafilesystem;
       };
