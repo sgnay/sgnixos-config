@@ -33,8 +33,6 @@
 
     # UniVPN 客户端
     ./modules/services/univpn.nix
-    # aTrust 深信服零信任客户端
-    ./modules/services/atrust.nix
 
     # 向日葵远程控制客户端
     ./modules/services/sunloginclient.nix
