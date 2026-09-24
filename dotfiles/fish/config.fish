@@ -17,6 +17,10 @@ alias proxy-on='sudo systemctl start xray-none; set -gx HTTP_PROXY http://127.0.
 alias proxy-off='set -eg HTTP_PROXY HTTPS_PROXY ALL_PROXY NO_PROXY; set -eg http_proxy https_proxy all_proxy no_proxy'
 # Quick rebuild (auto-update secrets-file input before building)
 alias rebuild='sudo nixos-rebuild switch --flake /etc/nixos#sgnixos'
+
+# Git aliases
+alias gits='git status'
+alias gitl='git log'
 # Alternative to the 'cd'
 eval "$(zoxide init fish)"
 

@@ -65,6 +65,7 @@
       clippy
       rustc
       rustfmt
+      bun
       mold
       clang
       pkg-config
@@ -84,6 +85,7 @@
 
       # ========== AI 代理 ==========
       goose
+      opencode
       deepseek-reasonix
       unstable.mcp-nixos
       unstable.antigravity-cli
@@ -114,6 +116,8 @@
       cosmic-randr
       xdg-desktop-portal-gtk
       xwayland-satellite # niri 的内置 X11 兼容层运行时依赖
+      xwayland-run
+      cage
       dms-shell
       quickshell # DMS 运行时依赖
       vicinae # 应用启动器

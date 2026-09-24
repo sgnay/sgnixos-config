@@ -106,7 +106,6 @@
           oxideterm
           velotype
           deepseek-reasonix
-          simple-ocr
           ;
         luafilesystem = prev.luaPackages.luafilesystem;
       };

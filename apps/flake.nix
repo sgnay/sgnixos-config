@@ -27,6 +27,16 @@
       url = "github:OlaProeis/Ferrite";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # opencode, AI Coding agent (bun/node_modules based)
+    opencode = {
+      url = "github:anomalyco/opencode";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    # simple-ocr, GPUI/Rust OCR app
+    simple-ocr = {
+      url = "github:sgnay/simple-ocr";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # Goosse AI agent
     goose = {
       url = "github:aaif-goose/goose/v1.49.0";
@@ -55,6 +65,8 @@
     ferrite,
     goose,
     simple-translation,
+    opencode,
+    simple-ocr,
     ...
   }: {
     # 主 flake 通过该 overlay 注入应用包
@@ -80,6 +92,8 @@
       });
       kache = getDefault kache;
       simple-translation = getDefault simple-translation;
+      opencode = getDefault opencode;
+      simple-ocr = getDefault simple-ocr;
     };
 
     # 透传子 flake：主 flake 合并回 inputs 后，
@@ -92,6 +106,8 @@
       ferrite
       goose
       simple-translation
+      opencode
+      simple-ocr
       ;
   };
 }
