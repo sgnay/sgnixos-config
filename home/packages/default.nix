@@ -24,7 +24,7 @@
       oxideterm
       nushell
       putty
-      # nyaterm
+      nyaterm
 
       # ========== 办公 ==========
       drawio

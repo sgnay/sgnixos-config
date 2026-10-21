@@ -23,10 +23,10 @@ modelRoles:
   slow: freellmapi/auto:high
   plan: freellmapi/auto:high
   vision: google/gemini-3.1-pro-preview
-  advisor: freellmapi/auto:high
+  advisor: agnes-ai/agnes-3.0-flash:high
   task: freellmapi/auto:high
-  default: opencode-go/space-bunny-free:high
-  web: google/gemini-2.5-flash
+  web: web/exa
+  default: google-antigravity/claude-opus-4-6:high
 defaultThinkingLevel: high
 hideThinkingBlock: false
 thinkingBudgets:
@@ -110,3 +110,5 @@ retry:
       - web/google
       - web/mojeek
       - web/public
+dev:
+  autoqaConsent: granted

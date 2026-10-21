@@ -29,7 +29,7 @@
     };
     # opencode, AI Coding agent (bun/node_modules based)
     opencode = {
-      url = "github:anomalyco/opencode";
+      url = "github:anomalyco/opencode/v2.0.32";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # simple-ocr, GPUI/Rust OCR app
@@ -39,7 +39,7 @@
     };
     # Goosse AI agent
     goose = {
-      url = "github:aaif-goose/goose/v1.49.0";
+      url = "github:aaif-goose/goose/v1.55.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # simple translation
@@ -47,67 +47,81 @@
       url = "github:sgnay/simple-translation";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # AI-native workspace for local shells oxideterm
+    oxideterm = {
+      url = "github:AnalyseDeCircuit/oxideterm/v2.2.2";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     # nyaterm A modern remote terminal workspace
-    # nyaterm = {
-    #   url = "github:sgnay/nyaterm/migration/gpui";
-    #   inputs.nixpkgs.follows = "nixpkgs";
-    # };
+    nyaterm = {
+      url = "github:sgnay/nix-nyaterm";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # 由主 flake 通过 inputs.apps.inputs.nixpkgs.follows 指到主 nixpkgs
     nixpkgs.url = "nixpkgs/nixos-26.05";
   };
 
-  outputs = {
-    fcitx5-vinput,
-    kache,
-    omp,
-    rustconn,
-    ferrite,
-    goose,
-    simple-translation,
-    opencode,
-    simple-ocr,
+  outputs = inputs @ {
+    self,
+    nixpkgs,
     ...
-  }: {
+  }: let
+    # 除 self/nixpkgs 外，所有 input 均为应用类 flake
+    appFlakes = builtins.removeAttrs inputs [
+      "self"
+      "nixpkgs"
+    ];
+  in {
     # 主 flake 通过该 overlay 注入应用包
     overlays.default = _final: prev: let
       targetSystem = prev.stdenv.hostPlatform.system;
       getDefault = flake: flake.packages.${targetSystem}.default;
-    in {
-      fcitx5-vinput = getDefault fcitx5-vinput;
-      omp = (getDefault omp).overrideAttrs (_oldAttrs: {
-        __noSandbox = true;
-      });
-      rustconn = getDefault rustconn;
-      ferrite = getDefault ferrite;
-      goose = (getDefault goose).overrideAttrs (_oldAttrs: {
-        doCheck = false;
-        cargoDeps = prev.rustPlatform.importCargoLock {
-          lockFile = "${goose}/Cargo.lock";
-          outputHashes = {
-            "cudaforge-0.1.6" = "sha256-w0e/mfx08BkphDEFEWxuyxyZu/gHiG0m6RHx+3BLzDY=";
-            "agent-client-protocol-2.0.0" = "sha256-62Bc5XLIx38npCkmijutjJOxjfESg3+m/Ih409ELXNQ=";
+      plain = builtins.mapAttrs (_: getDefault) appFlakes;
+    in
+      plain
+      // {
+        # 上游 nix/hashes.json 与 bun 实际安装出的 node_modules 不一致时，在此覆盖该 FOD 的 hash
+        opencode = let
+          base = getDefault appFlakes.opencode;
+        in
+          (base.override {
+            node_modules = base.node_modules.override {
+              hash = "sha256-9h+QT6+lahxfQM8u1N5F6fxi4Ah3vSS9JYV52jpSfoU=";
+            };
+          }).overrideAttrs
+          (_o: {
+            # v2.0.32 上游 node_modules 的 src fileset 漏掉了根目录 script/，
+            # 但 packages/cli/script/build.ts 依赖 ../../../script/native-arch，
+            # 从完整源码补回该目录
+            postUnpack = ''
+              cp -R ${appFlakes.opencode}/script $NIX_BUILD_TOP/source/script
+            '';
+          });
+        omp = (getDefault appFlakes.omp).overrideAttrs (_o: {
+          __noSandbox = true;
+        });
+        # unit_prune 的 atime 探针测试依赖 Linux relatime 行为，在 Nix 沙箱内不成立
+        kache = (getDefault appFlakes.kache).overrideAttrs (o: {
+          checkFlags =
+            o.checkFlags
+            ++ [
+              "--skip=unit_prune::tests::probes_whether_reads_move_an_armed_access_time"
+            ];
+        });
+        goose = (getDefault appFlakes.goose).overrideAttrs (_o: {
+          doCheck = false;
+          cargoDeps = prev.rustPlatform.importCargoLock {
+            lockFile = "${appFlakes.goose}/Cargo.lock";
+            # v1.55.0 起 agent-client-protocol 改为 crates.io 源，git 依赖只剩 cudaforge
+            outputHashes = {
+              "cudaforge-0.1.6" = "sha256-w0e/mfx08BkphDEFEWxuyxyZu/gHiG0m6RHx+3BLzDY=";
+            };
           };
-        };
-      });
-      kache = getDefault kache;
-      simple-translation = getDefault simple-translation;
-      opencode = getDefault opencode;
-      simple-ocr = getDefault simple-ocr;
-    };
+        });
+      };
 
-    # 透传子 flake：主 flake 合并回 inputs 后，
-    # 模块中 inputs.omp / inputs.kache / inputs.ferrite 等引用无需改动
-    inherit
-      fcitx5-vinput
-      kache
-      omp
-      rustconn
-      ferrite
-      goose
-      simple-translation
-      opencode
-      simple-ocr
-      ;
+    # 透传全部应用 flake，主 flake 直接合并回 inputs，模块引用无需改动
+    inherit appFlakes;
   };
 }

@@ -22,6 +22,9 @@
     consoleLogLevel = 0;
     # 与 Plymouth 的 "splash" 配合，进一步压制内核消息
     kernelParams = ["quiet"];
+    # ntfs3 是模块（CONFIG_NTFS3_FS=m）；/home/sdata 用 ntfs3 挂载需在本地文件系统
+    # 阶段前加载，否则挂载失败会被 nofail 静默跳过
+    kernelModules = ["ntfs3"];
   };
 
   # 主线稳定内核 — 作为 specialisation 保留备选

@@ -57,14 +57,14 @@
   };
 
   fileSystems."/home/sdata" = {
-    device = "/dev/disk/by-uuid/0A083C6B083C5841";
+    device = "/dev/disk/by-uuid/7E28E2E20B063544";
     fsType = "ntfs3";
     options = [
       "nofail"
       "uid=1000"
       "gid=100"
-      "windows_names"
       "iocharset=utf8"
+      "windows_names"
     ];
   };
 

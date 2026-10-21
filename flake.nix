@@ -39,7 +39,8 @@
     };
     # custom nur repo
     myRepo = {
-      url = "path:/home/sgnay/0todo/sgnur-packages";
+      #  url = "path:/home/sgnay/0todo/sgnur-packages";
+      url = "github:sgnay/sgnur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -77,11 +78,7 @@
 
     # 应用类 input 已迁至 ./apps 子 flake，这里按原名透传回 inputs，
     # 模块中的 inputs.omp / inputs.kache / inputs.ferrite 等引用无需改动
-    inputs =
-      rawInputs
-      // {
-        inherit (apps) fcitx5-vinput kache omp rustconn ferrite goose simple-translation;
-      };
+    inputs = rawInputs // apps.appFlakes;
 
     unstable = import inputs.nixpkgs-unstable {
       inherit system;
@@ -103,7 +100,6 @@
           (myPkgs)
           univpn
           sunloginclient
-          oxideterm
           velotype
           deepseek-reasonix
           ;

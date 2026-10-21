@@ -34,6 +34,10 @@ audio/mpeg=mpv.desktop
 x-scheme-handler/file=org.gnome.Nautilus.desktop
 inode/directory=org.gnome.Nautilus.desktop
 application/vnd.efi.iso=peazip.desktop
+x-scheme-handler/nyaterm=.nyaterm-wrapped-handler.desktop
+x-scheme-handler/ssh=.nyaterm-wrapped-handler.desktop
+x-scheme-handler/telnet=.nyaterm-wrapped-handler.desktop
+application/pdf=okularApplication_pdf.desktop
 
 [Added Associations]
 x-scheme-handler/http=firefox.desktop;
@@ -62,7 +66,7 @@ text/x-log=lapce.desktop;
 text/plain=lapce.desktop;userapp-drawio-VV51T3.desktop;
 image/png=satty.desktop;org.nomacs.ImageLounge.desktop;
 image/gif=org.nomacs.ImageLounge.desktop;
-application/pdf=wps-office-pdf.desktop;com.system76.CosmicReader.desktop;
+application/pdf=wps-office-pdf.desktop;com.system76.CosmicReader.desktop;okularApplication_pdf.desktop;
 x-scheme-handler/clash=clash-verge.desktop;
 x-scheme-handler/clash-verge=clash-verge.desktop;
 application/json=lapce.desktop;

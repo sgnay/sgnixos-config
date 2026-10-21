@@ -108,6 +108,14 @@ in {
           #   sudo smbpasswd -a ${userName}
           "map to guest" = "Bad User";
           "guest account" = "nobody";
+          # 注册表配置后端（HKLM\Software\Samba\smbconf）
+          #   include = registry 让 smbd 在读完 smb.conf 后按同名优先级合并注册表中的全局参数，
+          #   同时自动激活 registry shares（共享按需从注册表加载）。
+          #   因此共享可在运行时用 `sudo net conf addshare <名称> <路径>` 增删改，
+          #   实际写入 /var/lib/samba/registry.tdb，无需 nixos-rebuild；
+          #   `sudo net conf list` 查看全部配置，`sudo net conf delshare <名称>` 删除。
+          #   注意：与注册表同名的全局参数若在 smb.conf 中排序位于 include 之后，仍以 smb.conf 为准。
+          "include" = "registry";
         };
         # 默认共享目录示例（可根据需要调整）
         # homes = {

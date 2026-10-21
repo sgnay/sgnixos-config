@@ -81,6 +81,11 @@ binds {
        spawn "dms" "ipc" "call" "brightness" "decrement" "5" "";
     }
 
+    // 键盘背光
+    // dms ipc brightness set 50 leds:bitland-mifs-wmi::kbd_backlight   # 设为 50%
+    // dms ipc brightness increment 5 leds:bitland-mifs-wmi::kbd_backlight  # 加 5% → 55%
+    // dms ipc brightness decrement 5 leds:bitland-mifs-wmi::kbd_backlight
+
     // === Window Management ===
     Mod+Q repeat=false { close-window; }
     Mod+F { maximize-column; }

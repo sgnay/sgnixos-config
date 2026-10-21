@@ -13,6 +13,9 @@
     tree
     e2fsprogs
     ntfsprogs
+    parted
+    tparted
+    efibootmgr
     bc
 
     # ========== Nix 开发工具 ==========
