@@ -14,7 +14,8 @@
         "oxideterm": "oxideterm",
         "rustconn": "rustconn",
         "simple-ocr": "simple-ocr",
-        "simple-translation": "simple-translation"
+        "simple-translation": "simple-translation",
+        "windinput": "windinput"
       },
       "locked": {
         "path": "./apps",
@@ -1221,6 +1222,61 @@
       "original": {
         "owner": "nix-community",
         "repo": "nixos-vscode-server",
+        "type": "github"
+      }
+    },
+    "wind-setting": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792927632,
+        "narHash": "sha256-fYeNs3libF7d8uXZim0kXb0Tg55TSzp+i0raLWuw6vU=",
+        "owner": "huanfeng",
+        "repo": "wind-setting",
+        "rev": "8b9740c73528c50caa91b16b0442322794623f42",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huanfeng",
+        "repo": "wind-setting",
+        "type": "github"
+      }
+    },
+    "wind-ui-rust": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1793092150,
+        "narHash": "sha256-bz5lspPJEKBTcHt6DLe3QWFn/LdgjGXzEqb9O0+DCwc=",
+        "owner": "huanfeng",
+        "repo": "wind-ui-rust",
+        "rev": "57391b6446eb027d1129d3c47519a159d937c7cb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "huanfeng",
+        "repo": "wind-ui-rust",
+        "type": "github"
+      }
+    },
+    "windinput": {
+      "inputs": {
+        "nixpkgs": [
+          "apps",
+          "nixpkgs"
+        ],
+        "wind-setting": "wind-setting",
+        "wind-ui-rust": "wind-ui-rust"
+      },
+      "locked": {
+        "lastModified": 1793271009,
+        "narHash": "sha256-UKGaClfBDg+jfI1i3NMeERGGPWxXTCIGw1sHCzTH+eI=",
+        "owner": "sgnay",
+        "repo": "WindInput",
+        "rev": "c7dc40d74e1610803f5c8025b601e952595eaebb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "sgnay",
+        "repo": "WindInput",
         "type": "github"
       }
     }

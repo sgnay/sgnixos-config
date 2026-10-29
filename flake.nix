@@ -109,7 +109,6 @@
           univpn
           sunloginclient
           velotype
-          fcitx5-windinput
           ;
         # AI 编码代理统一取自 llm-agents.nix：
         # opencode2      = OpenCode 2（上游二进制名 opencode，此处以 opencode2 安装）

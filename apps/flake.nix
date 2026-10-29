@@ -52,6 +52,11 @@
       url = "github:sgnay/nix-nyaterm/v1.3.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # 清风输入法 (WindInput) — fcitx5 addon + 核心服务 + 图形设置程序
+    windinput = {
+      url = "github:sgnay/WindInput";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # 由主 flake 通过 inputs.apps.inputs.nixpkgs.follows 指到主 nixpkgs
     nixpkgs.url = "nixpkgs/nixos-26.05";
