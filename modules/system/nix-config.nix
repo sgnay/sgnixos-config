@@ -14,10 +14,13 @@
       "https://mirrors.ustc.edu.cn/nix-channels/store"
       "https://mirrors.sjtug.sjtu.edu.cn/nix-channels/store"
       "https://cache.nixos.org"
+      # dsh-desktop（deepseek-harness.nix）官方二进制缓存
+      "https://deepseek-harness-nix.cachix.org"
     ];
 
     trusted-public-keys = [
       "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+      "deepseek-harness-nix.cachix.org-1:5NrkwLN9veNMhiINtU5ZeV4isXFhFsOwn6Ms7J1M+TA="
     ];
 
     # 显式信任所有 substituters，确保一个返回 404 时自动回退到下一个
@@ -25,6 +28,7 @@
       "https://mirrors.ustc.edu.cn/nix-channels/store"
       "https://mirrors.sjtug.sjtu.edu.cn/nix-channels/store"
       "https://cache.nixos.org"
+      "https://deepseek-harness-nix.cachix.org"
     ];
 
     # 限制同时编译的软件包数量（建议 2 ~ 4，内存小建议 1 或 2）

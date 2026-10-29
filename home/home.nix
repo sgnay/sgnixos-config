@@ -2,6 +2,7 @@
 {
   pkgs,
   common,
+  inputs,
   ...
 }: {
   home = {
@@ -25,6 +26,8 @@
     ./programs/npm.nix
     ./programs/omp.nix
     ./programs/input.nix
+    # 清风输入法 (WindInput) — 注册 fcitx5 addon 与环境变量
+    inputs.myRepo.homeModules.fcitx5-windinput
   ];
 
   # 环境变量

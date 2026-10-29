@@ -43,7 +43,13 @@
       url = "github:sgnay/sgnur-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
+    # Nix packages for AI coding agents and development tools.
+    # 不 follows 主 nixpkgs：上游包依赖 nixpkgs-unstable 新增的构建钩子
+    # （installAgentSkills、wrapBuddy 等），26.05 稳定源中不存在。
+    llm-agents.url = "github:numtide/llm-agents.nix";
+    # DSH（DeepSeek Harness）桌面端打包；同样跟踪 nixpkgs-unstable（需要 pnpm_11 ≥ 11.22），
+    # 故不 follows 主 nixpkgs。
+    deepseek-harness.url = "github:Moraxyc/deepseek-harness.nix";
     # ============ Home Manager ============
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -92,6 +98,8 @@
     customOverlay = final: prev: let
       targetSystem = prev.stdenv.hostPlatform.system;
       myPkgs = inputs.myRepo.packages.${targetSystem};
+      llmAgents = inputs.llm-agents.packages.${targetSystem};
+      dshPkgs = inputs.deepseek-harness.packages.${targetSystem};
     in
       # 应用类包（omp/goose/kache/...）由 ./apps 子 flake 的 overlay 提供
       (inputs.apps.overlays.default final prev)
@@ -101,8 +109,28 @@
           univpn
           sunloginclient
           velotype
-          deepseek-reasonix
+          fcitx5-windinput
           ;
+        # AI 编码代理统一取自 llm-agents.nix：
+        # opencode2      = OpenCode 2（上游二进制名 opencode，此处以 opencode2 安装）
+        # qoder-cli      = Qoder AI CLI（unfree），命令 qodercli
+        # dsh            = DeepSeek Harness CLI
+        # freebuff       = Freebuff 编码代理
+        # cline          = Cline 编码代理
+        # codebuddy-code = 腾讯 CodeBuddy，命令 codebuddy
+        inherit
+          (llmAgents)
+          opencode2
+          qoder-cli
+          dsh
+          freebuff
+          cline
+          codebuddy-code
+          ;
+        # DSH 桌面端取自 deepseek-harness.nix：用官方变体（自带 primary-runtime 载荷），
+        # unofficial 变体缺 resources/runtime/<arch>/primary-runtime，启动即失败。
+        # 两者都提供 bin/dsh-desktop，只能二选一。
+        inherit (dshPkgs) dsh-desktop-official;
         luafilesystem = prev.luaPackages.luafilesystem;
       };
   in {

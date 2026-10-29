@@ -329,15 +329,16 @@
         "nyaterm-src": "nyaterm-src"
       },
       "locked": {
-        "lastModified": 1792207377,
-        "narHash": "sha256-dIcKNCyaXZxWZFOCG73tng4G3fUhIL9Y0XTR47ytT/Y=",
+        "lastModified": 1793246738,
+        "narHash": "sha256-xefPqQaoA8QBd3LCjWOFxw/nsVgtEaZjZJdD7TLDa8g=",
         "owner": "sgnay",
         "repo": "nix-nyaterm",
-        "rev": "a62bdf75b1868cff923907d1d663f7ac0847437a",
+        "rev": "137e5a55efd6c7b3daed817c03c628a054547558",
         "type": "github"
       },
       "original": {
         "owner": "sgnay",
+        "ref": "v1.3.2",
         "repo": "nix-nyaterm",
         "type": "github"
       }
@@ -345,16 +346,16 @@
     "nyaterm-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1791387804,
-        "narHash": "sha256-O1EyUUq3QlMzrNxhuJY9qxu1+MuI43vZVY+m4VNgVl0=",
+        "lastModified": 1793082012,
+        "narHash": "sha256-1jVErodyQxvm0/VUhdYvzKBEBWskmsefd/w3ZF5P2W4=",
         "owner": "nyakang",
         "repo": "nyaterm",
-        "rev": "ec5e47ee59db490563839db5dad9094755364a67",
+        "rev": "1a3448cf78ae307d8c530c6336b2dfa41911b7ad",
         "type": "github"
       },
       "original": {
         "owner": "nyakang",
-        "ref": "v1.3.0",
+        "ref": "v1.3.2",
         "repo": "nyaterm",
         "type": "github"
       }
@@ -381,27 +382,6 @@
       "original": {
         "owner": "can1357",
         "repo": "oh-my-pi",
-        "type": "github"
-      }
-    },
-    "opencode": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1792189012,
-        "narHash": "sha256-KATNzF7z3PoUo30KC13Gm8uC6HA2a9bmJCZRfqY5D44=",
-        "owner": "anomalyco",
-        "repo": "opencode",
-        "rev": "843a6c514e606b436a7fe713422ace0a93ad3d61",
-        "type": "github"
-      },
-      "original": {
-        "owner": "anomalyco",
-        "ref": "v2.0.32",
-        "repo": "opencode",
         "type": "github"
       }
     },
@@ -435,7 +415,6 @@
         "nixpkgs": "nixpkgs",
         "nyaterm": "nyaterm",
         "omp": "omp",
-        "opencode": "opencode",
         "oxideterm": "oxideterm",
         "rustconn": "rustconn",
         "simple-ocr": "simple-ocr",

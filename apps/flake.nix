@@ -27,11 +27,6 @@
       url = "github:OlaProeis/Ferrite";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # opencode, AI Coding agent (bun/node_modules based)
-    opencode = {
-      url = "github:anomalyco/opencode/v2.0.32";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     # simple-ocr, GPUI/Rust OCR app
     simple-ocr = {
       url = "github:sgnay/simple-ocr";
@@ -54,7 +49,7 @@
     };
     # nyaterm A modern remote terminal workspace
     nyaterm = {
-      url = "github:sgnay/nix-nyaterm";
+      url = "github:sgnay/nix-nyaterm/v1.3.2";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -81,23 +76,6 @@
     in
       plain
       // {
-        # 上游 nix/hashes.json 与 bun 实际安装出的 node_modules 不一致时，在此覆盖该 FOD 的 hash
-        opencode = let
-          base = getDefault appFlakes.opencode;
-        in
-          (base.override {
-            node_modules = base.node_modules.override {
-              hash = "sha256-9h+QT6+lahxfQM8u1N5F6fxi4Ah3vSS9JYV52jpSfoU=";
-            };
-          }).overrideAttrs
-          (_o: {
-            # v2.0.32 上游 node_modules 的 src fileset 漏掉了根目录 script/，
-            # 但 packages/cli/script/build.ts 依赖 ../../../script/native-arch，
-            # 从完整源码补回该目录
-            postUnpack = ''
-              cp -R ${appFlakes.opencode}/script $NIX_BUILD_TOP/source/script
-            '';
-          });
         omp = (getDefault appFlakes.omp).overrideAttrs (_o: {
           __noSandbox = true;
         });

@@ -39,6 +39,8 @@
       telegram-desktop
       localsend
 
+      # ========== 输入法 ==========
+
       # ========== 编辑器/IDE ==========
       unstable.zed-editor-fhs
       lapce
@@ -83,12 +85,19 @@
       # ========== 剪贴板工具 ==========
       wl-clipboard
 
-      # ========== AI 代理 ==========
+      # ========== AI 代理（llm-agents.nix）==========
+      opencode2 # OpenCode 2，命令 opencode2
+      qoder-cli # 命令 qodercli
+      dsh # DeepSeek Harness CLI，命令 dsh
+      freebuff # 命令 freebuff
+      cline # 命令 cline
+      codebuddy-code # 腾讯 CodeBuddy，命令 codebuddy
       goose
-      opencode
-      deepseek-reasonix
       unstable.mcp-nixos
       unstable.antigravity-cli
+
+      # ========== DSH 桌面端（deepseek-harness.nix）==========
+      dsh-desktop-official # 官方 Electron 桌面应用，命令 dsh-desktop
 
       # ========== 翻译工具 ==========
       simple-translation

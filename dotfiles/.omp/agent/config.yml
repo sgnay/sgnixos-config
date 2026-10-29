@@ -26,7 +26,8 @@ modelRoles:
   advisor: agnes-ai/agnes-3.0-flash:high
   task: freellmapi/auto:high
   web: web/exa
-  default: google-antigravity/claude-opus-4-6:high
+  tiny: local/qwen3-1.7b
+  default: kakou/deepseek-v4.1-flash:high
 defaultThinkingLevel: high
 hideThinkingBlock: false
 thinkingBudgets:
@@ -38,7 +39,7 @@ thinkingBudgets:
   max: 32768
 tools:
   format: auto
-  approvalMode: write
+  approvalMode: yolo
   approval:
     bash: allow
     read: allow
@@ -58,6 +59,8 @@ bash:
       approval: prompt
     - match: dd *
       approval: deny
+  allowCompoundCommands: true
+  gitGuard: true
 lsp:
   enabled: true
   lazy: true
@@ -81,34 +84,18 @@ providers:
 disabledProviders:
   []
 retry:
-  fallbackChains:
-    web:
-      - web/perplexity
-      - web/exa
-      - web/parallel
-      - google-antigravity/gemini-2.5-flash
-      - anthropic/claude-haiku-4-5
-      - openai-codex/gpt-5.6-luna
-      - openai-codex/gpt-5.6
-      - openai-codex/gpt-5.5
-      - xai/grok-4.5
-      - xai-oauth/grok-4.5
-      - web/zai
-      - web/tinyfish
-      - web/jina
-      - web/kagi
-      - web/tavily
-      - web/firecrawl
-      - web/brave
-      - web/kimi
-      - web/synthetic
-      - web/ollama
-      - web/searxng
-      - web/startpage
-      - web/duckduckgo
-      - web/ecosia
-      - web/google
-      - web/mojeek
-      - web/public
+  enabled: true
+  maxRetries: 999
+  fallbackOn: any
 dev:
   autoqaConsent: granted
+plan:
+  enabled: true
+astGrep:
+  enabled: true
+github:
+  enabled: true
+security:
+  enabled: true
+bashInterceptor:
+  enabled: true
